@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v2.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v2.1 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Kanit:wght@500;600;700&display=swap');
 
-        /* 1. สีพื้นหลัง อ่อนขาวขุ่น หรือเทาอ่อน */
         body { font-family: 'Sarabun', sans-serif; background: #fdfdfd; margin: 0; padding: 20px; text-align: center; }
         .container { max-width: 1400px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
         
@@ -28,47 +31,53 @@
         .btn-save-pdf { background: #c0392b; }
         .btn-save-pdf:hover { background: #a93226; transform: translateY(-1px); }
 
+        /* พื้นที่สำหรับ Export (กระดาน + ลายน้ำ) */
+        .export-container { 
+            background: #2c3e50; 
+            padding: 20px 20px 30px 20px; 
+            border-radius: 15px; 
+            display: inline-block; /* ให้ขนาดพอดีกับเนื้อหาด้านใน */
+            min-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .board-wrapper { overflow-x: auto; padding-bottom: 20px; margin-top: 30px; text-align: center;}
+        
         /* กระดานไพ่ Grid A-L (12 คอลัมน์) */
-        .board-container { overflow-x: auto; padding-bottom: 20px; margin-top: 30px;}
         .grid-board { 
             display: grid; 
-            grid-template-columns: repeat(12, minmax(80px, 1fr)); 
-            gap: 10px; 
-            min-width: 1000px; /* บังคับความกว้างขั้นต่ำไม่ให้ไพ่บีบเกินไป */
-            margin: 0 auto;
-            background: #2c3e50;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.2);
+            grid-template-columns: repeat(12, 1fr); 
+            gap: 8px; 
+            width: 100%;
         }
 
         /* กล่องแต่ละช่องในตาราง */
-        .cell { display: flex; align-items: center; justify-content: center; min-height: 40px; border-radius: 5px; position: relative;}
+        .cell { display: flex; align-items: center; justify-content: center; border-radius: 5px; position: relative;}
         
-        /* สไตล์ช่องที่เป็นรูปไพ่ */
-        .cell-card { background: transparent; flex-direction: column; }
-        .cell-card img { width: 100%; height: auto; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); aspect-ratio: 2/3; object-fit: cover; background: #fff;}
+        /* สไตล์ช่องที่เป็นรูปไพ่: เอา aspect-ratio และ cover ออก เพื่อให้แสดงเต็มใบแบบสมส่วน */
+        .cell-card { background: transparent; flex-direction: column; align-items: stretch; justify-content: flex-start;}
+        .cell-card img { 
+            width: 100%; 
+            height: auto; 
+            display: block;
+            border-radius: 6px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            background: #fff;
+        }
         
-        /* 3. ไม่ต้องแสดงรหัสของไพ่ */
+        /* ซ่อนรหัสไพ่ */
         .card-code { display: none; }
 
-        /* 2. ชื่อตำแหน่งไม่ต้องมีพื้นหลัง ตัวหนังสือสีดำ ตัวหนา */
-        .cell-title { color: #ecf0f1; font-weight: 700; font-size: 15px; text-align: center; padding: 5px; line-height: 1.2; font-family: 'Kanit', sans-serif; text-shadow: 0 2px 4px rgba(0,0,0,0.5);}
-        .cell-title.empty { background: transparent; box-shadow: none; text-shadow: none;} /* ซ่อนกล่องถ้าไม่มีชื่อตำแหน่ง */
+        /* สไตล์ชื่อตำแหน่ง (สีดำ ตัวหนา ไม่มีพื้นหลัง) */
+        .cell-title { color: #ecf0f1; font-weight: 700; font-size: 14px; text-align: center; padding: 5px 0; line-height: 1.1; font-family: 'Kanit', sans-serif;}
+        .cell-title.empty { background: transparent; }
         
-        /* การไฮไลท์แถวให้ดูง่ายขึ้น */
-        .row-text { background-color: rgba(255, 255, 255, 0.05); border-radius: 5px; }
-
-        /* 4. ไพ่กลุ่มครูบาอาจารย์ (501-506) แถว 1 ด้านขวาสุด */
-        .teacher-group { 
-            display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; 
-            margin-top: 20px; padding: 15px; border-radius: 15px;
-            box-shadow: inset 0 0 30px rgba(142, 68, 173, 0.1);
-        }
-        .cell-teacher { text-align: center; }
-        .teacher-watermark { 
-            font-size: 1.6em; color: #8e44ad; font-family: 'Kanit', sans-serif; font-weight: 700; 
-            margin-top: 15px; text-align: center; font-style: italic; text-shadow: 0 2px 4px rgba(142, 68, 173, 0.1);
+        /* ลายน้ำด้านล่างกระดาน */
+        .watermark-text {
+            font-size: 1.8em; color: #f1c40f; font-family: 'Kanit', sans-serif; font-weight: 700; 
+            margin-top: 25px; text-align: center; font-style: italic; letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
     </style>
@@ -86,54 +95,43 @@
         <div id="save-area" class="save-controls">
             <button class="btn-save btn-save-image" onclick="saveAsImage()">📸 SAVE IMAGE</button>
             <button class="btn-save btn-save-pdf" onclick="saveAsPdf()">📄 SAVE PDF</button>
-        }
+        </div>
     </div>
 
-    <div id="teacher-section" style="display: none;">
-        <div id="teacher-board" class="teacher-group"></div>
-        <div class="teacher-watermark">"พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย"</div>
-    </div>
-
-    <div class="board-container" style="display: none;" id="board-wrapper">
-        <div class="grid-board" id="main-board"></div>
+    <div class="board-wrapper" style="display: none;" id="main-wrapper">
+        <div id="export-area" class="export-container">
+            <div class="grid-board" id="main-board"></div>
+            <div class="watermark-text">" พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย "</div>
+        </div>
     </div>
 </div>
 
 <script>
-    // คงที่สำหรับแถว 2 และ 8
     const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
     const ROW_8_TITLES = ["พื้นดวง", "ทรัพย์สิน", "บ้านช่อง", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง", "โรคภัย", "ความสุข", "การงาน", "โชคลาภ", "สรุปชะตา"];
     
-    // ไดนามิกสำหรับแถว 4 และ 6
     const ROW_4_TITLES = ["ตัวเรา", "การเงิน", "เพื่อน", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง"];
     const ROW_6_TITLES = ["สูญเสีย", "ความสุข", "การงาน", "โชคลาภ", "โรคภัย", "รับใช้ ช.", "รับใช้ ญ."];
 
-    // ไพ่กลุ่มครูบาอาจารย์ (501-506)
+    // ไพ่กลุ่มครูบาอาจารย์
     const TEACHER_CARDS = ["501", "502", "503", "504", "505", "506"];
 
     function renderBoard() {
         const inputText = document.getElementById('data-input').value.trim();
         if(!inputText) { alert("กรุณาวางข้อมูลจากระบบที่ 1 ก่อนครับ"); return; }
 
-        // 1. ดึงข้อมูลจาก Text เป็น Object Array
         const data = parseInput(inputText);
         if(!data.DATE || !data.SEVEN_BASE) { alert("รูปแบบข้อมูลไม่ถูกต้อง กรุณาตรวจสอบการคัดลอกอีกครั้งครับ"); return; }
 
-        // 2. แสดงกลุ่มไพ่ครูบาอาจารย์
-        renderTeacherSection();
-
-        // 3. คำนวณตำแหน่งจุดตัด
-        const posRow4 = calculateDynamicPositions(data.MONTH, "201"); // แถวที่ 4 อิงจากรหัส 201 ในแถว 5
-        const posRow10 = calculateDynamicPositions(data.YEAR, "301"); // แถวที่ 10 อิงจากรหัส 301 ในแถว 7
-        const posRow6 = posRow10; // แถวที่ 6 อิงตำแหน่งเดียวกับแถว 10 เป๊ะๆ
+        const posRow4 = calculateDynamicPositions(data.MONTH, "201"); 
+        const posRow10 = calculateDynamicPositions(data.YEAR, "301"); 
+        const posRow6 = posRow10; 
 
         const board = document.getElementById('main-board');
         board.innerHTML = '';
 
-        // ฟังก์ชันช่วยสร้างช่องใน Grid
         const createCardCell = (code) => {
-            if(!code) return `<div class="cell"></div>`; // ช่องว่าง
-            // 3. ไม่ต้องแสดงรหัสของไพ่
+            if(!code) return `<div class="cell"></div>`; 
             return `<div class="cell cell-card">
                         <img src="images/${code}.jpg" alt="Card ${code}" onerror="this.onerror=null; this.src='images/back.jpg';">
                     </div>`;
@@ -144,14 +142,21 @@
             return `<div class="cell cell-title">${title}</div>`;
         };
 
-        // เริ่มวาดตาราง 10 แถว แถวละ 12 คอลัมน์ (0-11)
+        // เริ่มวาดตาราง 10 แถว
         for(let r = 1; r <= 10; r++) {
             for(let c = 0; c < 12; c++) {
                 let cellHtml = '';
 
-                // แถว 1: DATE (แค่ A1)
-                if(r === 1) cellHtml = (c === 0) ? createCardCell(data.DATE[0]) : createCardCell(null);
-                
+                // แถว 1: DATE (A1) และ ไพ่ครูบาอาจารย์ (G1-L1 คือ c=6 ถึง c=11)
+                if(r === 1) {
+                    if (c === 0) {
+                        cellHtml = createCardCell(data.DATE[0]);
+                    } else if (c >= 6) {
+                        cellHtml = createCardCell(TEACHER_CARDS[c - 6]);
+                    } else {
+                        cellHtml = createCardCell(null);
+                    }
+                }
                 // แถว 2: ROW_2_TITLES (A2-G2)
                 else if(r === 2) cellHtml = (c < 7) ? createTitleCell(ROW_2_TITLES[c]) : createTitleCell(null);
                 
@@ -164,22 +169,22 @@
                     cellHtml = (idx !== -1) ? createTitleCell(ROW_4_TITLES[idx]) : createTitleCell(null);
                 }
                 
-                // แถว 5: MONTH (A5-L5 เต็มแถว)
+                // แถว 5: MONTH (A5-L5)
                 else if(r === 5) cellHtml = createCardCell(data.MONTH[c]);
                 
-                // แถว 6: ไดนามิกชื่อตำแหน่ง (อิงแถว 10)
+                // แถว 6: ไดนามิกชื่อตำแหน่ง
                 else if(r === 6) {
                     let idx = posRow6.indexOf(c);
                     cellHtml = (idx !== -1) ? createTitleCell(ROW_6_TITLES[idx]) : createTitleCell(null);
                 }
                 
-                // แถว 7: YEAR (A7-L7 เต็มแถว)
+                // แถว 7: YEAR (A7-L7)
                 else if(r === 7) cellHtml = createCardCell(data.YEAR[c]);
                 
-                // แถว 8: ROW_8_TITLES (A8-L8 เต็มแถว)
+                // แถว 8: ROW_8_TITLES (A8-L8)
                 else if(r === 8) cellHtml = createTitleCell(ROW_8_TITLES[c]);
                 
-                // แถว 9: GRAPH_BASE (A9-L9 เต็มแถว)
+                // แถว 9: GRAPH_BASE (A9-L9)
                 else if(r === 9) cellHtml = createCardCell(data.GRAPH_BASE[c]);
                 
                 // แถว 10: SEVEN_BASE (ไดนามิก)
@@ -192,27 +197,10 @@
             }
         }
 
-        document.getElementById('board-wrapper').style.display = 'block';
-        document.getElementById('save-area').style.display = 'flex'; // แสดงปุ่ม SAVE
+        document.getElementById('main-wrapper').style.display = 'block';
+        document.getElementById('save-area').style.display = 'flex'; 
     }
 
-    // 4. แสดงกลุ่มไพ่ครูบาอาจารย์ (501-506) แถว 1 ด้านขวาสุด
-    function renderTeacherSection() {
-        const teacherBoard = document.getElementById('teacher-board');
-        teacherBoard.innerHTML = '';
-
-        TEACHER_CARDS.forEach(code => {
-            teacherBoard.innerHTML += `
-                <div class="cell-teacher">
-                    <img src="images/${code}.jpg" alt="Teacher ${code}" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid rgba(142, 68, 173, 0.2);" onerror="this.onerror=null; this.src='images/back.jpg';">
-                </div>
-            `;
-        });
-
-        document.getElementById('teacher-section').style.display = 'block';
-    }
-
-    // ฟังก์ชันแปลงข้อความเป็น Object Arrays
     function parseInput(text) {
         let result = {};
         const lines = text.split('\n');
@@ -227,21 +215,15 @@
         return result;
     }
 
-    // ฟังก์ชันคำนวณจุดตัด เพื่อหา index ของ 12 คอลัมน์ที่จะใช้วางข้อมูล
     function calculateDynamicPositions(arrayData, targetCode) {
         let splitIndex = arrayData.indexOf(targetCode);
-        if(splitIndex === -1) splitIndex = 0; // เผื่อหาไม่เจอ (ป้องกันบัค)
+        if(splitIndex === -1) splitIndex = 0; 
 
         let positions = [];
-        // กรณีที่ 1: รหัสเป้าหมายอยู่ A (0) หรือ H-L (7-11)
         if (splitIndex === 0 || splitIndex >= 7) {
-            for(let i=0; i<7; i++) positions.push(i); // เรียง A-G (0-6)
-        } 
-        // กรณีที่ 2: รหัสเป้าหมายอยู่ B-G (1-6) เป็นจุดตัด
-        else {
-            // วางกลุ่มแรกชิดซ้าย
+            for(let i=0; i<7; i++) positions.push(i); 
+        } else {
             for(let i=0; i<splitIndex; i++) positions.push(i);
-            // วางกลุ่มที่เหลือชิดขวา (นับถอยหลังมาจาก 11)
             let remaining = 7 - splitIndex;
             let startRight = 12 - remaining;
             for(let i=0; i<remaining; i++) positions.push(startRight + i);
@@ -249,15 +231,30 @@
         return positions;
     }
 
-    // 5. ปุ่มสำหรับ SAVE IMAGE และ SAVE PDF
+    // ฟังก์ชันเซฟรูปภาพ
     function saveAsImage() {
-        alert("📸 ระบบเตรียมจำลองการบันทึกภาพ... \n(ในอนาคตจะเชื่อมต่อ library เพื่อบันทึกเป็นไฟล์ .png หรือ .jpg)");
-        // *ในทางปฏิบัติจะต้องใช้ library เช่น html2canvas*
+        const target = document.getElementById('export-area');
+        // ใช้ html2canvas จับภาพพื้นที่
+        html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#2c3e50" }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Life_Graph_Board.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
     }
 
+    // ฟังก์ชันเซฟ PDF
     function saveAsPdf() {
-        alert("📄 ระบบเตรียมจำลองการบันทึก PDF... \n(ในอนาคตจะเชื่อมต่อ library เพื่อบันทึกเป็นไฟล์ .pdf พร้อมหน้ากระดาน)");
-        // *ในทางปฏิบัติจะต้องใช้ library เช่น jspdf และ html2canvas*
+        const target = document.getElementById('export-area');
+        const opt = {
+            margin:       0.2,
+            filename:     'Life_Graph_Board.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+        };
+        // เรียกใช้ html2pdf
+        html2pdf().set(opt).from(target).save();
     }
 </script>
 </body>
