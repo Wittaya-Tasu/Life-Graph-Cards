@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v6.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v7.0 - กราฟชีวิต:เลขเจ็ดตัว(หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -29,7 +29,7 @@
         .btn-save-pdf { background: #95a5a6; }
         .btn-save-pdf:hover { background: #7f8c8d; transform: translateY(-1px); }
 
-        /* เปลี่ยนสีพื้นหลังกระดานเป็น #293A4B */
+        /* พื้นหลังกระดาน #293A4B */
         .export-container { 
             background: #293A4B; 
             padding: 30px; 
@@ -50,11 +50,11 @@
             width: 100%;
         }
 
-        /* 3. ลดความหนาของขอบไพ่ */
+        /* ขอบไพ่ */
         .card-item { 
             border-radius: 10px; 
-            padding: 3px; /* ลดจาก 6px */
-            border: 1px solid rgba(255,255,255,0.2); /* ลดจาก 2px solid rgba(255,255,255,0.1) และปรับสีให้ชัดขึ้นเล็กน้อย */
+            padding: 3px; 
+            border: 1px solid rgba(255,255,255,0.2); 
             text-align: center; 
             display: flex; 
             flex-direction: column; 
@@ -62,83 +62,85 @@
         }
         .card-item img { width: 100%; height: auto; border-radius: 6px; display: block; background: #fff;}
         
-        /* ปรับปรุง .pos-label: กำหนดค่าเริ่มต้นสีดำ, ขอบขาว */
+        /* ---------------------------------------------------
+           การจัดการชื่อตำแหน่ง (POS-LABEL) 
+           กฎเหล็ก: ไม่มีขอบ ไม่มีเงา 100%
+        --------------------------------------------------- */
         .pos-label { 
             display: block; font-weight: bold; 
             font-size: 1.15em; margin-bottom: 6px; 
             border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; 
             font-family: 'TH SarabunPSK', 'Sarabun', sans-serif;
-            color: #333; /* ค่าเริ่มต้นสีดำ */
             line-height: 1.2;
-            /* เพิ่มขอบขาวเป็นค่าเริ่มต้น */
-            text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+            text-shadow: none !important;        /* ลบเงาทุกชนิด */
+            -webkit-text-stroke: 0px !important; /* ลบขอบทุกชนิด */
         }
 
-        /* 1. สีแดงเข้มสำหรับตำแหน่งเตือนภัย (ใส่ขอบขาวเข้มขึ้นและเพิ่ม !important เพื่อให้มีระดับความสำคัญสูง) */
-        .label-danger { 
-            color: #e53935 !important; /* ปรับสีแดงเข้มให้สดขึ้นเล็กน้อยเพื่อให้ชัดเจน */
-            text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0px 2px 3px rgba(0,0,0,0.5) !important; 
+        /* กลุ่มที่ 1: สีตัวหนังสือสำหรับไพ่พื้นสว่าง (แถว 1-8 และแถว 9 บางใบ) */
+        .card-default .pos-label,
+        .card-good .pos-label,
+        .card-neutral-status .pos-label {
+            color: #2c3e50 !important; /* สีดำ/น้ำเงินเข้ม */
+            border-bottom-color: rgba(0,0,0,0.15) !important;
         }
 
+        /* 🔥 ล็อกสีแดงเข้มให้ชนะขาด สำหรับตำแหน่งเตือนภัย บนพื้นสว่าง */
+        .card-default .pos-label.label-danger,
+        .card-good .pos-label.label-danger,
+        .card-neutral-status .pos-label.label-danger {
+            color: #d32f2f !important; /* สีแดงเข้ม */
+        }
+
+        /* กลุ่มที่ 2: สีตัวหนังสือสำหรับไพ่พื้นมืด (แถว 9 สถานะพิเศษ และโซนสีทอง) */
+        .card-very-good .pos-label,
+        .card-bad .pos-label,
+        .card-very-bad .pos-label,
+        .card-dark-gray .pos-label,
+        .card-black .pos-label,
+        .card-red .pos-label,
+        .card-gold-zone .pos-label {
+            color: #ffffff !important; /* บังคับสีขาวล้วน */
+            border-bottom-color: rgba(255,255,255,0.3) !important;
+        }
+        
+        /* แม้เป็นตำแหน่งเตือนภัย ถ้าอยู่บนพื้นมืด ก็ต้องเป็นสีขาวให้อ่านออก */
+        .card-very-good .pos-label.label-danger,
+        .card-bad .pos-label.label-danger,
+        .card-very-bad .pos-label.label-danger,
+        .card-dark-gray .pos-label.label-danger,
+        .card-black .pos-label.label-danger,
+        .card-red .pos-label.label-danger,
+        .card-gold-zone .pos-label.label-danger {
+            color: #ffffff !important; 
+        }
+
+        /* ---------------------------------------------------
+           การจัดการสีพื้นหลังไพ่ (CARD BACKGROUNDS)
+        --------------------------------------------------- */
+        
         /* สีขาวขุ่น สำหรับไพ่ทั่วไปที่ไม่ได้อยู่แถว 9 */
         .card-default { background-color: #f2f4f4 !important; border-color: #d5d8dc !important; }
-        .card-default .pos-label { color: #2c3e50 !important; border-bottom-color: #d5d8dc !important; }
 
-        /* ชุดสีไฮไลท์ไพ่แถว 9 (GRAPH_BASE) ปกติ - ลบ color: ... !important ของ .pos-label ออก */
+        /* ชุดสีไฮไลท์ไพ่แถว 9 (GRAPH_BASE) ปกติ */
         .card-very-good { background-color: #0047AB !important; border-color: #003380 !important; }
         .card-good { background-color: #bbdefb !important; border-color: #90caf9 !important; }
         .card-neutral-status { background-color: #ffffff !important; border-color: #cccccc !important; }
         .card-bad { background-color: #212121 !important; border-color: #000000 !important; }
         .card-very-bad { background-color: #b71c1c !important; border-color: #7f0000 !important; }
 
-        /* 2. ชุดสีพิเศษสำหรับตำแหน่ง "ศัตรู" และ "โรคภัย" ในแถว 9 */
+        /* ชุดสีพิเศษสำหรับตำแหน่ง "ศัตรู" และ "โรคภัย" ในแถว 9 */
         .card-dark-gray { background-color: #424949 !important; border-color: #273746 !important; }
         .card-black { background-color: #17202a !important; border-color: #000000 !important; }
         .card-red { background-color: #cb4335 !important; border-color: #922b21 !important; }
 
-        /* สำหรับช่องสถานะสีเข้มแถว 9, เปลี่ยนสีตัวหนังสือชื่อตำแหน่งเป็นสีขาว */
-        .card-very-good .pos-label,
-        .card-bad .pos-label,
-        .card-very-bad .pos-label,
-        .card-dark-gray .pos-label,
-        .card-black .pos-label,
-        .card-red .pos-label {
-            color: #ffffff !important; /* เปลี่ยนเป็นสีขาว */
-            border-bottom-color: rgba(255,255,255,0.3) !important;
-        }
-
-        /* สำหรับช่องสถานะสีอ่อนแถว 9, รักษาตัวหนังสือสีดำ */
-        .card-good .pos-label, .card-neutral-status .pos-label {
-            color: #000000 !important; /* รักษาเป็นสีดำ */
-            border-bottom-color: #cccccc !important;
-        }
-
-        /* 2. แก้ไขขอบตัวหนังสือสีดำแถว 9 */
-        /* หากอยู่ในช่องสีดำ/เทาเข้มแถว 9, ลบขอบขาวของตัวหนังสือชื่อตำแหน่งออกทั้งหมด */
-        .card-black .pos-label, .card-dark-gray .pos-label {
-            text-shadow: none !important; /* ลบ text-shadow สีขาว */
-            -webkit-text-stroke: 0px !important; /* ลบ text-stroke ถ้ามี */
-        }
-
-        /* เพื่อให้อ่านสีแดงเข้มได้บนพื้นสีดำ/เทา, ลบ text-shadow ออกในกรณีนี้ด้วย */
-        .card-black .pos-label.label-danger, .card-dark-gray .pos-label.label-danger {
-            text-shadow: none !important; /* ลบ text-shadow สีขาวออก */
-        }
-
-        /* สีทองสำหรับตำแหน่งมงคล - ลบ color: ... !important ของ .pos-label ออก */
+        /* สีทองสำหรับตำแหน่งมงคล */
         .card-gold-zone { 
             background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; 
             border-color: #aa771c !important; 
             box-shadow: 0 4px 15px rgba(170, 119, 28, 0.5);
         }
-        /* รักษาตัวหนังสือสีขาวและขอบขาวสำหรับโซนสีทอง */
-        .card-gold-zone .pos-label {
-            color: #ffffff !important;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5) !important;
-            border-bottom-color: rgba(255,255,255,0.4) !important;
-        }
 
-        /* ลายน้ำใต้ไพ่ครู (ปรับสีให้ตัดกับพื้นกรมท่า) */
+        /* ลายน้ำใต้ไพ่ครู */
         .teacher-watermark {
             font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; 
             text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px;
@@ -169,7 +171,6 @@
 </div>
 
 <script>
-    // ข้อมูลชื่อตำแหน่ง
     const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
     const ROW_8_TITLES = ["พื้นดวง", "ทรัพย์สิน", "บ้านช่อง", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง", "โรคภัย", "ความสุข", "การงาน", "โชคลาภ", "สรุปชะตา"];
     const ROW_4_TITLES = ["ตัวเรา", "การเงิน", "เพื่อน", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง"];
@@ -177,14 +178,11 @@
 
     const TEACHER_CARDS = ["501", "502", "503", "504", "505", "506"];
     
-    // 1. กลุ่มชื่อตำแหน่งที่ต้องเป็นตัวหนังสือสีแดงเข้ม
     const DANGER_TITLES = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
 
-    // 4. เงื่อนไขตำแหน่งและไพ่ที่จะเป็นสีทอง
     const WEALTH_POSITIONS = ["พื้นดวง", "ทรัพย์สิน", "ความสุข", "โชคลาภ"];
     const WEALTH_CARDS = ["410", "411", "415", "416", "424", "429"];
 
-    // ฐานข้อมูลกลุ่มไพ่ 5 สถานะ สำหรับรหัส 401-436
     const VERY_GOOD = ["409", "411", "424"];
     const GOOD = ["402", "404", "405", "406", "410", "414", "415", "416", "417", "418", "419", "421", "422", "426", "429"];
     const NEUTRAL = ["403", "407", "420", "435", "436"];
@@ -205,27 +203,22 @@
         const board = document.getElementById('main-board');
         board.innerHTML = '';
 
-        // ฟังก์ชันสร้างการ์ดพร้อมเงื่อนไขไฮไลท์สี
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
 
             let cardClass = "card-item";
             let titleHtml = "";
 
-            // ตรวจสอบว่าเป็นแถวที่ 9 (GRAPH_BASE) ซึ่งใน Grid ของเราคือแถวที่ 5
             if (gridRow === 5) {
-                // เงื่อนไข 4: โซนสีทอง
                 if (WEALTH_POSITIONS.includes(title) && WEALTH_CARDS.includes(code)) {
                     cardClass += " card-gold-zone";
                 } 
-                // เงื่อนไข 2: สีพิเศษสำหรับ "ศัตรู" และ "โรคภัย"
                 else if (title === "ศัตรู" || title === "โรคภัย") {
                     if (VERY_GOOD.includes(code) || GOOD.includes(code)) cardClass += " card-dark-gray";
                     else if (NEUTRAL.includes(code)) cardClass += " card-black";
                     else if (BAD.includes(code) || VERY_BAD.includes(code)) cardClass += " card-red";
                     else cardClass += " card-neutral-status";
                 }
-                // สีสถานะปกติของแถว 9
                 else {
                     if (VERY_GOOD.includes(code)) cardClass += " card-very-good";
                     else if (GOOD.includes(code)) cardClass += " card-good";
@@ -235,13 +228,10 @@
                     else cardClass += " card-neutral-status"; 
                 }
             } else {
-                // ไพ่แถวอื่นๆ ทั้งหมด ใช้สีขาวขุ่น
                 cardClass += " card-default";
             }
 
-            // จัดการสีตัวหนังสือชื่อตำแหน่ง
             if (title) {
-                // 1. ตรวจสอบชื่อตำแหน่งเตือนภัยเพื่อกำหนดคลาส label-danger
                 let titleClass = DANGER_TITLES.includes(title) ? "pos-label label-danger" : "pos-label";
                 titleHtml = `<span class="${titleClass}">${title}</span>`;
             }
@@ -256,35 +246,26 @@
         }
 
         // --- เริ่มวาดกระดาน ---
-        
-        // 1. DATE และ ไพ่ครู (Grid Row 1)
         addCard(data.DATE[0], 1, 1, null);
-        TEACHER_CARDS.forEach((c, i) => addCard(c, 1, 7 + i, null)); // วางที่ G1 ถึง L1
-        
-        // ลายน้ำใต้ไพ่ครู จัดชิดขวาตรงกับแนวไพ่
+        TEACHER_CARDS.forEach((c, i) => addCard(c, 1, 7 + i, null)); 
         board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2 / 7 / span 1 / span 6;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
-        // 2. DAY (Grid Row 2) 
         if(data.DAY) data.DAY.forEach((c, i) => addCard(c, 2, i + 1, ROW_2_TITLES[i]));
 
-        // 3. MONTH (Grid Row 3)
         if(data.MONTH) data.MONTH.forEach((c, i) => {
             let idx = posRow4.indexOf(i);
             let title = idx !== -1 ? ROW_4_TITLES[idx] : null;
             addCard(c, 3, i + 1, title);
         });
 
-        // 4. YEAR (Grid Row 4)
         if(data.YEAR) data.YEAR.forEach((c, i) => {
             let idx = posRow6.indexOf(i);
             let title = idx !== -1 ? ROW_6_TITLES[idx] : null;
             addCard(c, 4, i + 1, title);
         });
 
-        // 5. GRAPH_BASE (Grid Row 5) - แถวนี้จะมีสีไฮไลท์
         if(data.GRAPH_BASE) data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 1, ROW_8_TITLES[i]));
 
-        // 6. SEVEN_BASE (Grid Row 6)
         if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 6, posRow10[i] + 1, null));
 
         document.getElementById('main-wrapper').style.display = 'block';
@@ -325,7 +306,6 @@
     function saveAsImage() {
         const target = document.getElementById('export-area');
         window.scrollTo(0,0);
-        // กำหนดพื้นหลังของรูปภาพตอนเซฟให้เป็น #293A4B ตามหน้าจอ
         html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#293A4B" }).then(canvas => {
             const link = document.createElement('a');
             link.download = 'กราฟชีวิต-หมอวิทยา.png';
