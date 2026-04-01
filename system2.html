@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v4.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v5.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -29,20 +29,20 @@
         .btn-save-pdf { background: #95a5a6; }
         .btn-save-pdf:hover { background: #7f8c8d; transform: translateY(-1px); }
 
-        /* พื้นที่สำหรับ Export */
+        /* 3. เปลี่ยนสีพื้นหลังกระดานเป็น #293A4B */
         .export-container { 
-            background: #ffffff; 
+            background: #293A4B; 
             padding: 30px; 
             border-radius: 15px; 
             display: inline-block; 
             min-width: 1100px;
             margin: 0 auto;
             position: relative;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
         }
 
         .board-wrapper { overflow-x: auto; padding-bottom: 20px; margin-top: 30px; text-align: center;}
         
-        /* กระดานไพ่ Grid A-L (12 คอลัมน์) */
         .grid-board { 
             display: grid; 
             grid-template-columns: repeat(12, 1fr); 
@@ -51,23 +51,29 @@
         }
 
         /* สไตล์ไพ่หลัก */
-        .card-item { border-radius: 10px; padding: 6px; border: 2px solid #eee; text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+        .card-item { border-radius: 10px; padding: 6px; border: 2px solid rgba(255,255,255,0.1); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
         .card-item img { width: 100%; height: auto; border-radius: 6px; display: block; background: #fff;}
         
         .pos-label { 
             display: block; font-weight: bold; 
             font-size: 1.15em; margin-bottom: 6px; 
-            border-bottom: 1px solid #f0f0f0; padding-bottom: 2px; 
+            border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; 
             font-family: 'TH SarabunPSK', 'Sarabun', sans-serif;
             color: #333;
             line-height: 1.2;
         }
 
-        /* 1. สีพื้นขาวขุ่น สำหรับไพ่ทั่วไปที่ไม่ได้อยู่แถว 9 */
-        .card-default { background-color: #f7f9fa !important; border-color: #eaeded !important; }
-        .card-default .pos-label { color: #2c3e50 !important; border-bottom-color: #e5e8e8 !important; }
+        /* 1. สีแดงเข้มสำหรับตำแหน่งเตือนภัย (ใส่ขอบขาวบางๆ เพื่อให้อ่านออกบนพื้นสีดำ/เทา) */
+        .label-danger { 
+            color: #d32f2f !important; 
+            text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0px 2px 3px rgba(0,0,0,0.4) !important; 
+        }
 
-        /* 2. ชุดสีไฮไลท์เฉพาะไพ่แถว 9 (GRAPH_BASE) */
+        /* สีขาวขุ่น สำหรับไพ่ทั่วไปที่ไม่ได้อยู่แถว 9 */
+        .card-default { background-color: #f2f4f4 !important; border-color: #d5d8dc !important; }
+        .card-default .pos-label { color: #2c3e50 !important; border-bottom-color: #d5d8dc !important; }
+
+        /* ชุดสีไฮไลท์ไพ่แถว 9 (GRAPH_BASE) ปกติ */
         .card-very-good { background-color: #0047AB !important; border-color: #003380 !important; }
         .card-very-good .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.3) !important; }
 
@@ -83,10 +89,28 @@
         .card-very-bad { background-color: #b71c1c !important; border-color: #7f0000 !important; }
         .card-very-bad .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.3) !important; }
 
-        /* 3. ลายน้ำใต้ไพ่ครู */
+        /* 2. ชุดสีพิเศษสำหรับตำแหน่ง "ศัตรู" และ "โรคภัย" ในแถว 9 */
+        .card-dark-gray { background-color: #424949 !important; border-color: #273746 !important; }
+        .card-dark-gray .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.2) !important; }
+
+        .card-black { background-color: #17202a !important; border-color: #000000 !important; }
+        .card-black .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.2) !important; }
+
+        .card-red { background-color: #cb4335 !important; border-color: #922b21 !important; }
+        .card-red .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.3) !important; }
+
+        /* 4. สีทองสำหรับตำแหน่งมงคล */
+        .card-gold-zone { 
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; 
+            border-color: #aa771c !important; 
+            box-shadow: 0 4px 15px rgba(170, 119, 28, 0.5);
+        }
+        .card-gold-zone .pos-label { color: #ffffff !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); border-bottom-color: rgba(255,255,255,0.4) !important; }
+
+        /* ลายน้ำใต้ไพ่ครู (ปรับสีให้ตัดกับพื้นกรมท่า) */
         .teacher-watermark {
-            font-size: 1.1em; color: #7f8c8d; font-family: 'Sarabun', sans-serif; font-weight: bold; 
-            text-align: right; align-self: start; padding-right: 5px; margin-top: -5px;
+            font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; 
+            text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -121,6 +145,13 @@
     const ROW_6_TITLES = ["สูญเสีย", "ความสุข", "การงาน", "โชคลาภ", "โรคภัย", "รับใช้ ช.", "รับใช้ ญ."];
 
     const TEACHER_CARDS = ["501", "502", "503", "504", "505", "506"];
+    
+    // 1. กลุ่มชื่อตำแหน่งที่ต้องเป็นตัวหนังสือสีแดงเข้ม
+    const DANGER_TITLES = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
+
+    // 4. เงื่อนไขตำแหน่งและไพ่ที่จะเป็นสีทอง
+    const WEALTH_POSITIONS = ["พื้นดวง", "ทรัพย์สิน", "ความสุข", "โชคลาภ"];
+    const WEALTH_CARDS = ["410", "411", "415", "416", "424", "429"];
 
     // ฐานข้อมูลกลุ่มไพ่ 5 สถานะ สำหรับรหัส 401-436
     const VERY_GOOD = ["409", "411", "424"];
@@ -152,19 +183,35 @@
 
             // ตรวจสอบว่าเป็นแถวที่ 9 (GRAPH_BASE) ซึ่งใน Grid ของเราคือแถวที่ 5
             if (gridRow === 5) {
-                if (VERY_GOOD.includes(code)) cardClass += " card-very-good";
-                else if (GOOD.includes(code)) cardClass += " card-good";
-                else if (NEUTRAL.includes(code)) cardClass += " card-neutral-status";
-                else if (BAD.includes(code)) cardClass += " card-bad";
-                else if (VERY_BAD.includes(code)) cardClass += " card-very-bad";
-                else cardClass += " card-neutral-status"; // กรณีหลุดเงื่อนไข
+                // เงื่อนไข 4: โซนสีทอง
+                if (WEALTH_POSITIONS.includes(title) && WEALTH_CARDS.includes(code)) {
+                    cardClass += " card-gold-zone";
+                } 
+                // เงื่อนไข 2: สีพิเศษสำหรับ "ศัตรู" และ "โรคภัย"
+                else if (title === "ศัตรู" || title === "โรคภัย") {
+                    if (VERY_GOOD.includes(code) || GOOD.includes(code)) cardClass += " card-dark-gray";
+                    else if (NEUTRAL.includes(code)) cardClass += " card-black";
+                    else if (BAD.includes(code) || VERY_BAD.includes(code)) cardClass += " card-red";
+                    else cardClass += " card-neutral-status";
+                }
+                // สีสถานะปกติของแถว 9
+                else {
+                    if (VERY_GOOD.includes(code)) cardClass += " card-very-good";
+                    else if (GOOD.includes(code)) cardClass += " card-good";
+                    else if (NEUTRAL.includes(code)) cardClass += " card-neutral-status";
+                    else if (BAD.includes(code)) cardClass += " card-bad";
+                    else if (VERY_BAD.includes(code)) cardClass += " card-very-bad";
+                    else cardClass += " card-neutral-status"; 
+                }
             } else {
                 // ไพ่แถวอื่นๆ ทั้งหมด ใช้สีขาวขุ่น
                 cardClass += " card-default";
             }
 
+            // จัดการสีตัวหนังสือชื่อตำแหน่ง
             if (title) {
-                titleHtml = `<span class="pos-label">${title}</span>`;
+                let titleClass = DANGER_TITLES.includes(title) ? "pos-label label-danger" : "pos-label";
+                titleHtml = `<span class="${titleClass}">${title}</span>`;
             }
 
             const html = `
@@ -182,8 +229,8 @@
         addCard(data.DATE[0], 1, 1, null);
         TEACHER_CARDS.forEach((c, i) => addCard(c, 1, 7 + i, null)); // วางที่ G1 ถึง L1
         
-        // เพิ่มลายน้ำไว้ใต้ไพ่ครู (ครอบคลุมพื้นที่คอลัมน์ H ถึง L ใน Grid Row 2 เพื่อไม่ให้ทับ ROW_2_TITLES)
-        board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2 / 8 / span 1 / span 5;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
+        // ลายน้ำใต้ไพ่ครู จัดชิดขวาตรงกับแนวไพ่
+        board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2 / 7 / span 1 / span 6;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
         // 2. DAY (Grid Row 2) 
         if(data.DAY) data.DAY.forEach((c, i) => addCard(c, 2, i + 1, ROW_2_TITLES[i]));
@@ -202,7 +249,7 @@
             addCard(c, 4, i + 1, title);
         });
 
-        // 5. GRAPH_BASE (Grid Row 5) - แถวนี้จะมีสีไฮไลท์ตามสถานะ
+        // 5. GRAPH_BASE (Grid Row 5) - แถวนี้จะมีสีไฮไลท์
         if(data.GRAPH_BASE) data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 1, ROW_8_TITLES[i]));
 
         // 6. SEVEN_BASE (Grid Row 6)
@@ -246,7 +293,8 @@
     function saveAsImage() {
         const target = document.getElementById('export-area');
         window.scrollTo(0,0);
-        html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
+        // กำหนดพื้นหลังของรูปภาพตอนเซฟให้เป็น #293A4B ตามหน้าจอ
+        html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#293A4B" }).then(canvas => {
             const link = document.createElement('a');
             link.download = 'กราฟชีวิต-หมอวิทยา.png';
             link.href = canvas.toDataURL('image/png');
@@ -260,7 +308,7 @@
             margin:       0.2,
             filename:     'กราฟชีวิต-หมอวิทยา.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: "#293A4B" },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(target).save();
