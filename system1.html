@@ -95,12 +95,12 @@
     let tempSelected = [];
 
     const phaseConfig = {
-        1: { title: "รอบที่ 1: เลือกไพ่วันที่เกิด (เลือก 1 ใบ)", minId: 401, maxId: 431, limit: 1, type: 'manual' },
-        2: { title: "รอบที่ 2: เลือกไพ่วันเกิด (เลือกรหัส 101-107 ใบแรก ระบบจะรันต่ออัตโนมัติ)", minId: 101, maxId: 107, limit: 1, type: 'auto', totalNeeded: 7 },
-        3: { title: "รอบที่ 3: เลือกไพ่เดือนเกิด (เลือกรหัส 201-212 ใบแรก ระบบจะรันต่ออัตโนมัติ)", minId: 201, maxId: 212, limit: 1, type: 'auto', totalNeeded: 12 },
-        4: { title: "รอบที่ 4: เลือกไพ่ปีนักษัตร (เลือกรหัส 301-312 ใบแรก ระบบจะรันต่ออัตโนมัติ)", minId: 301, maxId: 312, limit: 1, type: 'auto', totalNeeded: 12 },
-        5: { title: "รอบที่ 5: เลือกไพ่ฐานกราฟชีวิต (เลือก 12 ใบ)", minId: 401, maxId: 436, limit: 12, type: 'manual' },
-        6: { title: "รอบที่ 6: เลือกไพ่ฐานเลขเจ็ดตัว (เลือก 12 ใบ)", minId: 401, maxId: 436, limit: 12, type: 'manual' }
+        1: { title: "รอบที่ 1: เลือกไพ่วันที่เกิด", minId: 401, maxId: 431, limit: 1, type: 'manual' },
+        2: { title: "รอบที่ 2: เลือกไพ่วันเกิด", minId: 101, maxId: 107, limit: 1, type: 'auto', totalNeeded: 7 },
+        3: { title: "รอบที่ 3: เลือกไพ่เดือนเกิด", minId: 201, maxId: 212, limit: 1, type: 'auto', totalNeeded: 12 },
+        4: { title: "รอบที่ 4: เลือกไพ่ปีนักษัตร", minId: 301, maxId: 312, limit: 1, type: 'auto', totalNeeded: 12 },
+        5: { title: "รอบที่ 5: เลือกไพ่ฐานกราฟชีวิต", minId: 401, maxId: 436, limit: 12, type: 'manual' },
+        6: { title: "รอบที่ 6: เลือกไพ่ฐานเลขเจ็ดตัว", minId: 401, maxId: 436, limit: 7, type: 'manual' }
     };
 
     function initSystem() { startPhase(1); }
