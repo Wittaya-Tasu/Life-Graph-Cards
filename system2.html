@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบที่ 2 - กระดานกราฟชีวิต (Life Graph Board)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Kanit:wght@500;600&display=swap');
+
+        body { font-family: 'Sarabun', sans-serif; background: #e8ecef; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
+        h2 { color: #8e44ad; font-family: 'Kanit', sans-serif; margin-bottom: 5px; font-size: 2.2em;}
+        .instruction { color: #666; margin-bottom: 20px; }
+
+        /* ส่วนนำเข้าข้อมูล */
+        .input-section { margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px dashed #bdc3c7; }
+        textarea { width: 100%; height: 120px; padding: 15px; font-family: monospace; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; resize: none; margin-bottom: 15px; }
+        .btn-render { background: #27ae60; color: white; padding: 12px 30px; font-size: 1.2em; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: bold; transition: 0.3s; }
+        .btn-render:hover { background: #2ecc71; transform: translateY(-2px); }
+
+        /* กระดานไพ่ Grid A-L (12 คอลัมน์) */
+        .board-container { overflow-x: auto; padding-bottom: 20px; }
+        .grid-board { 
+            display: grid; 
+            grid-template-columns: repeat(12, minmax(80px, 1fr)); 
+            gap: 8px; 
+            min-width: 1000px; /* บังคับความกว้างขั้นต่ำไม่ให้ไพ่บีบเกินไป */
+            margin: 0 auto;
+            background: #2c3e50;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        /* กล่องแต่ละช่องในตาราง */
+        .cell { display: flex; align-items: center; justify-content: center; min-height: 40px; border-radius: 5px;}
+        
+        /* สไตล์ช่องที่เป็นรูปไพ่ */
+        .cell-card { background: transparent; flex-direction: column; }
+        .cell-card img { width: 100%; height: auto; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); border: 1px solid #ecf0f1; aspect-ratio: 2/3; object-fit: cover; background: #fff;}
+        .card-code { color: #fff; font-size: 12px; margin-top: 4px; font-weight: bold; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px;}
+
+        /* สไตล์ช่องที่เป็นชื่อตำแหน่ง (Text) */
+        .cell-title { background: #f1c40f; color: #16a085; font-weight: 700; font-size: 14px; text-align: center; padding: 5px; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1); line-height: 1.1; font-family: 'Kanit', sans-serif;}
+        .cell-title.empty { background: transparent; box-shadow: none; } /* ซ่อนกล่องถ้าไม่มีชื่อตำแหน่ง */
+        
+        /* การไฮไลท์แถวให้ดูง่ายขึ้น */
+        .row-text { background-color: rgba(255, 255, 255, 0.05); border-radius: 5px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🔮 กระดานแสดงภาพไพ่กราฟชีวิต (System 2)</h2>
+    <p class="instruction">วางรหัสข้อมูลทั้ง 6 ชุด ที่ได้จากระบบที่ 1 ลงในกล่องด้านล่าง แล้วกดปุ่ม "สร้างกระดานกราฟชีวิต"</p>
+
+    <div class="input-section">
+        <textarea id="data-input" placeholder="วางข้อมูล DATE:...\nDAY:...\n... ไว้ที่นี่"></textarea>
+        <button class="btn-render" onclick="renderBoard()">✨ สร้างกระดานกราฟชีวิต</button>
+    </div>
+
+    <div class="board-container" style="display: none;" id="board-wrapper">
+        <div class="grid-board" id="main-board"></div>
+    </div>
+</div>
+
+<script>
+    // คงที่สำหรับแถว 2 และ 8
+    const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
+    const ROW_8_TITLES = ["พื้นดวง", "ทรัพย์สิน", "บ้านช่อง", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง", "โรคภัย", "ความสุข", "การงาน", "โชคลาภ", "สรุปชะตา"];
+    
+    // ไดนามิกสำหรับแถว 4 และ 6
+    const ROW_4_TITLES = ["ตัวเรา", "การเงิน", "เพื่อน", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง"];
+    const ROW_6_TITLES = ["สูญเสีย", "ความสุข", "การงาน", "โชคลาภ", "โรคภัย", "รับใช้ ช.", "รับใช้ ญ."];
+
+    function renderBoard() {
+        const inputText = document.getElementById('data-input').value.trim();
+        if(!inputText) { alert("กรุณาวางข้อมูลจากระบบที่ 1 ก่อนครับ"); return; }
+
+        // 1. ดึงข้อมูลจาก Text เป็น Object Array
+        const data = parseInput(inputText);
+        if(!data.DATE || !data.SEVEN_BASE) { alert("รูปแบบข้อมูลไม่ถูกต้อง กรุณาตรวจสอบการคัดลอกอีกครั้งครับ"); return; }
+
+        // 2. คำนวณตำแหน่งจุดตัด
+        const posRow4 = calculateDynamicPositions(data.MONTH, "201"); // แถวที่ 4 อิงจากรหัส 201 ในแถว 5
+        const posRow10 = calculateDynamicPositions(data.YEAR, "301"); // แถวที่ 10 อิงจากรหัส 301 ในแถว 7
+        const posRow6 = posRow10; // แถวที่ 6 อิงตำแหน่งเดียวกับแถว 10 เป๊ะๆ
+
+        const board = document.getElementById('main-board');
+        board.innerHTML = '';
+
+        // ฟังก์ชันช่วยสร้างช่องใน Grid
+        const createCardCell = (code) => {
+            if(!code) return `<div class="cell"></div>`; // ช่องว่าง
+            // ใช้รูปจากโฟลเดอร์ images สมมติถ้าหารูปไม่เจอ จะโชว์รหัสแทน
+            return `<div class="cell cell-card">
+                        <img src="images/${code}.jpg" alt="Card ${code}" onerror="this.onerror=null; this.src='images/back.jpg';">
+                        <span class="card-code">${code}</span>
+                    </div>`;
+        };
+
+        const createTitleCell = (title) => {
+            if(!title) return `<div class="cell cell-title empty"></div>`;
+            return `<div class="cell cell-title">${title}</div>`;
+        };
+
+        // เริ่มวาดตาราง 10 แถว แถวละ 12 คอลัมน์ (0-11)
+        for(let r = 1; r <= 10; r++) {
+            for(let c = 0; c < 12; c++) {
+                let cellHtml = '';
+
+                // แถว 1: DATE (แค่ A1)
+                if(r === 1) cellHtml = (c === 0) ? createCardCell(data.DATE[0]) : createCardCell(null);
+                
+                // แถว 2: ROW_2_TITLES (A2-G2)
+                else if(r === 2) cellHtml = (c < 7) ? createTitleCell(ROW_2_TITLES[c]) : createTitleCell(null);
+                
+                // แถว 3: DAY (A3-G3)
+                else if(r === 3) cellHtml = (c < 7) ? createCardCell(data.DAY[c]) : createCardCell(null);
+                
+                // แถว 4: ไดนามิกชื่อตำแหน่ง
+                else if(r === 4) {
+                    let idx = posRow4.indexOf(c);
+                    cellHtml = (idx !== -1) ? createTitleCell(ROW_4_TITLES[idx]) : createTitleCell(null);
+                }
+                
+                // แถว 5: MONTH (A5-L5 เต็มแถว)
+                else if(r === 5) cellHtml = createCardCell(data.MONTH[c]);
+                
+                // แถว 6: ไดนามิกชื่อตำแหน่ง (อิงแถว 10)
+                else if(r === 6) {
+                    let idx = posRow6.indexOf(c);
+                    cellHtml = (idx !== -1) ? createTitleCell(ROW_6_TITLES[idx]) : createTitleCell(null);
+                }
+                
+                // แถว 7: YEAR (A7-L7 เต็มแถว)
+                else if(r === 7) cellHtml = createCardCell(data.YEAR[c]);
+                
+                // แถว 8: ROW_8_TITLES (A8-L8 เต็มแถว)
+                else if(r === 8) cellHtml = createTitleCell(ROW_8_TITLES[c]);
+                
+                // แถว 9: GRAPH_BASE (A9-L9 เต็มแถว)
+                else if(r === 9) cellHtml = createCardCell(data.GRAPH_BASE[c]);
+                
+                // แถว 10: SEVEN_BASE (ไดนามิก)
+                else if(r === 10) {
+                    let idx = posRow10.indexOf(c);
+                    cellHtml = (idx !== -1) ? createCardCell(data.SEVEN_BASE[idx]) : createCardCell(null);
+                }
+
+                board.innerHTML += cellHtml;
+            }
+        }
+
+        document.getElementById('board-wrapper').style.display = 'block';
+    }
+
+    // ฟังก์ชันแปลงข้อความเป็น Object Arrays
+    function parseInput(text) {
+        let result = {};
+        const lines = text.split('\n');
+        lines.forEach(line => {
+            if(line.includes(':')) {
+                const parts = line.split(':');
+                const key = parts[0].trim();
+                const values = parts[1].trim().split(',');
+                result[key] = values;
+            }
+        });
+        return result;
+    }
+
+    // ฟังก์ชันคำนวณจุดตัด เพื่อหา index ของ 12 คอลัมน์ที่จะใช้วางข้อมูล
+    function calculateDynamicPositions(arrayData, targetCode) {
+        let splitIndex = arrayData.indexOf(targetCode);
+        if(splitIndex === -1) splitIndex = 0; // เผื่อหาไม่เจอ (ป้องกันบัค)
+
+        let positions = [];
+        // กรณีที่ 1: รหัสเป้าหมายอยู่ A (0) หรือ H-L (7-11)
+        if (splitIndex === 0 || splitIndex >= 7) {
+            for(let i=0; i<7; i++) positions.push(i); // เรียง A-G (0-6)
+        } 
+        // กรณีที่ 2: รหัสเป้าหมายอยู่ B-G (1-6) เป็นจุดตัด
+        else {
+            // วางกลุ่มแรกชิดซ้าย
+            for(let i=0; i<splitIndex; i++) positions.push(i);
+            // วางกลุ่มที่เหลือชิดขวา (นับถอยหลังมาจาก 11)
+            let remaining = 7 - splitIndex;
+            let startRight = 12 - remaining;
+            for(let i=0; i<remaining; i++) positions.push(startRight + i);
+        }
+        return positions;
+    }
+</script>
+</body>
+</html>
