@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบที่ 1 - จัดการเลือกไพ่</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Kanit:wght@500;600&display=swap');
+
+        body { font-family: 'Sarabun', sans-serif; background: #f4f6f9; text-align: center; padding: 20px; color: #333; margin: 0; }
+        .container { max-width: 1000px; margin: 20px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        
+        h2 { color: #2c3e50; font-family: 'Kanit', sans-serif; font-size: 2.2em; margin-bottom: 5px; }
+        .sub-title { color: #7f8c8d; margin-bottom: 25px; font-size: 1.1em; }
+
+        .phase-indicator { background: #34495e; color: white; padding: 15px; border-radius: 10px; font-size: 1.3em; font-weight: bold; margin-bottom: 20px; font-family: 'Kanit', sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+        
+        .grid-container { 
+            display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; 
+            margin: 20px auto; padding: 20px; background: #ecf0f1; border-radius: 12px;
+        }
+        
+        .card { 
+            aspect-ratio: 2/3; background: #ffffff; color: #2c3e50; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            cursor: pointer; border-radius: 8px; border: 2px solid #bdc3c7;
+            transition: all 0.2s; user-select: none; position: relative; padding: 5px;
+        }
+        .card:hover { border-color: #3498db; background: #ebf5fb; }
+        .card-id { font-size: 1.3em; font-weight: bold; color: #e67e22; margin-bottom: 5px; font-family: 'Kanit', sans-serif;}
+        .card-name { font-size: 0.85em; line-height: 1.2; }
+        
+        .card.selected { 
+            background: #27ae60; color: white; border-color: #2ecc71;
+            transform: scale(1.05); box-shadow: 0 4px 10px rgba(39, 174, 96, 0.4);
+        }
+        .card.selected .card-id, .card.selected .card-name { color: white; }
+        
+        .selection-order { position: absolute; top: -10px; right: -10px; background: #e74c3c; color: white; min-width: 25px; height: 25px; padding: 0 6px; border-radius: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 13px; border: 2px solid white; display: none; }
+        .card.selected .selection-order { display: flex; }
+
+        .result-section { display: none; margin-top: 30px; text-align: left; }
+        .export-box { width: 100%; height: 150px; padding: 15px; font-family: monospace; font-size: 16px; border: 2px solid #3498db; border-radius: 8px; background: #f8f9fa; resize: none; box-sizing: border-box; margin-bottom: 15px;}
+        
+        .btn-action { width: 100%; padding: 15px; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.2em; font-family: 'Kanit', sans-serif; transition: 0.3s; margin-bottom: 10px;}
+        .btn-copy { background: #2980b9; }
+        .btn-copy:hover { background: #1f618d; }
+        .btn-reset { background: #95a5a6; }
+        .btn-reset:hover { background: #7f8c8d; }
+        
+        .status-text { color: #27ae60; font-weight: bold; text-align: center; margin-top: 5px; height: 20px;}
+
+        @media (max-width: 768px) {
+            .grid-container { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🛠️ ระบบที่ 1 : ประมวลผลและเลือกไพ่</h2>
+    <p class="sub-title">ระบบจะรันข้อมูลอัตโนมัติตามหลักการทำนายเพื่อนำไปใช้ในระบบแสดงผล</p>
+
+    <div id="phase-container" class="phase-indicator">กำลังโหลดระบบ...</div>
+
+    <div id="selection-area">
+        <div id="card-board" class="grid-container"></div>
+    </div>
+
+    <div id="result-area" class="result-section">
+        <h3 style="color: #2980b9; font-family: 'Kanit', sans-serif;">📋 รหัสข้อมูลสำหรับนำไปวางในระบบที่ 2</h3>
+        <p style="color: #666; font-size: 0.9em;">กดปุ่มคัดลอกด้านล่าง แล้วนำข้อความในกล่องนี้ไปวางในระบบแสดงภาพไพ่ได้เลยครับ</p>
+        
+        <textarea id="export-data" class="export-box" readonly></textarea>
+        
+        <button class="btn-action btn-copy" onclick="copyData()">📋 คัดลอกรหัสข้อมูลทั้งหมด</button>
+        <div id="copy-status" class="status-text"></div>
+        <button class="btn-action btn-reset" onclick="location.reload()">🔄 เริ่มการดึงข้อมูลใหม่</button>
+    </div>
+</div>
+
+<script>
+    const CARD_DATA = {
+        101:"เทพพระอาทิตย์", 102:"เทพพระจันทร์", 103:"เทพพระอังคาร", 104:"เทพพระพุธ", 105:"เทพพระพฤหัสบดี", 106:"เทพพระศุกร์", 107:"เทพพระเสาร์",
+        201:"พระรามแผลงศร", 202:"ขงเบ้ง", 203:"พระแม่คงคา", 204:"พระนางสุพรรณมัจจฉา", 205:"พระพาย", 206:"พระกฤษณะ", 207:"ขุนแผนกับนางพิมฯ", 208:"พญาพาลีจับปูทศกันฐ์", 209:"พญาราชสีห์", 210:"นางสีดา", 211:"เทพบุตรยุติธรรม", 212:"เทพธิดาแมงป่อง",
+        301:"พระพิฆเนศทรงหนู", 302:"พระโคนนทิ", 303:"พระแม่อุมา", 304:"เทพธิดาพระจันทร์", 305:"พระนารายณ์บรรทมสินธุ์", 306:"ท้าววิรูปักษ์", 307:"พระอรุณเทพบุตร", 308:"พระทักษะ", 309:"หนุมาน", 310:"พญาสุครีพ", 311:"กุมารทอง", 312:"พระนางเบญจกัลยาณี",
+        401:"พระเพลิง", 402:"พระแม่ปาราวตี", 403:"พระขันธกุมาร", 404:"พระพิรุณ", 405:"พระพรหมฤาษี", 406:"พระนางสุรัสวดี", 407:"ท้าววิรุฬหก", 408:"พระอสุรินทร์ราหู", 409:"พระเกตุมงคล", 410:"ท้าวเวสสุวรรณ", 411:"พระพิฆเนศ", 412:"พระราหู", 413:"พระศิวะ", 414:"พระอินทร์", 415:"พระลักษมี", 416:"ท้าวธตรฐ", 417:"พระวิษณุกรม", 418:"พระนารายณ์ทรงสุบรรณ", 419:"พระเทวฤาษี", 420:"รจนากับสังข์ทอง", 421:"พระแม่ธรณี", 422:"พระรามกับสีดา", 423:"พญาครุฑกับนางกากี", 424:"พระแม่โพสพ", 425:"หนุมานกับนางเบญจกาย", 426:"กามเทพ", 427:"เมขลากับรามสูร", 428:"พรานบุญจับนางโมราห์", 429:"พระแม่นางกวัก", 430:"ทศกัณฐ์ออกรบ", 431:"พระยายมราช", 432:"โมรา", 433:"ไกรทองปราบชาละวัน", 434:"พระอภัยมณีกับนางผีเสื้อสมุทร", 435:"ความไม่เที่ยง", 436:"สัจธรรม"
+    };
+
+    let results = {
+        phase1: [], phase2: [], phase3: [], phase4: [], phase5: [], phase6: []
+    };
+
+    let currentPhase = 1;
+    let tempSelected = [];
+
+    const phaseConfig = {
+        1: { title: "รอบที่ 1: เลือกไพ่วันที่เกิด (เลือก 1 ใบ)", minId: 401, maxId: 431, limit: 1, type: 'manual' },
+        2: { title: "รอบที่ 2: เลือกไพ่วันเกิด (เลือกรหัส 101-107 ใบแรก ระบบจะรันต่ออัตโนมัติ)", minId: 101, maxId: 107, limit: 1, type: 'auto', totalNeeded: 7 },
+        3: { title: "รอบที่ 3: เลือกไพ่เดือนเกิด (เลือกรหัส 201-212 ใบแรก ระบบจะรันต่ออัตโนมัติ)", minId: 201, maxId: 212, limit: 1, type: 'auto', totalNeeded: 12 },
+        4: { title: "รอบที่ 4: เลือกไพ่ปีนักษัตร (เลือกรหัส 301-312 ใบแรก ระบบจะรันต่ออัตโนมัติ)", minId: 301, maxId: 312, limit: 1, type: 'auto', totalNeeded: 12 },
+        5: { title: "รอบที่ 5: เลือกไพ่ฐานกราฟชีวิต (เลือก 12 ใบ)", minId: 401, maxId: 436, limit: 12, type: 'manual' },
+        6: { title: "รอบที่ 6: เลือกไพ่ฐานเลขเจ็ดตัว (เลือก 12 ใบ)", minId: 401, maxId: 436, limit: 12, type: 'manual' }
+    };
+
+    function initSystem() { startPhase(1); }
+
+    function startPhase(phase) {
+        currentPhase = phase;
+        tempSelected = [];
+        const config = phaseConfig[phase];
+        document.getElementById('phase-container').innerText = config.title;
+        renderBoard(config.minId, config.maxId);
+    }
+
+    function renderBoard(minId, maxId) {
+        const board = document.getElementById('card-board'); 
+        board.innerHTML = "";
+        
+        for (let cardId = minId; cardId <= maxId; cardId++) {
+            if(!CARD_DATA[cardId]) continue; 
+            const cardDiv = document.createElement('div'); 
+            cardDiv.className = 'card';
+            cardDiv.id = `card-${cardId}`;
+            cardDiv.innerHTML = `<div class="selection-order"></div><div class="card-id">${cardId}</div><div class="card-name">${CARD_DATA[cardId]}</div>`;
+            cardDiv.onclick = () => handleCardSelection(cardId, cardDiv); 
+            board.appendChild(cardDiv);
+        }
+    }
+
+    function handleCardSelection(cardId, element) {
+        const config = phaseConfig[currentPhase];
+
+        if (tempSelected.includes(cardId)) {
+            tempSelected = tempSelected.filter(id => id !== cardId);
+            element.classList.remove('selected');
+            updateSelectionNumbers();
+            return;
+        }
+
+        if (tempSelected.length < config.limit) {
+            tempSelected.push(cardId);
+            element.classList.add('selected');
+            updateSelectionNumbers();
+
+            if (tempSelected.length === config.limit) {
+                setTimeout(() => { processPhaseCompletion(); }, 250); 
+            }
+        }
+    }
+
+    function updateSelectionNumbers() {
+        document.querySelectorAll('.card').forEach(card => card.querySelector('.selection-order').style.display = 'none');
+        tempSelected.forEach((id, index) => {
+            const cardEl = document.getElementById(`card-${id}`);
+            if(cardEl) {
+                const badge = cardEl.querySelector('.selection-order');
+                badge.innerText = index + 1;
+                badge.style.display = 'flex';
+            }
+        });
+    }
+
+    function processPhaseCompletion() {
+        const config = phaseConfig[currentPhase];
+        
+        if (config.type === 'auto') {
+            const startId = tempSelected[0];
+            let autoSequence = [];
+            for (let i = 0; i < config.totalNeeded; i++) {
+                let nextId = startId + i;
+                if (nextId > config.maxId) { nextId = nextId - config.maxId + config.minId - 1; }
+                autoSequence.push(nextId);
+            }
+            results[`phase${currentPhase}`] = autoSequence;
+        } else {
+            results[`phase${currentPhase}`] = [...tempSelected];
+        }
+
+        if (currentPhase < 6) { startPhase(currentPhase + 1); } 
+        else { showFinalResults(); }
+    }
+
+    function showFinalResults() {
+        document.getElementById('selection-area').style.display = 'none';
+        document.getElementById('phase-container').style.display = 'none';
+        document.getElementById('result-area').style.display = 'block';
+
+        // สร้าง Data Text แบบโครงสร้างชัดเจนให้ระบบที่ 2 อ่านง่ายที่สุด
+        let exportText = `DATE:${results.phase1.join(',')}\n`;
+        exportText += `DAY:${results.phase2.join(',')}\n`;
+        exportText += `MONTH:${results.phase3.join(',')}\n`;
+        exportText += `YEAR:${results.phase4.join(',')}\n`;
+        exportText += `GRAPH_BASE:${results.phase5.join(',')}\n`;
+        exportText += `SEVEN_BASE:${results.phase6.join(',')}`;
+
+        document.getElementById('export-data').value = exportText;
+        document.getElementById('result-area').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function copyData() {
+        const copyText = document.getElementById("export-data");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); 
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            document.getElementById('copy-status').innerText = "✅ คัดลอกข้อมูลสำเร็จ! เตรียมนำไปวางในระบบที่ 2 ได้เลย";
+            setTimeout(() => { document.getElementById('copy-status').innerText = ""; }, 3000);
+        });
+    }
+
+    window.onload = initSystem;
+</script>
+</body>
+</html>
