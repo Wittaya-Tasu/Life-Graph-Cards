@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v7.0 - กราฟชีวิต:เลขเจ็ดตัว(หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v8.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -50,7 +50,7 @@
             width: 100%;
         }
 
-        /* ขอบไพ่ */
+        /* ขอบไพ่: บางและแคบ */
         .card-item { 
             border-radius: 10px; 
             padding: 3px; 
@@ -72,26 +72,26 @@
             border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; 
             font-family: 'TH SarabunPSK', 'Sarabun', sans-serif;
             line-height: 1.2;
-            text-shadow: none !important;        /* ลบเงาทุกชนิด */
-            -webkit-text-stroke: 0px !important; /* ลบขอบทุกชนิด */
+            text-shadow: none !important;        
+            -webkit-text-stroke: 0px !important; 
         }
 
-        /* กลุ่มที่ 1: สีตัวหนังสือสำหรับไพ่พื้นสว่าง (แถว 1-8 และแถว 9 บางใบ) */
+        /* กลุ่มที่ 1: สีตัวหนังสือสำหรับไพ่พื้นสว่าง */
         .card-default .pos-label,
         .card-good .pos-label,
         .card-neutral-status .pos-label {
-            color: #2c3e50 !important; /* สีดำ/น้ำเงินเข้ม */
+            color: #2c3e50 !important; 
             border-bottom-color: rgba(0,0,0,0.15) !important;
         }
 
-        /* 🔥 ล็อกสีแดงเข้มให้ชนะขาด สำหรับตำแหน่งเตือนภัย บนพื้นสว่าง */
+        /* ล็อกสีแดงเข้มให้ชนะขาด สำหรับตำแหน่งเตือนภัย บนพื้นสว่าง */
         .card-default .pos-label.label-danger,
         .card-good .pos-label.label-danger,
         .card-neutral-status .pos-label.label-danger {
-            color: #d32f2f !important; /* สีแดงเข้ม */
+            color: #d32f2f !important; 
         }
 
-        /* กลุ่มที่ 2: สีตัวหนังสือสำหรับไพ่พื้นมืด (แถว 9 สถานะพิเศษ และโซนสีทอง) */
+        /* กลุ่มที่ 2: สีตัวหนังสือสำหรับไพ่พื้นมืด */
         .card-very-good .pos-label,
         .card-bad .pos-label,
         .card-very-bad .pos-label,
@@ -99,11 +99,10 @@
         .card-black .pos-label,
         .card-red .pos-label,
         .card-gold-zone .pos-label {
-            color: #ffffff !important; /* บังคับสีขาวล้วน */
+            color: #ffffff !important; 
             border-bottom-color: rgba(255,255,255,0.3) !important;
         }
         
-        /* แม้เป็นตำแหน่งเตือนภัย ถ้าอยู่บนพื้นมืด ก็ต้องเป็นสีขาวให้อ่านออก */
         .card-very-good .pos-label.label-danger,
         .card-bad .pos-label.label-danger,
         .card-very-bad .pos-label.label-danger,
@@ -117,34 +116,63 @@
         /* ---------------------------------------------------
            การจัดการสีพื้นหลังไพ่ (CARD BACKGROUNDS)
         --------------------------------------------------- */
-        
-        /* สีขาวขุ่น สำหรับไพ่ทั่วไปที่ไม่ได้อยู่แถว 9 */
         .card-default { background-color: #f2f4f4 !important; border-color: #d5d8dc !important; }
 
-        /* ชุดสีไฮไลท์ไพ่แถว 9 (GRAPH_BASE) ปกติ */
         .card-very-good { background-color: #0047AB !important; border-color: #003380 !important; }
         .card-good { background-color: #bbdefb !important; border-color: #90caf9 !important; }
         .card-neutral-status { background-color: #ffffff !important; border-color: #cccccc !important; }
         .card-bad { background-color: #212121 !important; border-color: #000000 !important; }
         .card-very-bad { background-color: #b71c1c !important; border-color: #7f0000 !important; }
 
-        /* ชุดสีพิเศษสำหรับตำแหน่ง "ศัตรู" และ "โรคภัย" ในแถว 9 */
         .card-dark-gray { background-color: #424949 !important; border-color: #273746 !important; }
         .card-black { background-color: #17202a !important; border-color: #000000 !important; }
         .card-red { background-color: #cb4335 !important; border-color: #922b21 !important; }
 
-        /* สีทองสำหรับตำแหน่งมงคล */
         .card-gold-zone { 
             background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; 
             border-color: #aa771c !important; 
             box-shadow: 0 4px 15px rgba(170, 119, 28, 0.5);
         }
 
-        /* ลายน้ำใต้ไพ่ครู */
         .teacher-watermark {
             font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; 
             text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px;
         }
+
+        /* ---------------------------------------------------
+           ส่วนเพิ่มเติม v8.0: Dropdown แถวที่ 10
+        --------------------------------------------------- */
+        .dropdown-cell {
+            background-color: #00b0f0; /* พื้นสีฟ้า */
+            border-radius: 6px;
+            margin-top: 30px; /* เพิ่มช่องว่างพิเศษระหว่างแถว 9 กับ 10 */
+            margin-bottom: 5px; /* ช่องว่างนิดหน่อยก่อนถึงรูปไพ่แถว 10 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 2px solid rgba(0,0,0,0.2);
+            height: 45px;
+        }
+        .number-dropdown {
+            background: transparent;
+            color: #000000; /* ตัวหนังสือสีดำ */
+            font-weight: 700;
+            font-size: 1.6em;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            width: 100%;
+            text-align: center;
+            text-align-last: center;
+        }
+        .number-dropdown option {
+            color: #000;
+            background: #fff;
+            font-size: 18px;
+        }
+
     </style>
 </head>
 <body>
@@ -177,9 +205,7 @@
     const ROW_6_TITLES = ["สูญเสีย", "ความสุข", "การงาน", "โชคลาภ", "โรคภัย", "รับใช้ ช.", "รับใช้ ญ."];
 
     const TEACHER_CARDS = ["501", "502", "503", "504", "505", "506"];
-    
     const DANGER_TITLES = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
-
     const WEALTH_POSITIONS = ["พื้นดวง", "ทรัพย์สิน", "ความสุข", "โชคลาภ"];
     const WEALTH_CARDS = ["410", "411", "415", "416", "424", "429"];
 
@@ -188,6 +214,12 @@
     const NEUTRAL = ["403", "407", "420", "435", "436"];
     const BAD = ["413", "423", "425", "427", "428", "430", "432", "433", "434"];
     const VERY_BAD = ["401", "408", "412", "431"];
+
+    // ฟังก์ชันเสริม: เพื่อล็อกค่าที่เลือกให้อยู่ใน HTML ทำให้ Save ภาพแล้วค่าไม่หาย
+    function updateDropdown(selectEl) {
+        Array.from(selectEl.options).forEach(opt => opt.removeAttribute('selected'));
+        selectEl.options[selectEl.selectedIndex].setAttribute('selected', 'selected');
+    }
 
     function renderBoard() {
         const inputText = document.getElementById('data-input').value.trim();
@@ -266,7 +298,30 @@
 
         if(data.GRAPH_BASE) data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 1, ROW_8_TITLES[i]));
 
-        if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 6, posRow10[i] + 1, null));
+        // --- แทรกแถวที่ 6 ใหม่: กล่อง Dropdown (ตรงกับแถว 10 สายตา) ---
+        if(data.SEVEN_BASE) {
+            data.SEVEN_BASE.forEach((c, i) => {
+                let col = posRow10[i] + 1;
+                // สร้าง `<option>` 1-12
+                let optionsHtml = '';
+                for(let n=1; n<=12; n++) {
+                    optionsHtml += `<option value="${n}">${n}</option>`;
+                }
+
+                let html = `
+                    <div class="dropdown-cell" style="grid-area: 6 / ${col} / span 1 / span 1;">
+                        <select class="number-dropdown" onchange="updateDropdown(this)">
+                            <option value="" selected>-</option>
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                `;
+                board.innerHTML += html;
+            });
+        }
+
+        // เลื่อนไพ่ SEVEN_BASE ลงมาที่แถวที่ 7 ของ Grid
+        if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 1, null));
 
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('save-area').style.display = 'flex'; 
