@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v10.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v11.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -29,22 +29,24 @@
         .btn-save-pdf { background: #95a5a6; }
         .btn-save-pdf:hover { background: #7f8c8d; transform: translateY(-1px); }
 
+        /* พื้นหลังกระดาน #293A4B พร้อมขยายความกว้างรองรับ 14 คอลัมน์ */
         .export-container { 
             background: #293A4B; 
             padding: 30px; 
             border-radius: 15px; 
             display: inline-block; 
-            min-width: 1100px;
+            min-width: 1350px; /* ขยายให้กว้างขึ้นเพื่อป้องกันไพ่บีบเกินไป */
             margin: 0 auto;
             position: relative;
         }
 
         .board-wrapper { overflow-x: auto; padding-bottom: 20px; margin-top: 30px; text-align: center;}
         
+        /* 🔥 ปรับตารางเป็น 14 คอลัมน์ (ซ้าย 1, A-L 12, ขวา 1) */
         .grid-board { 
             display: grid; 
-            grid-template-columns: repeat(12, 1fr); 
-            gap: 15px 12px; 
+            grid-template-columns: repeat(14, 1fr); 
+            gap: 15px 10px; 
             width: 100%;
         }
 
@@ -92,36 +94,78 @@
         .dropdown-cell {
             background-color: #293A4B; 
             border-radius: 8px;
-            margin-top: 5px; 
-            margin-bottom: 5px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin-top: 5px; margin-bottom: 5px; 
+            display: flex; align-items: center; justify-content: center;
             border: 2px solid transparent; 
-            height: 45px;
-            box-sizing: border-box;
+            height: 45px; box-sizing: border-box;
         }
 
         .number-dropdown {
             background: transparent;
             color: #293A4B; 
-            font-weight: 700;
-            font-size: 1.6em;
-            border: none;
-            outline: none;
-            cursor: pointer;
+            font-weight: 700; font-size: 1.6em;
+            border: none; outline: none; cursor: pointer;
             font-family: 'Kanit', sans-serif;
-            width: 100%;
-            text-align: center;
-            text-align-last: center; 
-            -webkit-appearance: none; 
-            -moz-appearance: none;    
-            appearance: none;         
-            padding: 0;
-            margin: 0;
+            width: 100%; height: 100%;
+            text-align: center; text-align-last: center; 
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;         
+            line-height: 41px; display: block; margin: 0; padding: 0;
+        }
+        .number-dropdown option { color: #000; background: #fff; font-size: 18px; }
+
+        /* ---------------------------------------------------
+           กล่อง Custom Input (แถวใหม่ พิมพ์ตัวเลขและเปลี่ยนสีเอง)
+        --------------------------------------------------- */
+        .custom-cell {
+            background-color: #293A4B; /* พรางตัวเริ่มต้น */
+            border-radius: 8px;
+            margin-top: 5px; margin-bottom: 5px; 
+            display: flex; align-items: center; justify-content: center; 
+            border: 2px solid transparent; 
+            height: 45px; box-sizing: border-box;
+            position: relative; /* สำหรับให้จานสีลอยอยู่ชิดขวา */
+            transition: 0.3s;
+        }
+        
+        .custom-cell.active {
+            background-color: #ecf0f1; /* สีพื้นฐานตอนพิมพ์ตัวอักษรแต่ยังไม่เลือกสี */
+            border: 2px solid rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        .number-dropdown option { color: #000; background: #fff; font-size: 18px; }
+        .manual-input {
+            background: transparent;
+            color: #293A4B; /* ซ่อนตัวอักษรเริ่มต้น */
+            font-weight: 700; font-size: 1.6em;
+            border: none; outline: none;
+            font-family: 'Kanit', sans-serif;
+            width: 100%; text-align: center;
+            padding: 0; margin: 0;
+        }
+        .manual-input::placeholder { color: #293A4B; }
+
+        /* เมื่อมีคลาส active ให้โชว์ตัวเลข */
+        .custom-cell.active .manual-input { color: #000; }
+        .custom-cell.active .manual-input::placeholder { color: rgba(0,0,0,0.3); }
+
+        /* ปุ่มจานสี (Color Picker) */
+        .color-picker {
+            position: absolute;
+            right: 4px; top: 50%;
+            transform: translateY(-50%);
+            width: 20px; height: 20px;
+            padding: 0;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 50%;
+            cursor: pointer;
+            background: transparent;
+            outline: none;
+            opacity: 0.3;
+            transition: 0.3s;
+        }
+        .color-picker:hover { opacity: 1; }
+        .color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-picker::-webkit-color-swatch { border: none; border-radius: 50%; }
 
     </style>
 </head>
@@ -165,6 +209,7 @@
     const BAD = ["413", "423", "425", "427", "428", "430", "432", "433", "434"];
     const VERY_BAD = ["401", "408", "412", "431"];
 
+    // 3. กำหนดชุดสีพื้นหลังและสีตัวอักษรสำหรับตัวเลข 1-12 (เปลี่ยนสีตามใจชอบที่นี่ครับ)
     const NUMBER_COLORS = {
         "1": { bg: "#ffcccc", color: "#990000" }, 
         "2": { bg: "#fff5cc", color: "#997a00" }, 
@@ -198,6 +243,27 @@
             parentCell.style.boxShadow = "none";
             selectEl.style.color = "#293A4B"; 
         }
+    }
+
+    // ฟังก์ชันจัดการตอนพิมพ์ข้อความในกล่อง Custom ใหม่
+    function updateCustomInput(inputEl) {
+        const parent = inputEl.parentElement;
+        if (inputEl.value.trim() !== "") {
+            parent.classList.add('active'); // โชว์กล่องเมื่อเริ่มพิมพ์
+        } else {
+            // ซ่อนกล่องเมื่อลบข้อความออกหมด (ถ้าไม่ได้เลือกสีค้างไว้)
+            if (!parent.dataset.customColor) {
+                parent.classList.remove('active');
+            }
+        }
+    }
+
+    // ฟังก์ชันจัดการตอนเลือกสีในกล่อง Custom ใหม่
+    function updateCustomColor(pickerEl) {
+        const parent = pickerEl.parentElement;
+        parent.classList.add('active'); // บังคับโชว์กล่อง
+        parent.style.backgroundColor = pickerEl.value;
+        parent.dataset.customColor = "true"; // มาร์คไว้ว่าถูกเลือกสีแล้ว
     }
 
     function renderBoard() {
@@ -248,22 +314,29 @@
             board.innerHTML += html;
         }
 
-        addCard(data.DATE[0], 1, 1, null);
-        TEACHER_CARDS.forEach((c, i) => addCard(c, 1, 7 + i, null)); 
-        board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2 / 7 / span 1 / span 6;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
+        // --- เริ่มวาดกระดาน (ขยับบวก 2 เพื่อเว้นคอลัมน์ 1 ไว้เป็นช่องว่างซ้ายมือ) ---
+        addCard(data.DATE[0], 1, 2, null); 
+        
+        // ไพ่ครูขยับไปที่คอลัมน์ 9-14 (ซึ่งคือช่วง H ถึง M)
+        TEACHER_CARDS.forEach((c, i) => addCard(c, 1, 9 + i, null)); 
+        // ลายน้ำให้คลุมใต้ไพ่ครูพอดี
+        board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2 / 9 / span 1 / span 6;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
-        if(data.DAY) data.DAY.forEach((c, i) => addCard(c, 2, i + 1, ROW_2_TITLES[i]));
+        if(data.DAY) data.DAY.forEach((c, i) => addCard(c, 2, i + 2, ROW_2_TITLES[i]));
         if(data.MONTH) data.MONTH.forEach((c, i) => {
             let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i);
-            addCard(c, 3, i + 1, idx !== -1 ? ROW_4_TITLES[idx] : null);
+            addCard(c, 3, i + 2, idx !== -1 ? ROW_4_TITLES[idx] : null);
         });
         if(data.YEAR) data.YEAR.forEach((c, i) => {
             let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i);
-            addCard(c, 4, i + 1, idx !== -1 ? ROW_6_TITLES[idx] : null);
+            addCard(c, 4, i + 2, idx !== -1 ? ROW_6_TITLES[idx] : null);
         });
-        if(data.GRAPH_BASE) data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 1, ROW_8_TITLES[i]));
+        
+        // แถว 9: ไพ่หลัก
+        if(data.GRAPH_BASE) data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 2, ROW_8_TITLES[i]));
 
-        for(let col = 1; col <= 12; col++) {
+        // แถวคั่น: กล่อง Dropdown (แถว 6 ของ Grid) ในคอลัมน์ A-L (2 ถึง 13)
+        for(let col = 2; col <= 13; col++) {
             let optionsHtml = '<option value="" selected>-</option>';
             for(let n=1; n<=12; n++) { optionsHtml += `<option value="${n}">${n}</option>`; }
             board.innerHTML += `
@@ -272,7 +345,18 @@
                 </div>`;
         }
 
-        if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 1, null));
+        // แถว 10: ไพ่ SEVEN_BASE
+        if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
+
+        // แถวใหม่ด้านล่างสุด: กล่องพิมพ์ตัวเลข + เลือกสีเอง (แถว 8 ของ Grid)
+        for(let col = 2; col <= 13; col++) {
+            board.innerHTML += `
+                <div class="custom-cell" style="grid-area: 8 / ${col} / span 1 / span 1;">
+                    <input type="text" class="manual-input" placeholder="-" oninput="updateCustomInput(this)" maxlength="5">
+                    <input type="color" class="color-picker" value="#ecf0f1" title="เปลี่ยนสีพื้นหลัง" onchange="updateCustomColor(this)">
+                </div>`;
+        }
+
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('save-area').style.display = 'flex'; 
     }
@@ -303,32 +387,51 @@
         return positions;
     }
 
-    // ฟังก์ชันเสริมสำหรับแก้ไข Bug ของ html2canvas (ซ่อน Select ชั่วคราวแล้วโชว์ข้อความแทนตอนแคปภาพ)
+    // ฟังก์ชันซ่อน Dropdown และ Color Picker ก่อนแคปภาพ เพื่อให้รูปเนียนสวย
     function replaceSelectsForCapture() {
-        const selects = document.querySelectorAll('.number-dropdown');
-        selects.forEach(sel => {
+        // จัดการกล่อง Dropdown
+        document.querySelectorAll('.number-dropdown').forEach(sel => {
             const val = sel.value;
             const span = document.createElement('span');
             span.className = 'print-temp-span';
-            span.style.fontWeight = '700';
-            span.style.fontSize = '1.6em';
-            span.style.fontFamily = "'Kanit', sans-serif";
-            span.style.color = sel.style.color; // ให้สีตรงกับที่แสดงอยู่
-            span.innerText = val === "" ? "-" : val; // ดึงค่าไปใส่ใน span
-            
-            sel.style.display = 'none'; // ซ่อน Dropdown
-            sel.parentNode.appendChild(span); // เอา span มาเสียบแทนชั่วคราว
+            span.style.fontWeight = '700'; span.style.fontSize = '1.6em'; span.style.fontFamily = "'Kanit', sans-serif";
+            span.style.color = sel.style.color; 
+            span.innerText = val === "" ? "-" : val; 
+            sel.style.display = 'none'; 
+            sel.parentNode.appendChild(span); 
         });
+
+        // จัดการกล่อง Custom Input
+        document.querySelectorAll('.manual-input').forEach(inp => {
+            const parent = inp.parentElement;
+            if(parent.classList.contains('active')) {
+                const val = inp.value.trim() === "" ? "-" : inp.value.trim();
+                const span = document.createElement('span');
+                span.className = 'print-temp-span';
+                span.style.fontWeight = '700'; span.style.fontSize = '1.6em'; span.style.fontFamily = "'Kanit', sans-serif";
+                span.style.color = '#000'; // ให้สีตัวอักษรเป็นสีดำเพื่อความชัดเจน
+                span.innerText = val;
+                inp.style.display = 'none';
+                parent.appendChild(span);
+            } else {
+                inp.style.display = 'none'; // ซ่อนถ้าไม่ได้ใช้งาน
+            }
+        });
+
+        // ซ่อนจานสี (Color Pickers)
+        document.querySelectorAll('.color-picker').forEach(p => p.style.display = 'none');
     }
 
+    // ฟังก์ชันคืนร่างเมื่อแคปภาพเสร็จ
     function restoreSelectsAfterCapture() {
         document.querySelectorAll('.print-temp-span').forEach(span => span.remove());
         document.querySelectorAll('.number-dropdown').forEach(sel => sel.style.display = 'block');
+        document.querySelectorAll('.manual-input').forEach(inp => inp.style.display = 'block');
+        document.querySelectorAll('.color-picker').forEach(p => p.style.display = 'block');
     }
 
-    // อัปเดตปุ่ม Save ให้เรียกใช้ฟังก์ชันสับขาหลอกก่อนถ่ายรูป
     function saveAsImage() {
-        replaceSelectsForCapture(); // แปลงร่าง
+        replaceSelectsForCapture();
         const target = document.getElementById('export-area');
         window.scrollTo(0,0);
         html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#293A4B" }).then(canvas => {
@@ -336,12 +439,12 @@
             link.download = 'กราฟชีวิต-หมอวิทยา.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
-            restoreSelectsAfterCapture(); // คืนร่าง
+            restoreSelectsAfterCapture();
         });
     }
 
     function saveAsPdf() {
-        replaceSelectsForCapture(); // แปลงร่าง
+        replaceSelectsForCapture();
         const target = document.getElementById('export-area');
         const opt = {
             margin: 0.2, filename: 'กราฟชีวิต-หมอวิทยา.pdf', image: { type: 'jpeg', quality: 0.98 },
@@ -349,7 +452,7 @@
             jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(target).save().then(() => {
-            restoreSelectsAfterCapture(); // คืนร่างเมื่อโหลด PDF เสร็จ
+            restoreSelectsAfterCapture();
         });
     }
 </script>
