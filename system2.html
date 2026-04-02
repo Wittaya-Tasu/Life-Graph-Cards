@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v13.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v13.1 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -133,7 +133,7 @@
         .custom-cell.active { background-color: #ecf0f1; border: 2px solid rgba(0,0,0,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .manual-input { background: transparent; color: #293A4B; font-weight: 700; font-size: 1.6em; border: none; outline: none; font-family: 'Kanit', sans-serif; width: 100%; text-align: center; padding: 0; margin: 0; }
         .manual-input::placeholder { color: #293A4B; }
-        .custom-cell.active .manual-input { color: #000; }
+        .custom-cell.active .manual-input { color: #ffffff; }
         .custom-cell.active .manual-input::placeholder { color: rgba(0,0,0,0.3); }
         .color-picker { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; padding: 0; border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; background: transparent; outline: none; opacity: 0.3; transition: 0.3s; }
         .color-picker:hover { opacity: 1; }
@@ -384,7 +384,7 @@
                 const span = document.createElement('span');
                 span.className = 'print-temp-span';
                 span.style.fontWeight = '700'; span.style.fontSize = '1.6em'; span.style.fontFamily = "'Kanit', sans-serif";
-                span.style.color = '#000'; 
+                span.style.color = '#ffffff'; 
                 span.innerText = val;
                 inp.style.display = 'none';
                 parent.appendChild(span);
