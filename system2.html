@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v9.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v9.2 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -38,7 +38,6 @@
             min-width: 1100px;
             margin: 0 auto;
             position: relative;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
         }
 
         .board-wrapper { overflow-x: auto; padding-bottom: 20px; margin-top: 30px; text-align: center;}
@@ -50,7 +49,6 @@
             width: 100%;
         }
 
-        /* ขอบไพ่ */
         .card-item { 
             border-radius: 10px; 
             padding: 3px; 
@@ -62,7 +60,6 @@
         }
         .card-item img { width: 100%; height: auto; border-radius: 6px; display: block; background: #fff;}
         
-        /* ชื่อตำแหน่ง */
         .pos-label { 
             display: block; font-weight: bold; 
             font-size: 1.15em; margin-bottom: 6px; 
@@ -73,15 +70,11 @@
             -webkit-text-stroke: 0px !important; 
         }
 
-        /* สีตัวหนังสือสำหรับไพ่พื้นสว่าง */
         .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
         .card-default .pos-label.label-danger, .card-good .pos-label.label-danger, .card-neutral-status .pos-label.label-danger { color: #d32f2f !important; }
 
-        /* สีตัวหนังสือสำหรับไพ่พื้นมืด */
         .card-very-good .pos-label, .card-bad .pos-label, .card-very-bad .pos-label, .card-dark-gray .pos-label, .card-black .pos-label, .card-red .pos-label, .card-gold-zone .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.3) !important; }
-        .card-very-good .pos-label.label-danger, .card-bad .pos-label.label-danger, .card-very-bad .pos-label.label-danger, .card-dark-gray .pos-label.label-danger, .card-black .pos-label.label-danger, .card-red .pos-label.label-danger, .card-gold-zone .pos-label.label-danger { color: #ffffff !important; }
 
-        /* สีพื้นหลังไพ่ */
         .card-default { background-color: #f2f4f4 !important; border-color: #d5d8dc !important; }
         .card-very-good { background-color: #0047AB !important; border-color: #003380 !important; }
         .card-good { background-color: #bbdefb !important; border-color: #90caf9 !important; }
@@ -96,32 +89,25 @@
         .teacher-watermark { font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px; }
 
         /* ---------------------------------------------------
-           ส่วนกล่อง Dropdown (แถวที่ 6 ของ Grid Visual)
+           Dropdown แถวที่ 10 (v9.2 ปรับจัดกึ่งกลางและพรางกล่อง)
         --------------------------------------------------- */
         .dropdown-cell {
-            background-color: #ecf0f1; /* 2. เปลี่ยนเป็นสีเทาอ่อนเริ่มต้น */
-            border-radius: 6px;
-            margin-top: 25px; /* 4. ลดช่องว่างเหลือ 25px ตามต้องการ */
+            background-color: #293A4B; /* เริ่มต้นให้กลืนกับพื้นหลัง */
+            border-radius: 8px;
+            margin-top: 5px; 
             margin-bottom: 5px; 
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 2px solid rgba(0,0,0,0.2);
+            border: 2px solid transparent; /* ขอบล่องหนเริ่มต้น */
             height: 45px;
-            transition: background-color 0.3s; /* ให้เวลาเปลี่ยนสีดูนุ่มนวล */
+            overflow: hidden;
+            box-sizing: border-box;
         }
 
-        /* ----------------------------------------------------------------------------------
-           โน้ตสำหรับคุณหมอ: (ข้อ 5) การจัดตัวเลขให้อยู่กึ่งกลางตอน Save Image 
-           - คำสั่ง 'appearance: none;' ด้านล่างนี้คือตัวช่วยลบลูกศร Dropdown ดั้งเดิมออก
-           - ทำให้เบราว์เซอร์และ html2canvas มองเห็นเป็นกล่องข้อความธรรมดา 
-           - ซึ่งจะทำให้ 'text-align: center;' ทำงานได้สมบูรณ์ 100% ตอนบันทึกเป็นรูปครับ
-           - หากในอนาคตอยากได้ลูกศรกลับมา ให้ลบ 3 บรรทัดที่มีคำว่า appearance ทิ้งครับ
-        ----------------------------------------------------------------------------------- */
         .number-dropdown {
             background: transparent;
-            color: #000000; 
+            color: #293A4B; /* สีเดียวกับพื้นหลังเริ่มต้น */
             font-weight: 700;
             font-size: 1.6em;
             border: none;
@@ -132,11 +118,16 @@
             height: 100%;
             text-align: center;
             text-align-last: center; 
-            -webkit-appearance: none; /* ซ่อนลูกศรสำหรับ Safari/Chrome */
-            -moz-appearance: none;    /* ซ่อนลูกศรสำหรับ Firefox */
-            appearance: none;         /* ซ่อนลูกศรมาตรฐาน */
-            transition: color 0.3s;
+            -webkit-appearance: none; 
+            -moz-appearance: none;    
+            appearance: none;         
+            /* ปรับ line-height ให้เท่ากับความสูงกล่องเพื่อกึ่งกลางแนวตั้ง */
+            line-height: 41px; 
+            display: block;
+            margin: 0;
+            padding: 0;
         }
+
         .number-dropdown option {
             color: #000;
             background: #fff;
@@ -185,37 +176,39 @@
     const BAD = ["413", "423", "425", "427", "428", "430", "432", "433", "434"];
     const VERY_BAD = ["401", "408", "412", "431"];
 
-    // 3. กำหนดชุดสีพื้นหลังและสีตัวอักษรสำหรับตัวเลข 1-12 (สีพาสเทลเพื่อความสวยงาม)
     const NUMBER_COLORS = {
-        "1": { bg: "#ffcccc", color: "#990000" }, // แดงอ่อน
-        "2": { bg: "#fff5cc", color: "#997a00" }, // เหลืองอ่อน
-        "3": { bg: "#ffccf2", color: "#990073" }, // ชมพูอ่อน
-        "4": { bg: "#ccffcc", color: "#006600" }, // เขียวอ่อน
-        "5": { bg: "#ffe0cc", color: "#994700" }, // ส้มอ่อน
-        "6": { bg: "#cce0ff", color: "#003d99" }, // น้ำเงินอ่อน
-        "7": { bg: "#e6ccff", color: "#4b0099" }, // ม่วงอ่อน
-        "8": { bg: "#e6d9cc", color: "#664d00" }, // น้ำตาลอ่อน
-        "9": { bg: "#ccffee", color: "#006644" }, // เขียวน้ำทะเลอ่อน
-        "10": { bg: "#ffcce6", color: "#99004d" },// บานเย็นอ่อน
-        "11": { bg: "#eeffcc", color: "#4d6600" },// มะนาวอ่อน
-        "12": { bg: "#ccffff", color: "#006666" } // ฟ้าสว่าง
+        "1": { bg: "#ffcccc", color: "#990000" }, 
+        "2": { bg: "#fff5cc", color: "#997a00" }, 
+        "3": { bg: "#ffccf2", color: "#990073" }, 
+        "4": { bg: "#ccffcc", color: "#006600" }, 
+        "5": { bg: "#ffe0cc", color: "#994700" }, 
+        "6": { bg: "#cce0ff", color: "#003d99" }, 
+        "7": { bg: "#e6ccff", color: "#4b0099" }, 
+        "8": { bg: "#e6d9cc", color: "#664d00" }, 
+        "9": { bg: "#ccffee", color: "#006644" }, 
+        "10": { bg: "#ffcce6", color: "#99004d" },
+        "11": { bg: "#eeffcc", color: "#4d6600" },
+        "12": { bg: "#ccffff", color: "#006666" } 
     };
 
     function updateDropdown(selectEl) {
-        // ล็อกค่าเพื่อเวลาแคปรูปจะได้เห็นตัวเลขที่เลือก
         Array.from(selectEl.options).forEach(opt => opt.removeAttribute('selected'));
         selectEl.options[selectEl.selectedIndex].setAttribute('selected', 'selected');
         
-        // ดึงค่ามาเพื่อเปลี่ยนสี
         const val = selectEl.value;
         const parentCell = selectEl.parentElement;
         
         if (val && NUMBER_COLORS[val]) {
             parentCell.style.backgroundColor = NUMBER_COLORS[val].bg;
+            parentCell.style.borderColor = "rgba(0,0,0,0.2)";
+            parentCell.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
             selectEl.style.color = NUMBER_COLORS[val].color;
         } else {
-            parentCell.style.backgroundColor = "#ecf0f1"; // กลับเป็นสีเทาอ่อนถ้าเลือก '-'
-            selectEl.style.color = "#000000";
+            // กรณีเลือก "-" ให้สีกลืนไปกับพื้นหลังกรมท่า
+            parentCell.style.backgroundColor = "#293A4B"; 
+            parentCell.style.borderColor = "transparent";
+            parentCell.style.boxShadow = "none";
+            selectEl.style.color = "#293A4B"; 
         }
     }
 
@@ -226,23 +219,17 @@
         const data = parseInput(inputText);
         if(!data.DATE || !data.SEVEN_BASE) { alert("รูปแบบข้อมูลไม่ถูกต้องครับ"); return; }
 
-        const posRow4 = calculateDynamicPositions(data.MONTH, "201"); 
         const posRow10 = calculateDynamicPositions(data.YEAR, "301"); 
-        const posRow6 = posRow10; 
-
         const board = document.getElementById('main-board');
         board.innerHTML = '';
 
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
-
             let cardClass = "card-item";
             let titleHtml = "";
 
             if (gridRow === 5) {
-                if (WEALTH_POSITIONS.includes(title) && WEALTH_CARDS.includes(code)) {
-                    cardClass += " card-gold-zone";
-                } 
+                if (WEALTH_POSITIONS.includes(title) && WEALTH_CARDS.includes(code)) { cardClass += " card-gold-zone"; } 
                 else if (title === "ศัตรู" || title === "โรคภัย") {
                     if (VERY_GOOD.includes(code) || GOOD.includes(code)) cardClass += " card-dark-gray";
                     else if (NEUTRAL.includes(code)) cardClass += " card-black";
@@ -257,9 +244,7 @@
                     else if (VERY_BAD.includes(code)) cardClass += " card-very-bad";
                     else cardClass += " card-neutral-status"; 
                 }
-            } else {
-                cardClass += " card-default";
-            }
+            } else { cardClass += " card-default"; }
 
             if (title) {
                 let titleClass = DANGER_TITLES.includes(title) ? "pos-label label-danger" : "pos-label";
@@ -275,59 +260,41 @@
             board.innerHTML += html;
         }
 
-        // --- เริ่มวาดกระดาน ---
         addCard(data.DATE[0], 1, 1, null);
         TEACHER_CARDS.forEach((c, i) => addCard(c, 1, 7 + i, null)); 
         board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2 / 7 / span 1 / span 6;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
         if(data.DAY) data.DAY.forEach((c, i) => addCard(c, 2, i + 1, ROW_2_TITLES[i]));
-
         if(data.MONTH) data.MONTH.forEach((c, i) => {
-            let idx = posRow4.indexOf(i);
-            let title = idx !== -1 ? ROW_4_TITLES[idx] : null;
-            addCard(c, 3, i + 1, title);
+            let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i);
+            addCard(c, 3, i + 1, idx !== -1 ? ROW_4_TITLES[idx] : null);
         });
-
         if(data.YEAR) data.YEAR.forEach((c, i) => {
-            let idx = posRow6.indexOf(i);
-            let title = idx !== -1 ? ROW_6_TITLES[idx] : null;
-            addCard(c, 4, i + 1, title);
+            let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i);
+            addCard(c, 4, i + 1, idx !== -1 ? ROW_6_TITLES[idx] : null);
         });
-
         if(data.GRAPH_BASE) data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 1, ROW_8_TITLES[i]));
 
-        // 1. สร้าง Dropdown ครบ 12 ช่อง (ตั้งแต่คอลัมน์ 1 ถึง 12) ตรงแนวแถวที่ 6
         for(let col = 1; col <= 12; col++) {
-            let optionsHtml = '';
-            for(let n=1; n<=12; n++) {
-                optionsHtml += `<option value="${n}">${n}</option>`;
-            }
-            let html = `
+            let optionsHtml = '<option value="" selected>-</option>';
+            for(let n=1; n<=12; n++) { optionsHtml += `<option value="${n}">${n}</option>`; }
+            board.innerHTML += `
                 <div class="dropdown-cell" style="grid-area: 6 / ${col} / span 1 / span 1;">
-                    <select class="number-dropdown" onchange="updateDropdown(this)">
-                        <option value="" selected>-</option>
-                        ${optionsHtml}
-                    </select>
-                </div>
-            `;
-            board.innerHTML += html;
+                    <select class="number-dropdown" onchange="updateDropdown(this)">${optionsHtml}</select>
+                </div>`;
         }
 
         if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 1, null));
-
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('save-area').style.display = 'flex'; 
     }
 
     function parseInput(text) {
         let result = {};
-        const lines = text.split('\n');
-        lines.forEach(line => {
+        text.split('\n').forEach(line => {
             if(line.includes(':')) {
                 const parts = line.split(':');
-                const key = parts[0].trim();
-                const values = parts[1].trim().split(',');
-                result[key] = values;
+                result[parts[0].trim()] = parts[1].trim().split(',');
             }
         });
         return result;
@@ -337,11 +304,9 @@
         if(!arrayData) return [];
         let splitIndex = arrayData.indexOf(targetCode);
         if(splitIndex === -1) splitIndex = 0; 
-
         let positions = [];
-        if (splitIndex === 0 || splitIndex >= 7) {
-            for(let i=0; i<7; i++) positions.push(i); 
-        } else {
+        if (splitIndex === 0 || splitIndex >= 7) { for(let i=0; i<7; i++) positions.push(i); } 
+        else {
             for(let i=0; i<splitIndex; i++) positions.push(i);
             let remaining = 7 - splitIndex;
             let startRight = 12 - remaining;
@@ -364,11 +329,9 @@
     function saveAsPdf() {
         const target = document.getElementById('export-area');
         const opt = {
-            margin:       0.2,
-            filename:     'กราฟชีวิต-หมอวิทยา.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, backgroundColor: "#293A4B" },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+            margin: 0.2, filename: 'กราฟชีวิต-หมอวิทยา.pdf', image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: "#293A4B" },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(target).save();
     }
