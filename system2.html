@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v12.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v13.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -29,24 +29,22 @@
         .btn-save-pdf { background: #95a5a6; }
         .btn-save-pdf:hover { background: #7f8c8d; transform: translateY(-1px); }
 
-        /* ขยายกระดานให้กว้างขึ้น เพื่อความสวยงามในหน้าจอแนวนอน */
         .export-container { 
             background: #293A4B; 
             padding: 30px 40px; 
             border-radius: 15px; 
             display: inline-block; 
-            min-width: 1600px; /* เพิ่มความกว้างรองรับการขยายคอลัมน์ */
+            min-width: 1600px; 
             margin: 0 auto;
             position: relative;
         }
 
         .board-wrapper { overflow-x: auto; padding-bottom: 20px; margin-top: 30px; text-align: center;}
         
-        /* เพิ่มช่องว่างระหว่างคอลัมน์ (Column Gap) ให้กว้างขึ้นเป็น 30px */
         .grid-board { 
             display: grid; 
             grid-template-columns: repeat(14, 1fr); 
-            gap: 15px 30px; /* แถวห่าง 15px, คอลัมน์ห่าง 30px */
+            gap: 15px 30px; 
             width: 100%;
         }
 
@@ -89,40 +87,32 @@
         .teacher-watermark { font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px; }
 
         /* ---------------------------------------------------
-           กล่องข้อมูลเจ้าชะตา (แถวที่ 1)
+           กล่องข้อมูลเจ้าชะตา (อัปเดต v13.0 ชิดซ้าย ฟอนต์ใหญ่ขึ้น)
         --------------------------------------------------- */
-        .client-info-container {
-            display: flex;
-            align-items: stretch;
-            width: 100%;
-        }
+        .client-info-container { display: flex; align-items: stretch; width: 100%; }
         .client-info-box {
             width: 100%;
-            background-color: #f2f4f4; /* สีเทาอ่อน/ขาวขุ่น */
-            border: 2px dashed #95a5a6; /* ขอบประ */
+            background-color: #f2f4f4; 
+            border: 2px dashed #95a5a6; 
             border-radius: 10px;
             padding: 10px 15px;
             color: #17202a;
-            font-family: 'TH SarabunPSK', 'Sarabun', sans-serif; /* ฟอนต์เดียวกับชื่อตำแหน่ง */
-            font-size: 1.3em;
+            font-family: 'TH SarabunPSK', 'Sarabun', sans-serif; 
+            font-size: 1.45em; /* ขยายขนาดใหญ่ขึ้น */
             font-weight: bold;
             line-height: 1.5;
             resize: none;
             outline: none;
             box-sizing: border-box;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .client-info-box::placeholder {
-            color: #7f8c8d;
-            font-weight: normal;
+            text-align: left; /* จัดข้อความชิดซ้าย */
         }
 
         /* ---------------------------------------------------
-           Dropdown แถวที่ 10 & กล่อง Custom
+           Dropdown & กล่อง Custom
         --------------------------------------------------- */
         .dropdown-cell {
-            background-color: #293A4B; 
-            border-radius: 8px; margin-top: 5px; margin-bottom: 5px; 
+            background-color: #293A4B; border-radius: 8px; margin-top: 5px; margin-bottom: 5px; 
             display: flex; align-items: center; justify-content: center;
             border: 2px solid transparent; height: 45px; box-sizing: border-box;
         }
@@ -210,10 +200,8 @@
     function updateDropdown(selectEl) {
         Array.from(selectEl.options).forEach(opt => opt.removeAttribute('selected'));
         selectEl.options[selectEl.selectedIndex].setAttribute('selected', 'selected');
-        
         const val = selectEl.value;
         const parentCell = selectEl.parentElement;
-        
         if (val && NUMBER_COLORS[val]) {
             parentCell.style.backgroundColor = NUMBER_COLORS[val].bg;
             parentCell.style.borderColor = "rgba(0,0,0,0.2)";
@@ -288,17 +276,27 @@
             board.innerHTML += html;
         }
 
-        // --- แถว 1: ไพ่ DATE, กล่องข้อมูล, ไพ่ครู ---
+        // --- แถว 1: DATE, กล่องข้อมูล, ไพ่ครูจัดกลุ่ม (Flexbox) ---
         addCard(data.DATE[0], 1, 2, null); 
         
-        // เพิ่มกล่องข้อมูลเจ้าชะตา ครอบคลุมคอลัมน์ 3 ถึง 8 (ระยะ 6 ช่อง)
+        // กล่องข้อมูลเจ้าชะตา พร้อมข้อความตั้งต้น
         board.innerHTML += `
             <div class="client-info-container" style="grid-area: 1 / 3 / span 1 / span 6;">
-                <textarea class="client-info-box" placeholder="ข้อมูลเจ้าชะตา...\nชื่อ-สกุล:\nวันเดือนปีเกิด / อายุ:"></textarea>
+                <textarea class="client-info-box">เจ้าชะตา : \nวันเดือนปีเกิด : \nข้อมูลประกอบ : </textarea>
             </div>
         `;
 
-        TEACHER_CARDS.forEach((c, i) => addCard(c, 1, 9 + i, null)); 
+        // สร้างกล่อง Flexbox สำหรับไพ่ครูโดยเฉพาะ เพื่อให้ไพ่แนบชิดกัน (gap: 10px)
+        let teacherCardsHtml = `<div style="grid-area: 1 / 9 / span 1 / span 6; display: flex; gap: 10px; justify-content: space-between;">`;
+        TEACHER_CARDS.forEach(c => {
+            teacherCardsHtml += `
+                <div class="card-item card-default" style="flex: 1;">
+                    <img src="images/${c}.jpg" onerror="this.src='images/back.jpg';">
+                </div>`;
+        });
+        teacherCardsHtml += `</div>`;
+        board.innerHTML += teacherCardsHtml;
+
         board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2 / 9 / span 1 / span 6;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
         // --- แถว 2-5: ไพ่หลัก ---
@@ -395,7 +393,7 @@
             }
         });
 
-        // จัดการกล่องข้อมูลเจ้าชะตา (Textarea) ให้เซฟภาพออกมาเป๊ะที่สุด
+        // จัดการกล่องข้อมูลเจ้าชะตา (Textarea) ให้เซฟภาพออกมาจัดชิดซ้ายเป๊ะ
         document.querySelectorAll('.client-info-box').forEach(txt => {
             const val = txt.value;
             const div = document.createElement('div');
@@ -406,13 +404,14 @@
             div.style.padding = '10px 15px';
             div.style.color = '#17202a';
             div.style.fontFamily = "'TH SarabunPSK', 'Sarabun', sans-serif";
-            div.style.fontSize = '1.3em';
+            div.style.fontSize = '1.45em';
             div.style.fontWeight = 'bold';
             div.style.lineHeight = '1.5';
             div.style.whiteSpace = 'pre-wrap';
             div.style.width = '100%';
             div.style.height = '100%';
             div.style.boxSizing = 'border-box';
+            div.style.textAlign = 'left'; // สั่งจัดซ้ายตอนเซฟรูปภาพ
             div.innerText = val || " "; 
             txt.style.display = 'none';
             txt.parentNode.appendChild(div);
