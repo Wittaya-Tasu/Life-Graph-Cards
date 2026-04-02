@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v9.2 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v10.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -29,7 +29,6 @@
         .btn-save-pdf { background: #95a5a6; }
         .btn-save-pdf:hover { background: #7f8c8d; transform: translateY(-1px); }
 
-        /* พื้นหลังกระดาน #293A4B */
         .export-container { 
             background: #293A4B; 
             padding: 30px; 
@@ -72,7 +71,6 @@
 
         .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
         .card-default .pos-label.label-danger, .card-good .pos-label.label-danger, .card-neutral-status .pos-label.label-danger { color: #d32f2f !important; }
-
         .card-very-good .pos-label, .card-bad .pos-label, .card-very-bad .pos-label, .card-dark-gray .pos-label, .card-black .pos-label, .card-red .pos-label, .card-gold-zone .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.3) !important; }
 
         .card-default { background-color: #f2f4f4 !important; border-color: #d5d8dc !important; }
@@ -89,25 +87,24 @@
         .teacher-watermark { font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px; }
 
         /* ---------------------------------------------------
-           Dropdown แถวที่ 10 (v9.2 ปรับจัดกึ่งกลางและพรางกล่อง)
+           Dropdown แถวที่ 10
         --------------------------------------------------- */
         .dropdown-cell {
-            background-color: #293A4B; /* เริ่มต้นให้กลืนกับพื้นหลัง */
+            background-color: #293A4B; 
             border-radius: 8px;
             margin-top: 5px; 
             margin-bottom: 5px; 
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid transparent; /* ขอบล่องหนเริ่มต้น */
+            border: 2px solid transparent; 
             height: 45px;
-            overflow: hidden;
             box-sizing: border-box;
         }
 
         .number-dropdown {
             background: transparent;
-            color: #293A4B; /* สีเดียวกับพื้นหลังเริ่มต้น */
+            color: #293A4B; 
             font-weight: 700;
             font-size: 1.6em;
             border: none;
@@ -115,24 +112,16 @@
             cursor: pointer;
             font-family: 'Kanit', sans-serif;
             width: 100%;
-            height: 100%;
             text-align: center;
             text-align-last: center; 
             -webkit-appearance: none; 
             -moz-appearance: none;    
             appearance: none;         
-            /* ปรับ line-height ให้เท่ากับความสูงกล่องเพื่อกึ่งกลางแนวตั้ง */
-            line-height: 41px; 
-            display: block;
-            margin: 0;
             padding: 0;
+            margin: 0;
         }
 
-        .number-dropdown option {
-            color: #000;
-            background: #fff;
-            font-size: 18px;
-        }
+        .number-dropdown option { color: #000; background: #fff; font-size: 18px; }
 
     </style>
 </head>
@@ -204,7 +193,6 @@
             parentCell.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
             selectEl.style.color = NUMBER_COLORS[val].color;
         } else {
-            // กรณีเลือก "-" ให้สีกลืนไปกับพื้นหลังกรมท่า
             parentCell.style.backgroundColor = "#293A4B"; 
             parentCell.style.borderColor = "transparent";
             parentCell.style.boxShadow = "none";
@@ -315,7 +303,32 @@
         return positions;
     }
 
+    // ฟังก์ชันเสริมสำหรับแก้ไข Bug ของ html2canvas (ซ่อน Select ชั่วคราวแล้วโชว์ข้อความแทนตอนแคปภาพ)
+    function replaceSelectsForCapture() {
+        const selects = document.querySelectorAll('.number-dropdown');
+        selects.forEach(sel => {
+            const val = sel.value;
+            const span = document.createElement('span');
+            span.className = 'print-temp-span';
+            span.style.fontWeight = '700';
+            span.style.fontSize = '1.6em';
+            span.style.fontFamily = "'Kanit', sans-serif";
+            span.style.color = sel.style.color; // ให้สีตรงกับที่แสดงอยู่
+            span.innerText = val === "" ? "-" : val; // ดึงค่าไปใส่ใน span
+            
+            sel.style.display = 'none'; // ซ่อน Dropdown
+            sel.parentNode.appendChild(span); // เอา span มาเสียบแทนชั่วคราว
+        });
+    }
+
+    function restoreSelectsAfterCapture() {
+        document.querySelectorAll('.print-temp-span').forEach(span => span.remove());
+        document.querySelectorAll('.number-dropdown').forEach(sel => sel.style.display = 'block');
+    }
+
+    // อัปเดตปุ่ม Save ให้เรียกใช้ฟังก์ชันสับขาหลอกก่อนถ่ายรูป
     function saveAsImage() {
+        replaceSelectsForCapture(); // แปลงร่าง
         const target = document.getElementById('export-area');
         window.scrollTo(0,0);
         html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#293A4B" }).then(canvas => {
@@ -323,17 +336,21 @@
             link.download = 'กราฟชีวิต-หมอวิทยา.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
+            restoreSelectsAfterCapture(); // คืนร่าง
         });
     }
 
     function saveAsPdf() {
+        replaceSelectsForCapture(); // แปลงร่าง
         const target = document.getElementById('export-area');
         const opt = {
             margin: 0.2, filename: 'กราฟชีวิต-หมอวิทยา.pdf', image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true, backgroundColor: "#293A4B" },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
         };
-        html2pdf().set(opt).from(target).save();
+        html2pdf().set(opt).from(target).save().then(() => {
+            restoreSelectsAfterCapture(); // คืนร่างเมื่อโหลด PDF เสร็จ
+        });
     }
 </script>
 </body>
