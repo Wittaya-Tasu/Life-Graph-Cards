@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v13.5 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v14.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -86,35 +86,33 @@
 
         .teacher-watermark { font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px; }
 
-        /* ---------------------------------------------------
-           กล่องข้อมูลเจ้าชะตา (อัปเดต v13.3 โปร่งใส ไม่มีขอบ ตัวหนังสือสีขาว)
-        --------------------------------------------------- */
-        .client-info-container { display: flex; align-items: stretch; width: 100%; }
-        .client-info-box {
+        /* ลายน้ำทับบนไพ่ครู */
+        .teacher-overlay-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 100%;
-            background-color: transparent; /* เปลี่ยนเป็นโปร่งใส */
-            border: none; /* ลบเส้นขอบ */
-            border-radius: 10px;
-            padding: 10px 15px;
-            color: #ffffff; /* เปลี่ยนตัวหนังสือเป็นสีขาว */
-            font-family: 'TH SarabunPSK', 'Sarabun', sans-serif; 
-            font-size: 2.00em; 
-            font-weight: bold;
-            line-height: 1.5;
-            resize: none;
-            outline: none;
-            box-sizing: border-box;
-            box-shadow: none; /* ลบเงา */
-            text-align: left; 
-        }
-        /* ปรับสีข้อความ Placeholder ให้กลมกลืน (กรณีลบข้อความทิ้ง) */
-        .client-info-box::placeholder {
-            color: rgba(255,255,255,0.6);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.85); /* สีขาวโปร่งแสง */
+            font-size: 2.1em;
+            font-weight: 700;
+            font-family: 'Kanit', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9), 0px 0px 10px rgba(0,0,0,0.6);
+            pointer-events: none; /* ไม่ให้รบกวนการคลิกเมาส์ */
+            z-index: 10;
+            white-space: nowrap;
         }
 
-        /* ---------------------------------------------------
-           Dropdown & กล่อง Custom
-        --------------------------------------------------- */
+        .client-info-container { display: flex; align-items: stretch; width: 100%; }
+        .client-info-box {
+            width: 100%; background-color: transparent; border: none; border-radius: 10px;
+            padding: 10px 15px; color: #ffffff; font-family: 'TH SarabunPSK', 'Sarabun', sans-serif; 
+            font-size: 2.00em; font-weight: bold; line-height: 1.5; resize: none; outline: none;
+            box-sizing: border-box; box-shadow: none; text-align: left; 
+        }
+        .client-info-box::placeholder { color: rgba(255,255,255,0.6); }
+
         .dropdown-cell {
             background-color: #293A4B; border-radius: 8px; margin-top: 5px; margin-bottom: 5px; 
             display: flex; align-items: center; justify-content: center;
@@ -219,10 +217,37 @@
         }
     }
 
+    // ฟังก์ชันอัปเดตและรันตัวเลข Auto-fill
     function updateCustomInput(inputEl) {
         const parent = inputEl.parentElement;
-        if (inputEl.value.trim() !== "") { parent.classList.add('active'); } 
-        else { if (!parent.dataset.customColor) { parent.classList.remove('active'); } }
+        const valStr = inputEl.value.trim();
+
+        if (valStr !== "") { 
+            parent.classList.add('active'); 
+            
+            // ตรวจสอบว่าเป็นตัวเลขเท่านั้นถึงจะรันต่อ
+            let num = parseInt(valStr, 10);
+            if (!isNaN(num) && /^-?\d+$/.test(valStr)) {
+                let row = parent.dataset.row;
+                let col = parseInt(parent.dataset.col, 10);
+                let currentVal = num;
+                
+                // สั่งให้กล่องทางขวามือทั้งหมดในแถวเดียวกันรันเลขบวก 1
+                for (let nextCol = col + 1; nextCol <= 13; nextCol++) {
+                    currentVal++;
+                    let nextCell = document.querySelector(`.custom-cell[data-row="${row}"][data-col="${nextCol}"]`);
+                    if (nextCell) {
+                        let nextInput = nextCell.querySelector('.manual-input');
+                        nextInput.value = currentVal;
+                        nextCell.classList.add('active');
+                    }
+                }
+            }
+        } else { 
+            if (!parent.dataset.customColor) { 
+                parent.classList.remove('active'); 
+            } 
+        }
     }
 
     function updateCustomColor(pickerEl) {
@@ -283,21 +308,21 @@
         // --- แถว 1: DATE, กล่องข้อมูล, ไพ่ครูจัดกลุ่ม (Flexbox) ---
         addCard(data.DATE[0], 1, 2, null); 
         
-        // กล่องข้อมูลเจ้าชะตา พร้อมข้อความตั้งต้น
         board.innerHTML += `
             <div class="client-info-container" style="grid-area: 1 / 3 / span 1 / span 6;">
                 <textarea class="client-info-box">เจ้าชะตา : \nวันเดือนปีเกิด : \nข้อมูลประกอบ : </textarea>
             </div>
         `;
 
-        // สร้างกล่อง Flexbox สำหรับไพ่ครูโดยเฉพาะ เพื่อให้ไพ่แนบชิดกัน (gap: 10px)
-        let teacherCardsHtml = `<div style="grid-area: 1 / 9 / span 1 / span 6; display: flex; gap: 10px; justify-content: space-between;">`;
+        // ไพ่ครูพร้อมลายน้ำ
+        let teacherCardsHtml = `<div style="grid-area: 1 / 9 / span 1 / span 6; display: flex; gap: 10px; justify-content: space-between; position: relative;">`;
         TEACHER_CARDS.forEach(c => {
             teacherCardsHtml += `
                 <div class="card-item card-default" style="flex: 1;">
                     <img src="images/${c}.jpg" onerror="this.src='images/back.jpg';">
                 </div>`;
         });
+        teacherCardsHtml += `<div class="teacher-overlay-text">ลิขสิทธิ์ พรหมญาณพยากรณ์ : หมอวิทยา ธรรมนาย</div>`;
         teacherCardsHtml += `</div>`;
         board.innerHTML += teacherCardsHtml;
 
@@ -328,10 +353,19 @@
         // แถว 7: ไพ่ SEVEN_BASE
         if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถว 8: กล่อง Custom
+        // แถว 8: กล่อง Custom แถวที่ 1
         for(let col = 2; col <= 13; col++) {
             board.innerHTML += `
-                <div class="custom-cell" style="grid-area: 8 / ${col} / span 1 / span 1;">
+                <div class="custom-cell" data-row="8" data-col="${col}" style="grid-area: 8 / ${col} / span 1 / span 1;">
+                    <input type="text" class="manual-input" placeholder="-" oninput="updateCustomInput(this)" maxlength="5">
+                    <input type="color" class="color-picker" value="#ecf0f1" title="เปลี่ยนสีพื้นหลัง" onchange="updateCustomColor(this)">
+                </div>`;
+        }
+
+        // แถว 9: กล่อง Custom แถวที่ 2 (เพิ่มใหม่)
+        for(let col = 2; col <= 13; col++) {
+            board.innerHTML += `
+                <div class="custom-cell" data-row="9" data-col="${col}" style="grid-area: 9 / ${col} / span 1 / span 1;">
                     <input type="text" class="manual-input" placeholder="-" oninput="updateCustomInput(this)" maxlength="5">
                     <input type="color" class="color-picker" value="#ecf0f1" title="เปลี่ยนสีพื้นหลัง" onchange="updateCustomColor(this)">
                 </div>`;
@@ -368,7 +402,6 @@
     }
 
     function replaceSelectsForCapture() {
-        // จัดการ Dropdown
         document.querySelectorAll('.number-dropdown').forEach(sel => {
             const val = sel.value;
             const span = document.createElement('span');
@@ -380,7 +413,6 @@
             sel.parentNode.appendChild(span); 
         });
 
-        // จัดการ Custom Input
         document.querySelectorAll('.manual-input').forEach(inp => {
             const parent = inp.parentElement;
             if(parent.classList.contains('active')) {
@@ -397,16 +429,15 @@
             }
         });
 
-        // จัดการกล่องข้อมูลเจ้าชะตา (Textarea) ให้เซฟภาพออกมาโปร่งใส และตัวหนังสือสีขาว
         document.querySelectorAll('.client-info-box').forEach(txt => {
             const val = txt.value;
             const div = document.createElement('div');
             div.className = 'print-temp-span'; 
-            div.style.backgroundColor = 'transparent'; /* ปรับเป็นโปร่งใสตอนเซฟ */
-            div.style.border = 'none'; /* เอาขอบออกตอนเซฟ */
+            div.style.backgroundColor = 'transparent'; 
+            div.style.border = 'none'; 
             div.style.borderRadius = '10px';
             div.style.padding = '10px 15px';
-            div.style.color = '#ffffff'; /* ให้เป็นสีขาวตอนเซฟ */
+            div.style.color = '#ffffff'; 
             div.style.fontFamily = "'TH SarabunPSK', 'Sarabun', sans-serif";
             div.style.fontSize = '2.00em';
             div.style.fontWeight = 'bold';
