@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v14.0 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v14.1 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -86,7 +86,6 @@
 
         .teacher-watermark { font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px; }
 
-        /* ลายน้ำทับบนไพ่ครู */
         .teacher-overlay-text {
             position: absolute;
             top: 50%;
@@ -94,12 +93,12 @@
             transform: translate(-50%, -50%);
             width: 100%;
             text-align: center;
-            color: rgba(255, 255, 255, 0.85); /* สีขาวโปร่งแสง */
+            color: rgba(255, 255, 255, 0.85); 
             font-size: 2.1em;
             font-weight: 700;
             font-family: 'Kanit', sans-serif;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9), 0px 0px 10px rgba(0,0,0,0.6);
-            pointer-events: none; /* ไม่ให้รบกวนการคลิกเมาส์ */
+            pointer-events: none; 
             z-index: 10;
             white-space: nowrap;
         }
@@ -217,7 +216,6 @@
         }
     }
 
-    // ฟังก์ชันอัปเดตและรันตัวเลข Auto-fill
     function updateCustomInput(inputEl) {
         const parent = inputEl.parentElement;
         const valStr = inputEl.value.trim();
@@ -225,14 +223,12 @@
         if (valStr !== "") { 
             parent.classList.add('active'); 
             
-            // ตรวจสอบว่าเป็นตัวเลขเท่านั้นถึงจะรันต่อ
             let num = parseInt(valStr, 10);
             if (!isNaN(num) && /^-?\d+$/.test(valStr)) {
                 let row = parent.dataset.row;
                 let col = parseInt(parent.dataset.col, 10);
                 let currentVal = num;
                 
-                // สั่งให้กล่องทางขวามือทั้งหมดในแถวเดียวกันรันเลขบวก 1
                 for (let nextCol = col + 1; nextCol <= 13; nextCol++) {
                     currentVal++;
                     let nextCell = document.querySelector(`.custom-cell[data-row="${row}"][data-col="${nextCol}"]`);
@@ -305,7 +301,7 @@
             board.innerHTML += html;
         }
 
-        // --- แถว 1: DATE, กล่องข้อมูล, ไพ่ครูจัดกลุ่ม (Flexbox) ---
+        // แถว 1: DATE, กล่องข้อมูล, ไพ่ครูจัดกลุ่ม
         addCard(data.DATE[0], 1, 2, null); 
         
         board.innerHTML += `
@@ -314,7 +310,6 @@
             </div>
         `;
 
-        // ไพ่ครูพร้อมลายน้ำ
         let teacherCardsHtml = `<div style="grid-area: 1 / 9 / span 1 / span 6; display: flex; gap: 10px; justify-content: space-between; position: relative;">`;
         TEACHER_CARDS.forEach(c => {
             teacherCardsHtml += `
@@ -328,7 +323,7 @@
 
         board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2 / 9 / span 1 / span 6;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
-        // --- แถว 2-5: ไพ่หลัก ---
+        // แถว 2-5: ไพ่หลัก
         if(data.DAY) data.DAY.forEach((c, i) => addCard(c, 2, i + 2, ROW_2_TITLES[i]));
         if(data.MONTH) data.MONTH.forEach((c, i) => {
             let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i);
@@ -353,7 +348,7 @@
         // แถว 7: ไพ่ SEVEN_BASE
         if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถว 8: กล่อง Custom แถวที่ 1
+        // แถว 8: กล่อง Custom 1
         for(let col = 2; col <= 13; col++) {
             board.innerHTML += `
                 <div class="custom-cell" data-row="8" data-col="${col}" style="grid-area: 8 / ${col} / span 1 / span 1;">
@@ -362,7 +357,7 @@
                 </div>`;
         }
 
-        // แถว 9: กล่อง Custom แถวที่ 2 (เพิ่มใหม่)
+        // แถว 9: กล่อง Custom 2
         for(let col = 2; col <= 13; col++) {
             board.innerHTML += `
                 <div class="custom-cell" data-row="9" data-col="${col}" style="grid-area: 9 / ${col} / span 1 / span 1;">
@@ -488,6 +483,16 @@
             restoreSelectsAfterCapture();
         });
     }
+
+    // ฟังก์ชันใหม่: ดักจับข้อมูลตอนเปิดหน้าเว็บ (ถ้ามีข้อมูลถูกส่งมาจากระบบ 1)
+    window.onload = function() {
+        const autoData = localStorage.getItem('promyan_auto_data');
+        if (autoData) {
+            document.getElementById('data-input').value = autoData;
+            renderBoard(); // สั่งเรนเดอร์กระดานทันที
+            localStorage.removeItem('promyan_auto_data'); // ล้างข้อมูลทิ้ง เพื่อไม่ให้โหลดซ้ำเวลาเปิดใหม่ปกติ
+        }
+    };
 </script>
 </body>
 </html>
