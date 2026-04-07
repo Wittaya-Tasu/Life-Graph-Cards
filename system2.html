@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v14.1 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v14.2 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -28,6 +28,10 @@
         .btn-save-image:hover { background: #2ecc71; transform: translateY(-1px); }
         .btn-save-pdf { background: #95a5a6; }
         .btn-save-pdf:hover { background: #7f8c8d; transform: translateY(-1px); }
+        
+        /* ปุ่ม Reset แถวตัวเลข */
+        .btn-reset-row { background: #e74c3c; }
+        .btn-reset-row:hover { background: #c0392b; transform: translateY(-1px); }
 
         .export-container { 
             background: #293A4B; 
@@ -86,6 +90,7 @@
 
         .teacher-watermark { font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px; }
 
+        /* ลายน้ำทับบนไพ่ครู (ปรับความโปร่งใสและขนาดได้ที่นี่) */
         .teacher-overlay-text {
             position: absolute;
             top: 50%;
@@ -93,8 +98,8 @@
             transform: translate(-50%, -50%);
             width: 100%;
             text-align: center;
-            color: rgba(255, 255, 255, 0.85); 
-            font-size: 2.1em;
+            color: rgba(255, 255, 255, 0.50); 
+            font-size: 1.6em; /* ปรับลดขนาดลงไม่ให้ล้นขอบ */
             font-weight: 700;
             font-family: 'Kanit', sans-serif;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9), 0px 0px 10px rgba(0,0,0,0.6);
@@ -156,6 +161,7 @@
         <div id="save-area" class="save-controls">
             <button class="btn-save btn-save-image" onclick="saveAsImage()">💾 SAVE IMAGE</button>
             <button class="btn-save btn-save-pdf" onclick="saveAsPdf()">📑 SAVE PDF</button>
+            <button class="btn-save btn-reset-row" onclick="clearCustomRows()">🧹 RESET แถวตัวเลข</button>
         </div>
     </div>
 
@@ -225,11 +231,19 @@
             
             let num = parseInt(valStr, 10);
             if (!isNaN(num) && /^-?\d+$/.test(valStr)) {
-                let row = parent.dataset.row;
+                let row = parseInt(parent.dataset.row, 10);
                 let col = parseInt(parent.dataset.col, 10);
                 let currentVal = num;
                 
                 for (let nextCol = col + 1; nextCol <= 13; nextCol++) {
+                    // --- เพิ่มเงื่อนไข ข้อ 1: ถ้าเป็นแถวล่างสุด (แถวที่ 9 ของ Grid) ให้เช็คข้อมูลแถวบน (แถวที่ 8) ---
+                    if (row === 9) {
+                        let topRowInput = document.querySelector(`.custom-cell[data-row="8"][data-col="${nextCol}"] .manual-input`);
+                        if (topRowInput && topRowInput.value.trim() !== "" && topRowInput.value.trim() !== "-") {
+                            break; // เบรกหยุดการเติมตัวเลขทันที
+                        }
+                    }
+
                     currentVal++;
                     let nextCell = document.querySelector(`.custom-cell[data-row="${row}"][data-col="${nextCol}"]`);
                     if (nextCell) {
@@ -251,6 +265,21 @@
         parent.classList.add('active');
         parent.style.backgroundColor = pickerEl.value;
         parent.dataset.customColor = "true"; 
+    }
+
+    // --- ฟังก์ชันล้างข้อมูลแถวตัวเลขด้านล่าง ---
+    function clearCustomRows() {
+        document.querySelectorAll('.custom-cell').forEach(cell => {
+            let input = cell.querySelector('.manual-input');
+            let picker = cell.querySelector('.color-picker');
+            
+            input.value = ""; // ล้างค่าตัวเลข
+            picker.value = "#ecf0f1"; // คืนค่าสีตั้งต้นของจานสี
+            delete cell.dataset.customColor; // ลบ Tag ที่จำว่าเคยเปลี่ยนสี
+            
+            cell.style.backgroundColor = ""; // คืนพื้นหลังให้พรางตัวกลืนกับกระดาน
+            cell.classList.remove('active'); // ปิดกล่อง
+        });
     }
 
     function renderBoard() {
@@ -484,13 +513,12 @@
         });
     }
 
-    // ฟังก์ชันใหม่: ดักจับข้อมูลตอนเปิดหน้าเว็บ (ถ้ามีข้อมูลถูกส่งมาจากระบบ 1)
     window.onload = function() {
         const autoData = localStorage.getItem('promyan_auto_data');
         if (autoData) {
             document.getElementById('data-input').value = autoData;
-            renderBoard(); // สั่งเรนเดอร์กระดานทันที
-            localStorage.removeItem('promyan_auto_data'); // ล้างข้อมูลทิ้ง เพื่อไม่ให้โหลดซ้ำเวลาเปิดใหม่ปกติ
+            renderBoard(); 
+            localStorage.removeItem('promyan_auto_data'); 
         }
     };
 </script>
