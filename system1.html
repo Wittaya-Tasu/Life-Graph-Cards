@@ -43,6 +43,8 @@
         .export-box { width: 100%; height: 150px; padding: 15px; font-family: monospace; font-size: 16px; border: 2px solid #3498db; border-radius: 8px; background: #f8f9fa; resize: none; box-sizing: border-box; margin-bottom: 15px;}
         
         .btn-action { width: 100%; padding: 15px; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.2em; font-family: 'Kanit', sans-serif; transition: 0.3s; margin-bottom: 10px;}
+        .btn-auto { background: #8e44ad; margin-bottom: 20px; font-size: 1.3em; box-shadow: 0 4px 10px rgba(142, 68, 173, 0.4);}
+        .btn-auto:hover { background: #732d91; transform: translateY(-2px); }
         .btn-copy { background: #2980b9; }
         .btn-copy:hover { background: #1f618d; }
         .btn-reset { background: #95a5a6; }
@@ -68,12 +70,13 @@
     </div>
 
     <div id="result-area" class="result-section">
-        <h3 style="color: #2980b9; font-family: 'Kanit', sans-serif;">📋 รหัสข้อมูลสำหรับนำไปวางในระบบที่ 2</h3>
-        <p style="color: #666; font-size: 0.9em;">กดปุ่มคัดลอกด้านล่าง แล้วนำข้อความในกล่องนี้ไปวางในระบบแสดงภาพไพ่ได้เลยครับ</p>
+        <h3 style="color: #2980b9; font-family: 'Kanit', sans-serif;">📋 รหัสข้อมูลพร้อมใช้งาน</h3>
         
         <textarea id="export-data" class="export-box" readonly></textarea>
         
-        <button class="btn-action btn-copy" onclick="copyData()">📋 คัดลอกรหัสข้อมูลทั้งหมด</button>
+        <button class="btn-action btn-auto" onclick="sendToSystem2()">🚀 ส่งข้อมูลไปสร้างกระดานอัตโนมัติ (ระบบที่ 2)</button>
+        
+        <button class="btn-action btn-copy" onclick="copyData()">📋 คัดลอกรหัสข้อมูลทั้งหมด (สำรอง)</button>
         <div id="copy-status" class="status-text"></div>
         <button class="btn-action btn-reset" onclick="location.reload()">🔄 เริ่มการดึงข้อมูลใหม่</button>
     </div>
@@ -186,7 +189,6 @@
         document.getElementById('phase-container').style.display = 'none';
         document.getElementById('result-area').style.display = 'block';
 
-        // สร้าง Data Text แบบโครงสร้างชัดเจนให้ระบบที่ 2 อ่านง่ายที่สุด
         let exportText = `DATE:${results.phase1.join(',')}\n`;
         exportText += `DAY:${results.phase2.join(',')}\n`;
         exportText += `MONTH:${results.phase3.join(',')}\n`;
@@ -203,9 +205,16 @@
         copyText.select();
         copyText.setSelectionRange(0, 99999); 
         navigator.clipboard.writeText(copyText.value).then(() => {
-            document.getElementById('copy-status').innerText = "✅ คัดลอกข้อมูลสำเร็จ! เตรียมนำไปวางในระบบที่ 2 ได้เลย";
+            document.getElementById('copy-status').innerText = "✅ คัดลอกข้อมูลสำเร็จ!";
             setTimeout(() => { document.getElementById('copy-status').innerText = ""; }, 3000);
         });
+    }
+
+    // ฟังก์ชันใหม่: ฝากข้อมูลไว้ในเครื่อง แล้วกระโดดไปเปิดระบบ 2
+    function sendToSystem2() {
+        const data = document.getElementById("export-data").value;
+        localStorage.setItem('promyan_auto_data', data);
+        window.location.href = 'system2.html'; // ต้องตั้งชื่อไฟล์ระบบที่ 2 ให้ตรงกับชื่อนี้นะครับ
     }
 
     window.onload = initSystem;
