@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v15.3 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v15.4 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -145,26 +145,24 @@
         .color-picker::-webkit-color-swatch { border: none; border-radius: 50%; }
 
         /* ---------------------------------------------------
-           ระบบ Highlight คอลัมน์ (แยกเฉพาะชุดกราฟชีวิต - ปลดล็อกลิมิต)
+           1. ระบบ Highlight คอลัมน์ (ชุดกราฟชีวิต แถว 5, 6, 8, 9)
         --------------------------------------------------- */
         .dim-target-graph { transition: all 0.4s ease; position: relative; }
-        
-        .grid-board.has-graph-highlight .dim-target-graph { 
-            opacity: 0.2; 
-            filter: grayscale(70%); 
-        }
-        
-        .grid-board.has-graph-highlight .dim-target-graph.highlighted { 
-            opacity: 1; 
-            filter: none; 
-            transform: scale(1.05); 
-            z-index: 20; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
-        }
-
+        .grid-board.has-graph-highlight .dim-target-graph { opacity: 0.2; filter: grayscale(70%); }
+        .grid-board.has-graph-highlight .dim-target-graph.highlighted { opacity: 1; filter: none; transform: scale(1.05); z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
         .click-to-highlight-graph { cursor: pointer; }
         .click-to-highlight-graph:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 10;}
         .grid-board.has-graph-highlight .dim-target-graph.click-to-highlight-graph { pointer-events: auto; }
+
+        /* ---------------------------------------------------
+           2. ระบบ Highlight กลุ่มความสัมพันธ์ (ชุดเลขเจ็ดตัว แถว 2, 3, 4, 7)
+        --------------------------------------------------- */
+        .dim-target-seven { transition: all 0.4s ease; position: relative; }
+        .grid-board.has-seven-highlight .dim-target-seven { opacity: 0.2; filter: grayscale(70%); }
+        .grid-board.has-seven-highlight .dim-target-seven.highlighted { opacity: 1; filter: none; transform: scale(1.05); z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,0.6); border-color: #f1c40f !important; }
+        .click-to-highlight-seven { cursor: pointer; }
+        .click-to-highlight-seven:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(241, 196, 15, 0.4); z-index: 10;}
+        .grid-board.has-seven-highlight .dim-target-seven.click-to-highlight-seven { pointer-events: auto; }
 
     </style>
 </head>
@@ -193,6 +191,17 @@
 </div>
 
 <script>
+    // ข้อมูลกลุ่มสายเลือด 7 กลุ่ม ตามศาสตร์พรหมญาณ
+    const CARD_GROUPS = {
+        "101":1, "201":1, "208":1, "301":1, "308":1,
+        "102":2, "202":2, "209":2, "302":2, "309":2,
+        "103":3, "203":3, "210":3, "303":3, "310":3,
+        "104":4, "204":4, "211":4, "304":4, "311":4,
+        "105":5, "205":5, "212":5, "305":5, "312":5,
+        "106":6, "206":6, "306":6,
+        "107":7, "207":7, "307":7
+    };
+
     const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
     const ROW_8_TITLES = ["พื้นดวง", "ทรัพย์สิน", "บ้านช่อง", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง", "โรคภัย", "ความสุข", "การงาน", "โชคลาภ", "สรุปชะตา"];
     const ROW_4_TITLES = ["ตัวเรา", "การเงิน", "เพื่อน", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง"];
@@ -225,6 +234,7 @@
     };
 
     let activeGraphHighlightCols = []; 
+    let activeSevenCol = null; // เก็บสถานะคอลัมน์ของฐาน 7 ที่กำลังคลิก
 
     function updateDropdown(selectEl) {
         Array.from(selectEl.options).forEach(opt => opt.removeAttribute('selected'));
@@ -250,21 +260,16 @@
 
         if (valStr !== "") { 
             parent.classList.add('active'); 
-            
             let num = parseInt(valStr, 10);
             if (!isNaN(num) && /^-?\d+$/.test(valStr)) {
                 let row = parseInt(parent.dataset.row, 10);
                 let col = parseInt(parent.dataset.col, 10);
                 let currentVal = num;
-                
                 for (let nextCol = col + 1; nextCol <= 13; nextCol++) {
                     if (row === 9) {
                         let topRowInput = document.querySelector(`.custom-cell[data-row="8"][data-col="${nextCol}"] .manual-input`);
-                        if (topRowInput && topRowInput.value.trim() !== "" && topRowInput.value.trim() !== "-") {
-                            break; 
-                        }
+                        if (topRowInput && topRowInput.value.trim() !== "" && topRowInput.value.trim() !== "-") { break; }
                     }
-
                     currentVal++;
                     let nextCell = document.querySelector(`.custom-cell[data-row="${row}"][data-col="${nextCol}"]`);
                     if (nextCell) {
@@ -275,9 +280,7 @@
                 }
             }
         } else { 
-            if (!parent.dataset.customColor) { 
-                parent.classList.remove('active'); 
-            } 
+            if (!parent.dataset.customColor) { parent.classList.remove('active'); } 
         }
     }
 
@@ -300,20 +303,13 @@
         });
     }
 
-    // --- ฟังก์ชัน Highlight คอลัมน์เฉพาะชุดกราฟชีวิต (ปลดล็อกให้เลือกได้ไม่จำกัด) ---
+    // --- ระบบ 1: Highlight คอลัมน์ชุดกราฟชีวิต ---
     function toggleGraphHighlight(col) {
         const board = document.getElementById('main-board');
         const colStr = String(col);
-
         const index = activeGraphHighlightCols.indexOf(colStr);
-        
-        if (index > -1) {
-            // ถ้ามีอยู่แล้วให้ลบออก (กดยกเลิก)
-            activeGraphHighlightCols.splice(index, 1);
-        } else {
-            // ถ้ายังไม่มีให้เพิ่มเข้าไปเลย (ไม่มีเงื่อนไขลบอันเก่าแล้ว)
-            activeGraphHighlightCols.push(colStr);
-        }
+        if (index > -1) { activeGraphHighlightCols.splice(index, 1); } 
+        else { activeGraphHighlightCols.push(colStr); }
 
         if (activeGraphHighlightCols.length === 0) {
             board.classList.remove('has-graph-highlight');
@@ -321,13 +317,57 @@
         } else {
             board.classList.add('has-graph-highlight');
             document.querySelectorAll('.dim-target-graph').forEach(el => {
-                if (activeGraphHighlightCols.includes(el.dataset.col)) {
-                    el.classList.add('highlighted');
-                } else {
-                    el.classList.remove('highlighted');
-                }
+                if (activeGraphHighlightCols.includes(el.dataset.col)) { el.classList.add('highlighted'); } 
+                else { el.classList.remove('highlighted'); }
             });
         }
+    }
+
+    // --- ระบบ 2: Highlight ความสัมพันธ์สายเลือดชุดเลข 7 ตัว ---
+    function toggleSevenHighlight(col) {
+        const board = document.getElementById('main-board');
+        
+        // ถ้ากดซ้ำคอลัมน์เดิม ให้ปิดไฟกลับสู่โหมดปกติ
+        if (activeSevenCol === col) {
+            activeSevenCol = null;
+            board.classList.remove('has-seven-highlight');
+            document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted'));
+            return;
+        }
+
+        // หาไพ่แกนนำในแถวที่ 4 (ปีนักษัตร) แนวตั้งเดียวกัน
+        const leaderEl = document.querySelector(`.dim-target-seven[data-row="4"][data-col="${col}"]`);
+        if (!leaderEl) return;
+
+        const leaderCode = leaderEl.dataset.code;
+        const targetGroup = CARD_GROUPS[leaderCode]; // หาสายเลือดของแกนนำ
+
+        activeSevenCol = col;
+        board.classList.add('has-seven-highlight');
+
+        // สแกนและเปิดไฟเฉพาะไพ่ 4 ใบที่เข้าเงื่อนไข
+        document.querySelectorAll('.dim-target-seven').forEach(el => {
+            const elRow = parseInt(el.dataset.row, 10);
+            const elCol = parseInt(el.dataset.col, 10);
+            const elCode = el.dataset.code;
+
+            let shouldHighlight = false;
+            
+            // 1. ใบที่คลิก (แถว 7 คอลัมน์ตรงกัน)
+            if (elRow === 7 && elCol === col) shouldHighlight = true;
+            // 2. แกนนำ (แถว 4 คอลัมน์ตรงกัน)
+            else if (elRow === 4 && elCol === col) shouldHighlight = true;
+            // 3. ไพ่วันเกิดที่อยู่กลุ่มเดียวกัน (แถว 2)
+            else if (elRow === 2 && CARD_GROUPS[elCode] === targetGroup) shouldHighlight = true;
+            // 4. ไพ่เดือนเกิดที่อยู่กลุ่มเดียวกัน (แถว 3)
+            else if (elRow === 3 && CARD_GROUPS[elCode] === targetGroup) shouldHighlight = true;
+
+            if (shouldHighlight) {
+                el.classList.add('highlighted');
+            } else {
+                el.classList.remove('highlighted');
+            }
+        });
     }
 
     function renderBoard() {
@@ -341,8 +381,12 @@
         const board = document.getElementById('main-board');
         
         board.innerHTML = '';
+        
+        // ล้างสถานะ Highlight ทั้งหมดเมื่อเรนเดอร์ใหม่
         board.classList.remove('has-graph-highlight'); 
+        board.classList.remove('has-seven-highlight');
         activeGraphHighlightCols = []; 
+        activeSevenCol = null;
 
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
@@ -350,12 +394,13 @@
             let titleHtml = "";
             let extraAttr = "";
             
-            // ใช้ dimClass เฉพาะแถว 5 (กราฟ) ลงมา ยกเว้นแถว 7 (เลขเจ็ดตัว) ไม่ให้เกี่ยว
-            let dimClass = (gridRow === 5 || gridRow === 6 || gridRow === 8 || gridRow === 9) ? "dim-target-graph" : ""; 
+            // แยกกลุ่ม Dim สำหรับ 2 ระบบ
+            let dimGraphClass = (gridRow === 5 || gridRow === 6 || gridRow === 8 || gridRow === 9) ? "dim-target-graph" : ""; 
+            let dimSevenClass = (gridRow === 2 || gridRow === 3 || gridRow === 4 || gridRow === 7) ? "dim-target-seven" : "";
 
             if (gridRow === 5) {
                 cardClass += " click-to-highlight-graph";
-                extraAttr = `onclick="toggleGraphHighlight(${gridCol})" title="คลิกเพื่อเน้นไพ่คอลัมน์นี้"`;
+                extraAttr += ` onclick="toggleGraphHighlight(${gridCol})" title="คลิกเพื่อเน้นไพ่กราฟชีวิต"`;
                 
                 if (WEALTH_POSITIONS.includes(title) && WEALTH_CARDS.includes(code)) { cardClass += " card-gold-zone"; } 
                 else if (title === "ศัตรู" || title === "โรคภัย") {
@@ -374,13 +419,24 @@
                 }
             } else { cardClass += " card-default"; }
 
+            // เพิ่ม Event คลิกให้กับไพ่แถว 7
+            if (gridRow === 7) {
+                cardClass += " click-to-highlight-seven";
+                extraAttr += ` onclick="toggleSevenHighlight(${gridCol})" title="คลิกเพื่อดูความสัมพันธ์กลุ่มไพ่เลข 7 ตัว"`;
+            }
+
             if (title) {
                 let titleClass = DANGER_TITLES.includes(title) ? "pos-label label-danger" : "pos-label";
                 titleHtml = `<span class="${titleClass}">${title}</span>`;
             }
 
             const html = `
-                <div class="${cardClass} ${dimClass}" data-col="${gridCol}" style="grid-area: ${gridRow} / ${gridCol} / span 1 / span 1;" ${extraAttr}>
+                <div class="${cardClass} ${dimGraphClass} ${dimSevenClass}" 
+                     data-col="${gridCol}" 
+                     data-row="${gridRow}" 
+                     data-code="${code}" 
+                     style="grid-area: ${gridRow} / ${gridCol} / span 1 / span 1;" 
+                     ${extraAttr}>
                     ${titleHtml}
                     <img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">
                 </div>
@@ -429,7 +485,6 @@
                 </div>`;
         }
 
-        // ไพ่แถว 7 ไม่มีคลาส dim-target-graph เพื่อไม่ให้โดนเอฟเฟกต์ไปด้วย
         if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
         for(let col = 2; col <= 13; col++) {
