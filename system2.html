@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v15.5 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v15.7 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -145,7 +145,7 @@
         .color-picker::-webkit-color-swatch { border: none; border-radius: 50%; }
 
         /* ---------------------------------------------------
-           1. ระบบ Highlight คอลัมน์ (ชุดกราฟชีวิต แถว 5, 6, 8, 9)
+           1. ระบบ Highlight คอลัมน์ (ชุดกราฟชีวิต)
         --------------------------------------------------- */
         .dim-target-graph { transition: all 0.4s ease; position: relative; }
         .grid-board.has-graph-highlight .dim-target-graph { opacity: 0.2; filter: grayscale(70%); }
@@ -306,6 +306,14 @@
     // --- ระบบ 1: Highlight คอลัมน์ชุดกราฟชีวิต ---
     function toggleGraphHighlight(col) {
         const board = document.getElementById('main-board');
+        
+        // เคลียร์โหมด 7 ตัว ออกก่อน (กันแสงตีกัน)
+        if (activeSevenCol !== null) {
+            activeSevenCol = null;
+            board.classList.remove('has-seven-highlight');
+            document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted'));
+        }
+
         const colStr = String(col);
         const index = activeGraphHighlightCols.indexOf(colStr);
         if (index > -1) { activeGraphHighlightCols.splice(index, 1); } 
@@ -317,8 +325,13 @@
         } else {
             board.classList.add('has-graph-highlight');
             document.querySelectorAll('.dim-target-graph').forEach(el => {
-                if (activeGraphHighlightCols.includes(el.dataset.col)) { el.classList.add('highlighted'); } 
-                else { el.classList.remove('highlighted'); }
+                const elRow = parseInt(el.dataset.row, 10);
+                // ดักไม่ให้แถว 7 สว่างขึ้นมาในโหมดกราฟชีวิต (ให้มันจางหายไปเลย)
+                if (activeGraphHighlightCols.includes(el.dataset.col) && elRow !== 7) { 
+                    el.classList.add('highlighted'); 
+                } else { 
+                    el.classList.remove('highlighted'); 
+                }
             });
         }
     }
@@ -327,6 +340,13 @@
     function toggleSevenHighlight(col) {
         const board = document.getElementById('main-board');
         
+        // เคลียร์โหมดกราฟชีวิต ออกก่อน (กันแสงตีกัน)
+        if (activeGraphHighlightCols.length > 0) {
+            activeGraphHighlightCols = [];
+            board.classList.remove('has-graph-highlight');
+            document.querySelectorAll('.dim-target-graph').forEach(el => el.classList.remove('highlighted'));
+        }
+
         if (activeSevenCol === col) {
             activeSevenCol = null;
             board.classList.remove('has-seven-highlight');
@@ -347,26 +367,18 @@
             const elRow = parseInt(el.dataset.row, 10);
             const elCol = parseInt(el.dataset.col, 10);
             const elCode = el.dataset.code;
-            
-            // เช็กว่าไพ่ใบนี้มีหัวข้อตำแหน่งด้านบนหรือไม่
             const hasTitle = el.dataset.hasTitle === "true";
 
             let shouldHighlight = false;
             
-            // 1. ใบที่คลิก (แถว 7 คอลัมน์ตรงกัน)
             if (elRow === 7 && elCol === col) shouldHighlight = true;
-            // 2. แกนนำ (แถว 4 คอลัมน์ตรงกัน) - ซึ่งมีตำแหน่งเสมอ
             else if (elRow === 4 && elCol === col) shouldHighlight = true;
-            // 3. ไพ่วันเกิดที่อยู่กลุ่มเดียวกัน (แถว 2) และมีตำแหน่งกำกับ
             else if (elRow === 2 && CARD_GROUPS[elCode] === targetGroup && hasTitle) shouldHighlight = true;
-            // 4. ไพ่เดือนเกิดที่อยู่กลุ่มเดียวกัน (แถว 3) และมีตำแหน่งกำกับ
             else if (elRow === 3 && CARD_GROUPS[elCode] === targetGroup && hasTitle) shouldHighlight = true;
 
-            if (shouldHighlight) {
-                el.classList.add('highlighted');
-            } else {
-                el.classList.remove('highlighted');
-            }
+            // แถว 5, 6, 8, 9 จะไม่เข้าเงื่อนไขด้านบนเลย จึงตกมาที่ else และจางหายไปอัตโนมัติ
+            if (shouldHighlight) { el.classList.add('highlighted'); } 
+            else { el.classList.remove('highlighted'); }
         });
     }
 
@@ -392,9 +404,9 @@
             let titleHtml = "";
             let extraAttr = "";
             
-            let dimGraphClass = (gridRow === 5 || gridRow === 6 || gridRow === 8 || gridRow === 9) ? "dim-target-graph" : ""; 
-            // ให้การ Dim ของระบบ 7 ครอบคลุมแถวอื่นๆ ด้วย เพื่อให้ไพ่ 4 ใบเด่นชัดที่สุด
-            let dimSevenClass = gridRow > 1 ? "dim-target-seven" : "";
+            // เพื่อให้เกิดการมืดสลับกันอย่างสมบูรณ์แบบ ทั้ง 2 Class ต้องครอบคลุมไพ่ทุกแถว (ยกเว้นแถว 1)
+            let dimGraphClass = gridRow >= 2 ? "dim-target-graph" : ""; 
+            let dimSevenClass = gridRow >= 2 ? "dim-target-seven" : "";
 
             if (gridRow === 5) {
                 cardClass += " click-to-highlight-graph";
@@ -478,7 +490,7 @@
             let optionsHtml = '<option value="" selected>-</option>';
             for(let n=1; n<=12; n++) { optionsHtml += `<option value="${n}">${n}</option>`; }
             board.innerHTML += `
-                <div class="dropdown-cell dim-target-graph dim-target-seven" data-col="${col}" style="grid-area: 6 / ${col} / span 1 / span 1;">
+                <div class="dropdown-cell dim-target-graph dim-target-seven" data-row="6" data-col="${col}" style="grid-area: 6 / ${col} / span 1 / span 1;">
                     <select class="number-dropdown" onchange="updateDropdown(this)">${optionsHtml}</select>
                 </div>`;
         }
