@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v15.1 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v15.2 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -29,7 +29,6 @@
         .btn-save-pdf { background: #95a5a6; }
         .btn-save-pdf:hover { background: #7f8c8d; transform: translateY(-1px); }
         
-        /* ปุ่ม Reset แถวตัวเลข */
         .btn-reset-row { background: #e74c3c; }
         .btn-reset-row:hover { background: #c0392b; transform: translateY(-1px); }
 
@@ -90,7 +89,6 @@
 
         .teacher-watermark { font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; align-self: start; padding-right: 5px; margin-top: -5px; letter-spacing: 0.5px; }
 
-        /* ลายน้ำทับบนไพ่ครู */
         .teacher-overlay-text {
             position: absolute;
             top: 50%;
@@ -147,16 +145,16 @@
         .color-picker::-webkit-color-swatch { border: none; border-radius: 50%; }
 
         /* ---------------------------------------------------
-           ระบบ Highlight คอลัมน์ (Focus Mode) รองรับการเลือกหลายอัน
+           ระบบ Highlight คอลัมน์ (แยกเฉพาะชุดกราฟชีวิต)
         --------------------------------------------------- */
-        .dim-target { transition: all 0.4s ease; position: relative; }
+        .dim-target-graph { transition: all 0.4s ease; position: relative; }
         
-        .grid-board.has-highlight .dim-target { 
+        .grid-board.has-graph-highlight .dim-target-graph { 
             opacity: 0.2; 
             filter: grayscale(70%); 
         }
         
-        .grid-board.has-highlight .dim-target.highlighted { 
+        .grid-board.has-graph-highlight .dim-target-graph.highlighted { 
             opacity: 1; 
             filter: none; 
             transform: scale(1.05); 
@@ -164,9 +162,9 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
         }
 
-        .click-to-highlight { cursor: pointer; }
-        .click-to-highlight:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 10;}
-        .grid-board.has-highlight .dim-target.click-to-highlight { pointer-events: auto; }
+        .click-to-highlight-graph { cursor: pointer; }
+        .click-to-highlight-graph:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 10;}
+        .grid-board.has-graph-highlight .dim-target-graph.click-to-highlight-graph { pointer-events: auto; }
 
     </style>
 </head>
@@ -226,7 +224,7 @@
         "12": { bg: "#FF0066", color: "#F2F2F2" } 
     };
 
-    let activeHighlightCols = []; // อาร์เรย์สำหรับเก็บคอลัมน์ที่ถูกไฮไลท์ (สูงสุด 3 อัน)
+    let activeGraphHighlightCols = []; 
 
     function updateDropdown(selectEl) {
         Array.from(selectEl.options).forEach(opt => opt.removeAttribute('selected'));
@@ -302,36 +300,29 @@
         });
     }
 
-    // --- ฟังก์ชัน Highlight คอลัมน์ (รองรับการเลือก 3 คอลัมน์) ---
-    function toggleHighlight(col) {
+    // --- ฟังก์ชัน Highlight คอลัมน์เฉพาะชุดกราฟชีวิต (แถว 5, 6, 8, 9) ---
+    function toggleGraphHighlight(col) {
         const board = document.getElementById('main-board');
         const colStr = String(col);
 
-        // ตรวจสอบว่าคอลัมน์นี้ถูกไฮไลท์อยู่แล้วหรือไม่
-        const index = activeHighlightCols.indexOf(colStr);
+        const index = activeGraphHighlightCols.indexOf(colStr);
         
         if (index > -1) {
-            // ถ้ามีอยู่แล้ว ให้ลบออก (ยกเลิกไฮไลท์คอลัมน์นี้)
-            activeHighlightCols.splice(index, 1);
+            activeGraphHighlightCols.splice(index, 1);
         } else {
-            // ถ้ายังไม่มี ให้เพิ่มเข้าไปในระบบ
-            // หากเกิน 3 ให้ดันอันแรกสุดออก (FIFO)
-            if (activeHighlightCols.length >= 3) {
-                activeHighlightCols.shift(); 
+            if (activeGraphHighlightCols.length >= 3) {
+                activeGraphHighlightCols.shift(); 
             }
-            activeHighlightCols.push(colStr);
+            activeGraphHighlightCols.push(colStr);
         }
 
-        // อัปเดตการแสดงผล UI 
-        if (activeHighlightCols.length === 0) {
-            // ถ้าไม่มีคอลัมน์ไหนถูกเลือกเลย ให้ลบโหมด Highlight ออก
-            board.classList.remove('has-highlight');
-            document.querySelectorAll('.dim-target').forEach(el => el.classList.remove('highlighted'));
+        if (activeGraphHighlightCols.length === 0) {
+            board.classList.remove('has-graph-highlight');
+            document.querySelectorAll('.dim-target-graph').forEach(el => el.classList.remove('highlighted'));
         } else {
-            // ถ้ามีการเลือกคอลัมน์ ให้เปิดโหมด Highlight
-            board.classList.add('has-highlight');
-            document.querySelectorAll('.dim-target').forEach(el => {
-                if (activeHighlightCols.includes(el.dataset.col)) {
+            board.classList.add('has-graph-highlight');
+            document.querySelectorAll('.dim-target-graph').forEach(el => {
+                if (activeGraphHighlightCols.includes(el.dataset.col)) {
                     el.classList.add('highlighted');
                 } else {
                     el.classList.remove('highlighted');
@@ -350,21 +341,22 @@
         const posRow10 = calculateDynamicPositions(data.YEAR, "301"); 
         const board = document.getElementById('main-board');
         
-        // เคลียร์กระดาน และล้างค่า Highlight ทุกครั้งที่มีการรันข้อมูลใหม่
         board.innerHTML = '';
-        board.classList.remove('has-highlight'); 
-        activeHighlightCols = []; 
+        board.classList.remove('has-graph-highlight'); 
+        activeGraphHighlightCols = []; 
 
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
             let cardClass = "card-item";
             let titleHtml = "";
             let extraAttr = "";
-            let dimClass = gridRow > 1 ? "dim-target" : ""; 
+            
+            // ใช้ dimClass เฉพาะแถว 5 (กราฟ) ลงมา ยกเว้นแถว 7 (เลขเจ็ดตัว) ไม่ให้เกี่ยว
+            let dimClass = (gridRow === 5 || gridRow === 6 || gridRow === 8 || gridRow === 9) ? "dim-target-graph" : ""; 
 
             if (gridRow === 5) {
-                cardClass += " click-to-highlight";
-                extraAttr = `onclick="toggleHighlight(${gridCol})" title="คลิกเพื่อเน้นไพ่คอลัมน์นี้"`;
+                cardClass += " click-to-highlight-graph";
+                extraAttr = `onclick="toggleGraphHighlight(${gridCol})" title="คลิกเพื่อเน้นไพ่คอลัมน์นี้"`;
                 
                 if (WEALTH_POSITIONS.includes(title) && WEALTH_CARDS.includes(code)) { cardClass += " card-gold-zone"; } 
                 else if (title === "ศัตรู" || title === "โรคภัย") {
@@ -433,16 +425,17 @@
             let optionsHtml = '<option value="" selected>-</option>';
             for(let n=1; n<=12; n++) { optionsHtml += `<option value="${n}">${n}</option>`; }
             board.innerHTML += `
-                <div class="dropdown-cell dim-target" data-col="${col}" style="grid-area: 6 / ${col} / span 1 / span 1;">
+                <div class="dropdown-cell dim-target-graph" data-col="${col}" style="grid-area: 6 / ${col} / span 1 / span 1;">
                     <select class="number-dropdown" onchange="updateDropdown(this)">${optionsHtml}</select>
                 </div>`;
         }
 
+        // ไพ่แถว 7 ไม่มีคลาส dim-target-graph เพื่อไม่ให้โดนเอฟเฟกต์ไปด้วย
         if(data.SEVEN_BASE) data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
         for(let col = 2; col <= 13; col++) {
             board.innerHTML += `
-                <div class="custom-cell dim-target" data-row="8" data-col="${col}" style="grid-area: 8 / ${col} / span 1 / span 1;">
+                <div class="custom-cell dim-target-graph" data-row="8" data-col="${col}" style="grid-area: 8 / ${col} / span 1 / span 1;">
                     <input type="text" class="manual-input" placeholder="-" oninput="updateCustomInput(this)" maxlength="5">
                     <input type="color" class="color-picker" value="#ecf0f1" title="เปลี่ยนสีพื้นหลัง" onchange="updateCustomColor(this)">
                 </div>`;
@@ -450,7 +443,7 @@
 
         for(let col = 2; col <= 13; col++) {
             board.innerHTML += `
-                <div class="custom-cell dim-target" data-row="9" data-col="${col}" style="grid-area: 9 / ${col} / span 1 / span 1;">
+                <div class="custom-cell dim-target-graph" data-row="9" data-col="${col}" style="grid-area: 9 / ${col} / span 1 / span 1;">
                     <input type="text" class="manual-input" placeholder="-" oninput="updateCustomInput(this)" maxlength="5">
                     <input type="color" class="color-picker" value="#ecf0f1" title="เปลี่ยนสีพื้นหลัง" onchange="updateCustomColor(this)">
                 </div>`;
