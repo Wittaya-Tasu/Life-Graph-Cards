@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 2 v15.2 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
+    <title>ระบบที่ 2 v15.3 - กระดานกราฟชีวิต (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -145,7 +145,7 @@
         .color-picker::-webkit-color-swatch { border: none; border-radius: 50%; }
 
         /* ---------------------------------------------------
-           ระบบ Highlight คอลัมน์ (แยกเฉพาะชุดกราฟชีวิต)
+           ระบบ Highlight คอลัมน์ (แยกเฉพาะชุดกราฟชีวิต - ปลดล็อกลิมิต)
         --------------------------------------------------- */
         .dim-target-graph { transition: all 0.4s ease; position: relative; }
         
@@ -300,7 +300,7 @@
         });
     }
 
-    // --- ฟังก์ชัน Highlight คอลัมน์เฉพาะชุดกราฟชีวิต (แถว 5, 6, 8, 9) ---
+    // --- ฟังก์ชัน Highlight คอลัมน์เฉพาะชุดกราฟชีวิต (ปลดล็อกให้เลือกได้ไม่จำกัด) ---
     function toggleGraphHighlight(col) {
         const board = document.getElementById('main-board');
         const colStr = String(col);
@@ -308,11 +308,10 @@
         const index = activeGraphHighlightCols.indexOf(colStr);
         
         if (index > -1) {
+            // ถ้ามีอยู่แล้วให้ลบออก (กดยกเลิก)
             activeGraphHighlightCols.splice(index, 1);
         } else {
-            if (activeGraphHighlightCols.length >= 3) {
-                activeGraphHighlightCols.shift(); 
-            }
+            // ถ้ายังไม่มีให้เพิ่มเข้าไปเลย (ไม่มีเงื่อนไขลบอันเก่าแล้ว)
             activeGraphHighlightCols.push(colStr);
         }
 
