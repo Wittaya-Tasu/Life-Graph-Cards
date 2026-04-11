@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบที่ 1 - คำนวณไพ่อัตโนมัติ v1.1</title>
+    <title>ระบบที่ 1 - คำนวณไพ่อัตโนมัติ v2</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Kanit:wght@500;600;700&display=swap');
 
@@ -166,6 +166,22 @@
         return seq;
     }
 
+    // ฟังก์ชันคำนวณหาตำแหน่ง Dynamic ของคอลัมน์ที่มีชื่อกำกับ
+    function calculateDynamicPositions(arrayData, targetCode) {
+        let splitIndex = arrayData.indexOf(targetCode);
+        if(splitIndex === -1) splitIndex = 0; 
+        let positions = [];
+        if (splitIndex === 0 || splitIndex >= 7) { 
+            for(let i=0; i<7; i++) positions.push(i); 
+        } else {
+            for(let i=0; i<splitIndex; i++) positions.push(i);
+            let remaining = 7 - splitIndex;
+            let startRight = 12 - remaining;
+            for(let i=0; i<remaining; i++) positions.push(startRight + i);
+        }
+        return positions;
+    }
+
     function calculateBoard() {
         const valDate = parseInt(document.getElementById('sel-date').value);
         const valDay = parseInt(document.getElementById('sel-day').value);
@@ -183,7 +199,7 @@
         const monthSeq = generateSequence(valMonth, 12, 201, 212);
         const yearSeq = generateSequence(valYear, 12, 301, 312);
 
-        // 2. คำนวณ GRAPH_BASE (12 ตำแหน่ง)
+        // 2. คำนวณ GRAPH_BASE (12 ตำแหน่ง: ดึงตรงๆ ตามคอลัมน์ 0-11)
         let graphBase = [];
         let usedGraphCards = new Set();
 
@@ -196,12 +212,12 @@
             let sum = dVal + mVal + yVal;
             let targetCard = 400 + sum;
 
-            // เช็กชน (Collision)
+            // เช็กชน (Collision) ดึงไพ่ในกลุ่มมาแทน
             if (usedGraphCards.has(targetCard)) {
                 let groupId = sum % 12 || 12; 
                 let groupCards = GRAPH_GROUPS[groupId];
                 
-                // หาไพ่ที่ยังไม่ถูกใช้ในกลุ่ม (อาร์เรย์เรียงจากน้อยไปมากอยู่แล้ว)
+                // หาไพ่ที่ยังไม่ถูกใช้ในกลุ่ม (เรียงจากน้อยไปมาก)
                 let availableCards = groupCards.filter(c => !usedGraphCards.has(c));
                 if (availableCards.length > 0) {
                     targetCard = availableCards[0];
@@ -212,14 +228,26 @@
             graphBase.push(targetCard);
         }
 
-        // 3. คำนวณ SEVEN_BASE (7 ตำแหน่ง)
+        // 3. คำนวณ SEVEN_BASE (7 ตำแหน่ง: ดึงตามตำแหน่ง Dynamic)
         let sevenBase = [];
-        for (let i = 0; i < 7; i++) {
-            let dVal = daySeq[i] % 100;
-            // กฎ Modulo เลขเจ็ดตัว (เดือนและปี วน 1-7)
-            let mVal = ((monthSeq[i] - 201) % 7) + 1; 
-            let yVal = ((yearSeq[i] - 301) % 7) + 1;
+        
+        // หาตำแหน่งคอลัมน์เป้าหมายของ Month และ Year
+        let posMonth = calculateDynamicPositions(monthSeq, 201);
+        let posYear = calculateDynamicPositions(yearSeq, 301);
 
+        for (let i = 0; i < 7; i++) {
+            // ดึงค่า Day จากลำดับที่ i (0-6)
+            let dVal = daySeq[i] % 100; 
+
+            // ดึงค่า Month จากคอลัมน์ Dynamic ลำดับที่ i
+            let mIdx = posMonth[i];
+            let mVal = ((monthSeq[mIdx] - 201) % 7) + 1; 
+
+            // ดึงค่า Year จากคอลัมน์ Dynamic ลำดับที่ i
+            let yIdx = posYear[i];
+            let yVal = ((yearSeq[yIdx] - 301) % 7) + 1;
+
+            // นำผลลัพธ์มาบวกกัน
             let sum = dVal + mVal + yVal;
             let targetCard = 400 + sum;
             sevenBase.push(targetCard);
@@ -251,8 +279,7 @@
     function sendToSystem2() {
         const data = document.getElementById("export-data").value;
         localStorage.setItem('promyan_auto_data', data);
-        // *แก้ไขชื่อไฟล์ 'system2.html' ให้ตรงกับชื่อไฟล์ระบบกระดานที่คุณหมอใช้อยู่ในเครื่องนะครับ*
-        window.location.href = 'system2.html'; 
+        window.location.href = 'system2.html'; // อย่าลืมเปลี่ยนชื่อให้ตรงกับไฟล์ระบบที่ 2 นะครับ
     }
 </script>
 </body>
