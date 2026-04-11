@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบพยากรณ์พรหมญาณ Pro v16.0 - หมอวิทยา ธรรมนาย</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Kanit:wght@500;600;700&display=swap');
+
+        :root {
+            --primary: #8e44ad;
+            --secondary: #2c3e50;
+            --accent: #27ae60;
+            --bg-dark: #293A4B;
+        }
+
+        body { font-family: 'Sarabun', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .main-container { max-width: 1650px; margin: 0 auto; }
+        
+        /* Layout Panels */
+        .panel { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        h2, h3 { font-family: 'Kanit', sans-serif; color: var(--secondary); margin-top: 0; }
+
+        /* Input Section */
+        .control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f8f9fa; padding: 20px; border-radius: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-weight: 600; font-size: 0.9em; color: #555; }
+        select, input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Sarabun'; }
+
+        /* Database Section */
+        .db-controls { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .history-list { margin-top: 15px; max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
+        .history-item { 
+            display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #f0f0f0; 
+            cursor: pointer; transition: 0.2s; 
+        }
+        .history-item:hover { background: #f0f7ff; }
+        .history-item span { font-size: 0.9em; }
+
+        /* Board Style (จากระบบ 2) */
+        .board-wrapper { overflow-x: auto; background: var(--bg-dark); padding: 40px; border-radius: 15px; min-width: 1600px; position: relative; }
+        .grid-board { display: grid; grid-template-columns: repeat(14, 1fr); gap: 15px 30px; width: 100%; }
+        
+        /* Card Styles */
+        .card-item { border-radius: 10px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: 0.3s; }
+        .card-item img { width: 100%; height: auto; border-radius: 6px; background: #fff; }
+        .pos-label { display: block; font-weight: bold; font-size: 1.15em; margin-bottom: 6px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; }
+
+        /* Color States */
+        .card-default { background: #f2f4f4; }
+        .card-very-good { background: #0047AB; color: white; }
+        .card-good { background: #bbdefb; }
+        .card-bad { background: #212121; color: white; }
+        .card-very-bad { background: #b71c1c; color: white; }
+        .card-gold-zone { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); }
+
+        /* Buttons */
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit'; font-weight: 600; transition: 0.3s; }
+        .btn-calc { background: var(--primary); color: white; width: 100%; font-size: 1.2em; margin-top: 15px; }
+        .btn-save-db { background: var(--accent); color: white; }
+        .btn-export { background: #3498db; color: white; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* Watermark */
+        .teacher-overlay-text { position: absolute; top: 150px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.8); font-size: 2em; font-weight: 700; pointer-events: none; z-index: 10; }
+        .teacher-watermark { color: #f1c40f; text-align: right; font-weight: bold; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    
+    <div class="panel">
+        <h2>🔮 ระบบพยากรณ์ Pro v16.0</h2>
+        
+        <div class="control-grid">
+            <div class="input-group">
+                <label>ชื่อลูกค้า</label>
+                <input type="text" id="cust-name" placeholder="ระบุชื่อ-นามสกุล">
+            </div>
+            <div class="input-group">
+                <label>1. วันที่เกิด</label>
+                <select id="sel-date">
+                    <script>for(let i=1; i<=31; i++) document.write(`<option value="${400+i}">วันที่ ${i}</option>`);</script>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>2. วันเกิด</label>
+                <select id="sel-day">
+                    <option value="101">วันอาทิตย์</option><option value="102">วันจันทร์</option>
+                    <option value="103">วันอังคาร</option><option value="104">วันพุธ</option>
+                    <option value="105">วันพฤหัสบดี</option><option value="106">วันศุกร์</option>
+                    <option value="107">วันเสาร์</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>3. เดือนเกิด</label>
+                <select id="sel-month">
+                    <script>
+                        const months = ["ธันวาคม (1)", "มกราคม (2)", "กุมภาพันธ์ (3)", "มีนาคม (4)", "เมษายน (5)", "พฤษภาคม (6)", "มิถุนายน (7)", "กรกฎาคม (8)", "สิงหาคม (9)", "กันยายน (10)", "ตุลาคม (11)", "พฤศจิกายน (12)"];
+                        months.forEach((m, i) => document.write(`<option value="${201+i}">${m}</option>`));
+                    </script>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>4. ปีนักษัตร</label>
+                <select id="sel-year">
+                    <script>
+                        const years = ["ชวด", "ฉลู", "ขาล", "เถาะ", "มะโรง", "มะเส็ง", "มะเมีย", "มะแม", "วอก", "ระกา", "จอ", "กุน"];
+                        years.forEach((y, i) => document.write(`<option value="${301+i}">${i+1}. ปี${y}</option>`));
+                    </script>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn btn-calc" onclick="processAll()">✨ คำนวณและเปิดกระดาน</button>
+
+        <div class="db-controls">
+            <button class="btn btn-save-db" onclick="saveToDB()">💾 บันทึกประวัติลูกค้า</button>
+            <button class="btn btn-export" onclick="saveImage()">📸 บันทึกเป็นภาพ</button>
+            <button class="btn btn-export" style="background:#95a5a6" onclick="savePdf()">📑 บันทึกเป็น PDF</button>
+        </div>
+
+        <h3>📂 ประวัติการดูดวงล่าสุด</h3>
+        <div id="history-list" class="history-list">
+            </div>
+    </div>
+
+    <div id="board-area" style="display:none;">
+        <div id="export-target" class="board-wrapper">
+            <div class="teacher-watermark">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>
+            <div class="teacher-overlay-text">ลิขสิทธิ์ พรหมญาณพยากรณ์ : หมอวิทยา ธรรมนาย</div>
+            <div id="main-board" class="grid-board"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- 1. การจัดการฐานข้อมูล (IndexedDB) ---
+    let db;
+    const request = indexedDB.open("PromyanDB", 1);
+    request.onupgradeneeded = (e) => {
+        db = e.target.result;
+        db.createObjectStore("customers", { keyPath: "id", autoIncrement: true });
+    };
+    request.onsuccess = (e) => {
+        db = e.target.result;
+        loadHistory();
+    };
+
+    function saveToDB() {
+        const name = document.getElementById('cust-name').value;
+        if (!name) { alert("กรุณาระบุชื่อลูกค้าก่อนบันทึกครับ"); return; }
+        
+        const data = {
+            name: name,
+            date: document.getElementById('sel-date').value,
+            day: document.getElementById('sel-day').value,
+            month: document.getElementById('sel-month').value,
+            year: document.getElementById('sel-year').value,
+            timestamp: new Date().toLocaleString()
+        };
+
+        const tx = db.transaction("customers", "readwrite");
+        tx.objectStore("customers").add(data);
+        tx.oncomplete = () => {
+            alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+            loadHistory();
+        };
+    }
+
+    function loadHistory() {
+        const list = document.getElementById('history-list');
+        list.innerHTML = "";
+        const tx = db.transaction("customers", "readonly");
+        tx.objectStore("customers").openCursor(null, 'prev').onsuccess = (e) => {
+            const cursor = e.target.result;
+            if (cursor) {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `<span><strong>${cursor.value.name}</strong></span> <span>${cursor.value.timestamp}</span>`;
+                item.onclick = () => loadRecord(cursor.value);
+                list.appendChild(item);
+                cursor.continue();
+            }
+        };
+    }
+
+    function loadRecord(record) {
+        document.getElementById('cust-name').value = record.name;
+        document.getElementById('sel-date').value = record.date;
+        document.getElementById('sel-day').value = record.day;
+        document.getElementById('sel-month').value = record.month;
+        document.getElementById('sel-year').value = record.year;
+        processAll();
+    }
+
+    // --- 2. การคำนวณ (จากระบบ 1) ---
+    function processAll() {
+        const valDate = parseInt(document.getElementById('sel-date').value);
+        const valDay = parseInt(document.getElementById('sel-day').value);
+        const valMonth = parseInt(document.getElementById('sel-month').value);
+        const valYear = parseInt(document.getElementById('sel-year').value);
+
+        // คำนวณ Sequences
+        const daySeq = generateSequence(valDay, 7, 101, 107);
+        const monthSeq = generateSequence(valMonth, 12, 201, 212);
+        const yearSeq = generateSequence(valYear, 12, 301, 312);
+
+        // คำนวณ Graph Base
+        let graphBase = []; let usedCards = new Set();
+        for(let i=0; i<12; i++){
+            let dVal = (i<7) ? (daySeq[i]%100) : 0;
+            let sum = dVal + (monthSeq[i]%100) + (yearSeq[i]%100);
+            let target = 400 + sum;
+            if(usedCards.has(target)){
+                let group = sum%12 || 12;
+                target = [target, target+12, target+24].find(c => !usedCards.has(c)) || target;
+            }
+            usedCards.add(target); graphBase.push(target);
+        }
+
+        // คำนวณ Seven Base (Dynamic)
+        let sevenBase = [];
+        let posMonth = calculateDynamicPos(monthSeq, 201);
+        let posYear = calculateDynamicPos(yearSeq, 301);
+        for(let i=0; i<7; i++){
+            let sum = (daySeq[i]%100) + ((monthSeq[posMonth[i]]-201)%7+1) + ((yearSeq[posYear[i]]-301)%7+1);
+            sevenBase.push(400 + sum);
+        }
+
+        renderBoard({
+            DATE: [valDate], DAY: daySeq, MONTH: monthSeq, YEAR: yearSeq,
+            GRAPH_BASE: graphBase, SEVEN_BASE: sevenBase
+        });
+    }
+
+    function generateSequence(start, len, min, max) {
+        let s = []; for(let i=0; i<len; i++) { let c = start+i; if(c>max) c = c-max+min-1; s.push(c); } return s;
+    }
+
+    function calculateDynamicPos(arr, target) {
+        let idx = arr.indexOf(target); if(idx===-1) idx=0;
+        if(idx==0 || idx>=7) return [0,1,2,3,4,5,6];
+        let p = []; for(let i=0; i<idx; i++) p.push(i);
+        for(let i=0; i<(7-idx); i++) p.push(12-(7-idx)+i);
+        return p;
+    }
+
+    // --- 3. การแสดงผล (จากระบบ 2) ---
+    function renderBoard(data) {
+        const board = document.getElementById('main-board');
+        board.innerHTML = '';
+        document.getElementById('board-area').style.display = 'block';
+
+        // วางข้อมูลพื้นฐาน (ชื่อเจ้าชะตา)
+        const name = document.getElementById('cust-name').value || "ทั่วไป";
+        board.innerHTML += `<div style="grid-area: 1/3/span 1/span 6; color:white; font-size:1.8em; font-weight:bold; text-align:left; padding:15px;">เจ้าชะตา: ${name}</div>`;
+
+        // ฟังก์ชันสร้าง Card
+        const addCard = (code, r, c, title) => {
+            const isWealth = ["พื้นดวง", "ทรัพย์สิน", "ความสุข", "โชคลาภ"].includes(title) && [410,411,415,416,424,429].includes(code);
+            let cls = isWealth ? 'card-gold-zone' : 'card-default';
+            if(r==5 && [401,408,412,431].includes(code)) cls = 'card-very-bad';
+            
+            board.innerHTML += `
+                <div class="card-item ${cls}" style="grid-area: ${r}/${c}">
+                    ${title ? `<span class="pos-label">${title}</span>` : ''}
+                    <img src="images/${code}.jpg" onerror="this.src='images/back.jpg'">
+                </div>`;
+        };
+
+        const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
+        const ROW_8_TITLES = ["พื้นดวง", "ทรัพย์สิน", "บ้านช่อง", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง", "โรคภัย", "ความสุข", "การงาน", "โชคลาภ", "สรุปชะตา"];
+
+        addCard(data.DATE[0], 1, 2, null);
+        data.DAY.forEach((c, i) => addCard(c, 2, i+2, ROW_2_TITLES[i]));
+        data.MONTH.forEach((c, i) => addCard(c, 3, i+2, null));
+        data.YEAR.forEach((c, i) => addCard(c, 4, i+2, null));
+        data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i+2, ROW_8_TITLES[i]));
+        
+        const pos7 = calculateDynamicPos(data.YEAR, 301);
+        data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, pos7[i]+2, null));
+    }
+
+    function saveImage() {
+        html2canvas(document.getElementById('export-target'), { scale: 2 }).then(canvas => {
+            const a = document.createElement('a'); a.download = 'พยากรณ์.png'; a.href = canvas.toDataURL(); a.click();
+        });
+    }
+
+    function savePdf() {
+        html2pdf().from(document.getElementById('export-target')).save('พยากรณ์.pdf');
+    }
+</script>
+</body>
+</html>
