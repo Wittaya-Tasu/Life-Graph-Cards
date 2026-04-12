@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> แผนผังกราฟชีวิต-เลขเจ็ดตัว(หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -157,7 +157,7 @@
             </div>
             <div class="input-group">
                 <label>5. ปี พ.ศ. เกิด (คำนวณอายุ)</label>
-                <input type="number" id="birth-be-year" placeholder="ตัวอย่าง 2527" min="2400" max="2600">
+                <input type="number" id="birth-be-year" placeholder="ตัวอย่าง 2533" min="2400" max="2600">
             </div>
             <div class="input-group">
                 <label>6. โหมดแสดงอายุ (แถว 8)</label>
@@ -205,7 +205,6 @@
         "105":5, "205":5, "212":5, "305":5, "312":5, "106":6, "206":6, "306":6, "107":7, "207":7, "307":7
     };
 
-    // แผนผังจับคู่ รหัสไพ่ -> ชื่อปีนักษัตร
     const ZODIAC_MAP = {
         "301": "ชวด", "302": "ฉลู", "303": "ขาล", "304": "เถาะ",
         "305": "มะโรง", "306": "มะเส็ง", "307": "มะเมีย", "308": "มะแม",
@@ -237,6 +236,12 @@
     const DAY_RELATION_MAP = {
         "101": [0, 4, 1, 5, 8, 2, 6, 3, 11], "102": [0, 4, 7, 1, 5, 2, 10], "103": [0, 4, 1, 9, 6, 7],
         "104": [0, 8, 2, 11], "105": [1, 10, 4, 11, 6, 8], "106": [0, 9, 2, 6, 3, 10, 5, 7], "107": [1, 5, 2, 6, 9]
+    };
+
+    // แผนผังจับคู่รหัสเดือนให้ตรงกับปฏิทิน (สำหรับการคำนวณอายุ)
+    const MONTH_CALENDAR_MAP = {
+        "201": 12, "202": 1, "203": 2, "204": 3, "205": 4, "206": 5,
+        "207": 6, "208": 7, "209": 8, "210": 9, "211": 10, "212": 11
     };
 
     let activeGraphHighlightCols = []; 
@@ -280,7 +285,7 @@
     function generateAndRender() {
         const valDate = parseInt(document.getElementById('sel-date').value);
         const valDay = parseInt(document.getElementById('sel-day').value);
-        const valMonth = parseInt(document.getElementById('sel-month').value);
+        const valMonth = document.getElementById('sel-month').value;
         const valYear = parseInt(document.getElementById('sel-year').value);
         const birthYear = parseInt(document.getElementById('birth-be-year').value);
         
@@ -289,12 +294,27 @@
 
         if (!valDate || !valDay || !valMonth || !valYear) { alert("กรุณาเลือกข้อมูลให้ครบครับ"); return; }
 
-        const currentYear = new Date().getFullYear() + 543;
+        // --- ระบบคำนวณอายุเป๊ะ วันเกิด ชน วันเกิด ---
         let age = 0;
-        if(birthYear > 2400) age = currentYear - birthYear;
+        if (birthYear > 2400) {
+            const birthDayNum = valDate - 400; // แยกวันเกิด
+            const birthMonthNum = MONTH_CALENDAR_MAP[valMonth]; // แปลงเดือนเป็นเดือนปฏิทินสากล 1-12
+            
+            const today = new Date();
+            const currentYearBE = today.getFullYear() + 543;
+            const currentMonthNum = today.getMonth() + 1; // getMonth() เริ่มที่ 0
+            const currentDayNum = today.getDate();
+
+            age = currentYearBE - birthYear; // คำนวณปีตั้งต้น
+            
+            // เช็คว่าถึงวันเกิดในปีนี้หรือยัง ถ้ายังให้หักออก 1 ปี
+            if (currentMonthNum < birthMonthNum || (currentMonthNum === birthMonthNum && currentDayNum < birthDayNum)) {
+                age--;
+            }
+        }
 
         const daySeq = generateSequence(valDay, 7, 101, 107);
-        const monthSeq = generateSequence(valMonth, 12, 201, 212);
+        const monthSeq = generateSequence(parseInt(valMonth), 12, 201, 212);
         const yearSeq = generateSequence(valYear, 12, 301, 312);
 
         let graphBase = []; let usedGraphCards = new Set();
@@ -448,11 +468,11 @@
             if (data.ZODIAC_MODE === 12) {
                 showZodiac = true;
             } else if (data.AGE > 0) {
-                // คำนวณระยะห่างจากช่องอายุปัจจุบัน (diff)
+                // คำนวณระยะห่างจากช่องอายุปัจจุบัน
                 let diff = idx - startAgeCol;
                 if (diff < 0) diff += 12;
                 
-                // ถ้าระยะห่าง (diff) คือ 1 หมายถึงช่อง "ปีถัดไป" 
+                // ถ้าระยะห่าง (diff) คือ 1 หมายถึงช่อง "ปีถัดไป"
                 if (diff >= 1 && diff <= data.ZODIAC_MODE) {
                     showZodiac = true;
                 }
@@ -471,7 +491,7 @@
         document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // --- ระบบแสงเงา Focus Mode (คลุมถึงแถว 9) ---
+    // --- ระบบแสงเงา Focus Mode ---
     function toggleGraphHighlight(col) {
         const board = document.getElementById('main-board');
         if (activeSevenCols.length > 0) { activeSevenCols = []; board.classList.remove('has-seven-highlight'); document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); }
@@ -497,14 +517,13 @@
         activeSevenCols.forEach(c => { let leader = document.querySelector(`.dim-target-seven[data-row="4"][data-col="${c}"]`); if(leader) activeGroups.push(CARD_GROUPS[leader.dataset.code]); });
         document.querySelectorAll('.dim-target-seven').forEach(el => {
             let row = parseInt(el.dataset.row, 10); let isHigh = false;
-            // เพิ่มแถว 9 ให้ทำงานตามแสงเงาด้วย
             if ((row === 7 || row === 4 || row === 9) && activeSevenCols.includes(String(el.dataset.col))) isHigh = true;
             else if ((row === 2 || row === 3) && activeGroups.includes(CARD_GROUPS[el.dataset.code]) && el.dataset.hasTitle === "true") isHigh = true;
             if (isHigh) el.classList.add('highlighted'); else el.classList.remove('highlighted');
         });
     }
 
-    // --- ฟังก์ชันเสริมอื่นๆ ---
+    // --- ฟังก์ชันเสริม ---
     function updateDropdown(sel) {
         let val = sel.value; let p = sel.parentElement;
         if (val) { p.style.backgroundColor = NUMBER_COLORS[val].bg; sel.style.color = NUMBER_COLORS[val].color; } 
