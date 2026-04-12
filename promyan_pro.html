@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์. กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -474,13 +474,25 @@
     // --- ฟังก์ชันส่งข้อมูลเข้า Google Sheet ---
     function saveToDatabase() {
         const clientInfo = document.getElementById('client-info-db').value;
-        // คุณหมอจะนำ URL ที่ได้จาก Google Apps Script มาใส่ตรงนี้ครับ
+        
+        // ใส่ URL ที่ได้จาก Google Apps Script ของคุณหมอ
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_R3rj6uQExK1lFQnIA5V51gYrqzIJW7VrpyLO_7I6gbc1oFk8C5S62j_hljIHwmA9/exec"; 
 
-        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbx_R3rj6uQExK1lFQnIA5V51gYrqzIJW7VrpyLO_7I6gbc1oFk8C5S62j_hljIHwmA9/exec") {
-            alert("⚠️ กรุณาตั้งค่า Google Apps Script (ดูวิธีทำด้านล่าง) แล้วนำ URL มาใส่ในโค้ดก่อนครับ");
-            return;
-        }
+        // ลบเงื่อนไข if ออก แล้วให้มันยิงข้อมูล (fetch) ทันที
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors', // สำคัญมาก ป้องกัน error cross-origin
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                timestamp: new Date().toLocaleString("th-TH"),
+                info: clientInfo
+            })
+        }).then(() => {
+            alert("☁️ บันทึกประวัติลูกค้าลง Google Sheet เรียบร้อยแล้วครับ!");
+        }).catch(err => {
+            alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
+        });
+    }
 
         // ดึงเฉพาะบรรทัดแรก หรือข้อความเพื่อใช้บันทึกเบื้องต้น
         fetch(WEB_APP_URL, {
