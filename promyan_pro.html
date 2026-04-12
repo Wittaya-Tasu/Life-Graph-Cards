@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์.กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title> แผนผังพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -291,26 +291,26 @@
         return "N"; // fallback
     }
 
-    // ฟังก์ชัน Matrix 25 รูปแบบ
+    // ฟังก์ชัน Matrix 25 รูปแบบ (อัปเดตสีตามคุณหมอระบุเป๊ะๆ)
     function getAgeMatrixStyles(graphStatus, sevenStatus) {
         const C_WHITE = "#FFFFFF";
         const C_BLACK = "#000000";
         const C_RED_TEXT = "#d32f2f";
         const C_RED_BG = "#e74c3c";
-        const C_GOLD_TEXT = "#b38728";
         const C_GOLD_BG = "linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)";
-        const C_YELLOW_TEXT = "#e67e22"; // เหลืองขุ่น
-        const C_YELLOW_BG = "#f39c12"; // เหลืองขุ่น
+        const C_LIGHT_BLUE_TEXT = "#3498db"; // สีฟ้า (ตัวอักษร)
+        const C_LIGHT_BLUE_BG = "#bbdefb"; // สีฟ้า (พื้นหลัง)
+        const C_DARK_BLUE_TEXT = "#0047AB"; // สีน้ำเงิน (ตัวอักษร)
 
         const B_NONE = "none";
-        const B_GOLD = "4px solid #b38728";
-        const B_YELLOW = "4px solid #e67e22";
-        const B_BLACK = "4px solid #17202a";
-        const B_RED = "4px solid #e74c3c";
+        const B_BLUE = "4px solid #3498db"; // ขอบฟ้า
+        const B_BLACK = "4px solid #17202a"; // ขอบดำ
+        const B_RED = "4px solid #e74c3c"; // ขอบแดง
 
+        // เส้นขอบ (ขึ้นอยู่กับสถานะของไพ่เจ็ดตัวเท่านั้น)
         let border = B_NONE;
-        if (sevenStatus === "VG") border = B_GOLD;
-        if (sevenStatus === "G") border = B_YELLOW;
+        if (sevenStatus === "VG") border = B_BLUE;
+        if (sevenStatus === "G") border = B_BLUE;
         if (sevenStatus === "N") border = B_NONE;
         if (sevenStatus === "B") border = B_BLACK;
         if (sevenStatus === "VB") border = B_RED;
@@ -318,17 +318,17 @@
         let bg = C_WHITE;
         let text = C_BLACK;
 
+        // การเช็คเงื่อนไขสีพื้นหลังและตัวอักษร
         if (graphStatus === "VG") {
-            if (sevenStatus === "VG") { bg = C_GOLD_BG; text = C_WHITE; border = B_NONE; }
-            else { bg = C_WHITE; text = C_GOLD_TEXT; }
+            if (sevenStatus === "VG") { bg = C_GOLD_BG; text = C_WHITE; }
+            else { bg = C_WHITE; text = C_LIGHT_BLUE_TEXT; }
         }
         else if (graphStatus === "G") {
-            if (sevenStatus === "VG") { bg = C_YELLOW_BG; text = C_WHITE; border = B_GOLD; }
-            else { bg = C_WHITE; text = C_YELLOW_TEXT; }
+            if (sevenStatus === "VG") { bg = C_LIGHT_BLUE_BG; text = C_DARK_BLUE_TEXT; }
+            else { bg = C_WHITE; text = C_LIGHT_BLUE_TEXT; }
         }
         else if (graphStatus === "N") {
-            if (sevenStatus === "VG") { bg = C_YELLOW_BG; text = C_BLACK; border = B_GOLD; }
-            else { bg = C_WHITE; text = C_BLACK; }
+            bg = C_WHITE; text = C_BLACK;
         }
         else if (graphStatus === "B") {
             bg = C_WHITE; text = C_RED_TEXT;
@@ -474,7 +474,7 @@
         // แถวที่ 7 (ไพ่เลขเจ็ดตัว)
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถวที่ 8 (คำนวณอายุ + MATRIX 25 รูปแบบ)
+        // แถวที่ 8 (คำนวณอายุ + MATRIX 25 รูปแบบ ใหม่)
         let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
         
         for(let col = 2; col <= 13; col++) {
@@ -506,13 +506,13 @@
                     let graphStatus = getCardBaseStatus(graphCode);
                     let sevenStatus = getCardBaseStatus(sevenCode);
 
-                    // โยนเข้าฟังก์ชัน Matrix 25 รูปแบบ
+                    // โยนเข้าฟังก์ชัน Matrix 25 รูปแบบที่ปรับปรุงใหม่
                     let matrixStyles = getAgeMatrixStyles(graphStatus, sevenStatus);
                     cellBg = matrixStyles.bg;
                     textColor = matrixStyles.text;
                     borderStyle = matrixStyles.border;
 
-                    // ไฮไลต์กล่องอายุปัจจุบันด้วยการเปล่งแสงสีฟ้า แทนขอบทองเดิม เพื่อไม่ตีกับขอบของ Matrix
+                    // ไฮไลต์กล่องอายุปัจจุบันด้วยการเปล่งแสงเรืองแสง
                     if (idx === startAgeCol) {
                         boxShadowStyle = "0 0 15px 5px rgba(52, 152, 219, 0.8)";
                     }
