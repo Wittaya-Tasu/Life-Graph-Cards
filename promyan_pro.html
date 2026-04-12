@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> แผนผังพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -291,21 +291,21 @@
         return "N"; // fallback
     }
 
-    // ฟังก์ชัน Matrix 25 รูปแบบ (อัปเดตสีตามคุณหมอระบุเป๊ะๆ)
+    // ฟังก์ชัน Matrix 25 รูปแบบ
     function getAgeMatrixStyles(graphStatus, sevenStatus) {
         const C_WHITE = "#FFFFFF";
         const C_BLACK = "#000000";
         const C_RED_TEXT = "#d32f2f";
         const C_RED_BG = "#e74c3c";
         const C_GOLD_BG = "linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)";
-        const C_LIGHT_BLUE_TEXT = "#3498db"; // สีฟ้า (ตัวอักษร)
-        const C_LIGHT_BLUE_BG = "#bbdefb"; // สีฟ้า (พื้นหลัง)
-        const C_DARK_BLUE_TEXT = "#0047AB"; // สีน้ำเงิน (ตัวอักษร)
+        const C_LIGHT_BLUE_TEXT = "#3498db"; 
+        const C_LIGHT_BLUE_BG = "#bbdefb"; 
+        const C_DARK_BLUE_TEXT = "#0047AB"; 
 
         const B_NONE = "none";
-        const B_BLUE = "4px solid #3498db"; // ขอบฟ้า
-        const B_BLACK = "4px solid #17202a"; // ขอบดำ
-        const B_RED = "4px solid #e74c3c"; // ขอบแดง
+        const B_BLUE = "4px solid #3498db"; 
+        const B_BLACK = "4px solid #17202a"; 
+        const B_RED = "4px solid #e74c3c"; 
 
         // เส้นขอบ (ขึ้นอยู่กับสถานะของไพ่เจ็ดตัวเท่านั้น)
         let border = B_NONE;
@@ -474,7 +474,7 @@
         // แถวที่ 7 (ไพ่เลขเจ็ดตัว)
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถวที่ 8 (คำนวณอายุ + MATRIX 25 รูปแบบ ใหม่)
+        // แถวที่ 8 (คำนวณอายุ + MATRIX 25 รูปแบบ พร้อมกฎทับซ้อน ภพเสีย)
         let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
         
         for(let col = 2; col <= 13; col++) {
@@ -497,20 +497,26 @@
 
                     // การหาไพ่ฐานที่ชนกันในอายุปีนั้น
                     let graphIdx = idx; // ตำแหน่งคอลัมน์ของกราฟชีวิต
-                    let sevenIdx = (displayAge - 1) % 7; // คำนวณหาตำแหน่งคอลัมน์ของเลข 7 ตัว (รอบละ 7)
+                    let sevenIdx = (displayAge - 1) % 7; // คำนวณหาตำแหน่งคอลัมน์ของเลข 7 ตัว
                     
                     let graphCode = data.GRAPH_BASE[graphIdx];
                     let sevenCode = data.SEVEN_BASE[sevenIdx];
+                    let cardTitle = ROW_8_TITLES[graphIdx]; // ดึงชื่อตำแหน่งในกราฟชีวิต
 
                     // แปลงเป็นเกรด 5 ระดับ
                     let graphStatus = getCardBaseStatus(graphCode);
                     let sevenStatus = getCardBaseStatus(sevenCode);
 
-                    // โยนเข้าฟังก์ชัน Matrix 25 รูปแบบที่ปรับปรุงใหม่
+                    // โยนเข้าฟังก์ชัน Matrix 25 รูปแบบ
                     let matrixStyles = getAgeMatrixStyles(graphStatus, sevenStatus);
                     cellBg = matrixStyles.bg;
                     textColor = matrixStyles.text;
                     borderStyle = matrixStyles.border;
+
+                    // *** กฎพิเศษ (Override Rule): ถ้าตกตำแหน่ง ศัตรู หรือ โรคภัย บังคับตัวเลขเป็นสีดำ ***
+                    if (cardTitle === "ศัตรู" || cardTitle === "โรคภัย") {
+                        textColor = "#000000";
+                    }
 
                     // ไฮไลต์กล่องอายุปัจจุบันด้วยการเปล่งแสงเรืองแสง
                     if (idx === startAgeCol) {
