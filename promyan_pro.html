@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต:เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -16,8 +16,9 @@
         h2 { color: #8e44ad; font-family: 'Kanit', sans-serif; margin-bottom: 5px; font-size: 2.5em; font-weight: 700;}
         .sub-title { color: #7f8c8d; margin-bottom: 25px; font-size: 1.2em; }
 
+        /* ปรับ Layout ช่องกรอกข้อมูลให้ยืดหยุ่นรองรับเมนูที่เพิ่มขึ้น */
         .input-section { background: #f8f9fa; padding: 30px; border-radius: 15px; border: 2px dashed #bdc3c7; margin-bottom: 30px; }
-        .input-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; text-align: left;}
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; text-align: left;}
         
         .input-group { display: flex; flex-direction: column; gap: 8px;}
         .input-group label { font-family: 'Kanit', sans-serif; font-size: 1em; color: #2c3e50; font-weight: 600; }
@@ -27,8 +28,8 @@
         .btn-calc { background: #2980b9; color: white; padding: 15px; font-size: 1.4em; border: none; border-radius: 10px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 700; width: 100%; transition: 0.3s; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3);}
         .btn-calc:hover { background: #1f618d; transform: translateY(-2px); }
 
-        .save-controls { display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; display: none;}
-        .btn-save { padding: 12px 30px; font-size: 1.1em; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; transition: 0.3s; color: white; flex: 1; max-width: 250px;}
+        .save-controls { display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; display: none; flex-wrap: wrap;}
+        .btn-save { padding: 12px 30px; font-size: 1.1em; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; transition: 0.3s; color: white; flex: 1; min-width: 200px; max-width: 250px;}
         .btn-save-image { background: #27ae60; }
         .btn-save-image:hover { background: #2ecc71; transform: translateY(-1px); }
         .btn-reset-row { background: #e74c3c; }
@@ -89,7 +90,6 @@
         .click-to-highlight-seven:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(241, 196, 15, 0.4); z-index: 10;}
         .grid-board.has-seven-highlight .dim-target-seven.click-to-highlight-seven { pointer-events: auto; }
 
-        @media (max-width: 900px) { .input-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
@@ -157,8 +157,24 @@
                 </select>
             </div>
             <div class="input-group">
-                <label>5. ปี พ.ศ. เกิด (เพื่อคำนวณอายุ)</label>
+                <label>5. ปี พ.ศ. เกิด (คำนวณอายุ)</label>
                 <input type="number" id="birth-be-year" placeholder="ตัวอย่าง 2527" min="2400" max="2600">
+            </div>
+            <div class="input-group">
+                <label>6. โหมดแสดงอายุ (แถว 8)</label>
+                <select id="sel-age-mode">
+                    <option value="12" selected>แสดงเต็มรอบ (12 ปี)</option>
+                    <option value="1">แสดง 1 ปี (ปัจจุบัน)</option>
+                    <option value="2">แสดง 2 ปี (ปัจจุบัน + 1)</option>
+                    <option value="3">แสดง 3 ปี (ปัจจุบัน + 2)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>7. แสดงปีนักษัตร (แถว 9)</label>
+                <select id="sel-zodiac-row">
+                    <option value="show" selected>เปิด (แสดง)</option>
+                    <option value="hide">ปิด (ซ่อน)</option>
+                </select>
             </div>
         </div>
         <button class="btn-calc" onclick="generateAndRender()">✨ ประมวลผลและสร้างกระดาน</button>
@@ -188,13 +204,19 @@
         "105":5, "205":5, "212":5, "305":5, "312":5, "106":6, "206":6, "306":6, "107":7, "207":7, "307":7
     };
 
+    // แผนผังจับคู่ รหัสไพ่ -> ชื่อปีนักษัตร
+    const ZODIAC_MAP = {
+        "301": "ชวด", "302": "ฉลู", "303": "ขาล", "304": "เถาะ",
+        "305": "มะโรง", "306": "มะเส็ง", "307": "มะเมีย", "308": "มะแม",
+        "309": "วอก", "310": "ระกา", "311": "จอ", "312": "กุน"
+    };
+
     const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
     const ROW_8_TITLES = ["วาสนา", "ทรัพย์สิน", "บ้านช่อง", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง", "โรคภัย", "ความสุข", "การงาน", "โชคลาภ", "สรุปชะตา"];
     const ROW_4_TITLES = ["ตัวเรา", "การเงิน", "เพื่อน", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง"];
     const ROW_6_TITLES = ["สูญเสีย", "ความสุข", "การงาน", "โชคลาภ", "โรคภัย", "รับใช้ ช.", "รับใช้ ญ."];
 
     const TEACHER_CARDS = ["501", "502", "503", "504", "505", "506"];
-    const DANGER_TITLES = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
     const WEALTH_POSITIONS = ["วาสนา", "ทรัพย์สิน", "ความสุข", "โชคลาภ"];
     const WEALTH_CARDS = ["410", "411", "415", "416", "424", "429"];
 
@@ -260,10 +282,13 @@
         const valMonth = parseInt(document.getElementById('sel-month').value);
         const valYear = parseInt(document.getElementById('sel-year').value);
         const birthYear = parseInt(document.getElementById('birth-be-year').value);
+        
+        // ดึงค่าการตั้งค่าจาก Dropdown ใหม่
+        const ageMode = parseInt(document.getElementById('sel-age-mode').value);
+        const showZodiacRow = document.getElementById('sel-zodiac-row').value === "show";
 
         if (!valDate || !valDay || !valMonth || !valYear) { alert("กรุณาเลือกข้อมูลให้ครบครับ"); return; }
 
-        // คำนวณอายุปัจจุบัน
         const currentYear = new Date().getFullYear() + 543;
         let age = 0;
         if(birthYear > 2400) age = currentYear - birthYear;
@@ -299,7 +324,7 @@
             DATE: [valDate.toString()], DAY: daySeq.map(String),
             MONTH: monthSeq.map(String), YEAR: yearSeq.map(String),
             GRAPH_BASE: graphBase.map(String), SEVEN_BASE: sevenBase.map(String),
-            AGE: age
+            AGE: age, AGE_MODE: ageMode, SHOW_ZODIAC: showZodiacRow
         });
     }
 
@@ -315,7 +340,6 @@
             if (!code) return;
             let styleClass = gridRow === 5 ? getCardStyleClass(code, title) : "card-default";
             
-            // คืนค่าคลาสสำหรับระบบแสงเงา Focus
             let dimClasses = gridRow >= 2 ? "dim-target-graph dim-target-seven" : "";
             let clickClass = "";
             let extraAttr = "";
@@ -356,7 +380,7 @@
         data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
         data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 2, ROW_8_TITLES[i]));
 
-        // แถวที่ 6 (Dropdown วงกลม ออโต้)
+        // แถวที่ 6 (Dropdown)
         let activePosRow6 = DAY_RELATION_MAP[data.DAY[0]] || [];
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let autoNum = ""; let bg = "#293A4B"; let color = "transparent";
@@ -367,7 +391,6 @@
             let opts = `<option value="" style="color:#000;">-</option>`;
             for(let n=1; n<=12; n++) opts += `<option value="${n}" ${n==autoNum?'selected':''} style="color:#000;">${n}</option>`;
             
-            // เพิ่มคลาส dim-target กลับเข้าไป
             board.innerHTML += `<div class="dropdown-cell dim-target-graph dim-target-seven" data-row="6" data-col="${col}" style="grid-area: 6/${col}; background-color:${bg};">
                 <select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
         }
@@ -375,20 +398,28 @@
         // แถวที่ 7 (ไพ่เลขเจ็ดตัว)
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถวที่ 8 (คำนวณอายุต่อเนื่องวนรอบ)
+        // แถวที่ 8 (คำนวณอายุ โดยใช้เงื่อนไขปิดเปิดจาก data.AGE_MODE)
         let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
         
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2;
             let val = "";
             let cellBg = "#293A4B";
-            let textColor = "#293A4B"; 
+            let textColor = "transparent"; 
+            let showAgeInThisCell = false;
             
             if (data.AGE > 0) {
                 let diff = idx - startAgeCol;
                 if (diff < 0) diff += 12; 
-                val = data.AGE + diff;
+                
+                // เช็คว่า diff น้อยกว่าโหมดอายุที่เลือกไว้หรือไม่ (เช่น ถ้าเลือก 1 ปี จะแสดงแค่ช่องที่ diff = 0)
+                if (diff < data.AGE_MODE) {
+                    showAgeInThisCell = true;
+                    val = data.AGE + diff;
+                }
+            }
 
+            if (showAgeInThisCell) {
                 let cardCode = data.GRAPH_BASE[idx];
                 let cardTitle = ROW_8_TITLES[idx];
                 let cardGrade = getCardStyleClass(cardCode, cardTitle);
@@ -404,9 +435,23 @@
                 else { cellBg = "#ffffff"; textColor = "#000000"; }
             }
 
-            // เพิ่มคลาส dim-target กลับเข้าไป
-            board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${idx===startAgeCol?'2px solid #f1c40f':'none'}; box-shadow:${idx===startAgeCol?'0 0 10px rgba(241,196,15,0.8)':''}">
+            board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${idx===startAgeCol && showAgeInThisCell?'2px solid #f1c40f':'none'}; box-shadow:${idx===startAgeCol && showAgeInThisCell?'0 0 10px rgba(241,196,15,0.8)':''}">
                 <input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
+        }
+
+        // แถวที่ 9 (ปีนักษัตร ที่ดึงข้อมูลจากแถวที่ 4)
+        if (data.SHOW_ZODIAC) {
+            for(let col = 2; col <= 13; col++) {
+                let idx = col - 2;
+                // data.YEAR เก็บ array ของรหัสไพ่ปีนักษัตร (เช่น "301", "302") ที่เรียงตามคอลัมน์ไว้แล้ว
+                let yearCardCode = data.YEAR[idx]; 
+                let zodiacText = ZODIAC_MAP[yearCardCode] || "";
+                
+                board.innerHTML += `
+                    <div class="custom-cell dim-target-graph dim-target-seven" data-row="9" data-col="${col}" style="grid-area: 9/${col}; background:#293A4B; border:none; border-radius:8px;">
+                        <span style="color:#ffffff; font-weight:bold; font-size:1.4em; font-family:'Kanit', sans-serif;">${zodiacText}</span>
+                    </div>`;
+            }
         }
 
         document.getElementById('main-wrapper').style.display = 'block';
@@ -414,7 +459,7 @@
         document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // --- ระบบแสงเงา Focus (ทำงานได้แล้ว) ---
+    // --- ระบบแสงเงา Focus Mode (อัปเดตให้คลุมถึงแถว 9) ---
     function toggleGraphHighlight(col) {
         const board = document.getElementById('main-board');
         if (activeSevenCols.length > 0) { activeSevenCols = []; board.classList.remove('has-seven-highlight'); document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); }
@@ -440,7 +485,8 @@
         activeSevenCols.forEach(c => { let leader = document.querySelector(`.dim-target-seven[data-row="4"][data-col="${c}"]`); if(leader) activeGroups.push(CARD_GROUPS[leader.dataset.code]); });
         document.querySelectorAll('.dim-target-seven').forEach(el => {
             let row = parseInt(el.dataset.row, 10); let isHigh = false;
-            if ((row === 7 || row === 4) && activeSevenCols.includes(String(el.dataset.col))) isHigh = true;
+            // เพิ่มเงื่อนไขให้แถว 9 (ปีนักษัตร) สว่างขึ้นด้วยถ้าตรงคอลัมน์
+            if ((row === 7 || row === 4 || row === 9) && activeSevenCols.includes(String(el.dataset.col))) isHigh = true;
             else if ((row === 2 || row === 3) && activeGroups.includes(CARD_GROUPS[el.dataset.code]) && el.dataset.hasTitle === "true") isHigh = true;
             if (isHigh) el.classList.add('highlighted'); else el.classList.remove('highlighted');
         });
