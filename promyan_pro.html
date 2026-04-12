@@ -462,7 +462,7 @@
     function saveAsImage() {
         replaceSelectsForCapture(); window.scrollTo(0,0);
         html2canvas(document.getElementById('export-area'), { scale: 2, useCORS: true, backgroundColor: "#293A4B" }).then(canvas => {
-            let link = document.createElement('a'); link.download = 'กราฟชีวิต-หมอวิทยา.png'; link.href = canvas.toDataURL('image/png'); link.click(); restoreSelectsAfterCapture();
+            let link = document.createElement('a'); link.download = 'กราฟชีวิต-หมอวิทยา.png'; link.href = canvas.toData('image/png'); link.click(); restoreSelectsAfterCapture();
         });
     }
 
@@ -475,9 +475,9 @@
     function saveToDatabase() {
         const clientInfo = document.getElementById('client-info-db').value;
         // คุณหมอจะนำ URL ที่ได้จาก Google Apps Script มาใส่ตรงนี้ครับ
-        const WEB_APP_URL = "ใส่_URL_ของ_GOOGLE_APPS_SCRIPT_ที่นี่"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_R3rj6uQExK1lFQnIA5V51gYrqzIJW7VrpyLO_7I6gbc1oFk8C5S62j_hljIHwmA9/exec"; 
 
-        if(WEB_APP_URL === "ใส่_URL_ของ_GOOGLE_APPS_SCRIPT_ที่นี่") {
+        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbx_R3rj6uQExK1lFQnIA5V51gYrqzIJW7VrpyLO_7I6gbc1oFk8C5S62j_hljIHwmA9/exec") {
             alert("⚠️ กรุณาตั้งค่า Google Apps Script (ดูวิธีทำด้านล่าง) แล้วนำ URL มาใส่ในโค้ดก่อนครับ");
             return;
         }
