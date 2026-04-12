@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์. กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -120,7 +120,7 @@
                 <label>1. วันที่เกิด (1-31)</label>
                 <select id="sel-date">
                     <option value="" disabled selected>-- เลือกวันที่ --</option>
-                    <script>for(let i=1; i<=31; i++) document.write(`<option value="${400+i}">วันที่ ${i}</option>`);</script>
+                    for(let i=1; i<=31; i++) document.write(`<option value="${400+i}">วันที่ ${i}</option>`);</script>
                 </select>
             </div>
             <div class="input-group">
@@ -462,7 +462,7 @@
     function saveAsImage() {
         replaceSelectsForCapture(); window.scrollTo(0,0);
         html2canvas(document.getElementById('export-area'), { scale: 2, useCORS: true, backgroundColor: "#293A4B" }).then(canvas => {
-            let link = document.createElement('a'); link.download = 'กราฟชีวิต-หมอวิทยา.png'; link.href = canvas.toData('image/png'); link.click(); restoreSelectsAfterCapture();
+            let link = document.createElement('a'); link.download = 'กราฟชีวิต-หมอวิทยา.png'; link.href = canvas.toDataURL('image/png'); link.click(); restoreSelectsAfterCapture();
         });
     }
 
@@ -478,7 +478,6 @@
         // ใส่ URL ที่ได้จาก Google Apps Script ของคุณหมอ
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_R3rj6uQExK1lFQnIA5V51gYrqzIJW7VrpyLO_7I6gbc1oFk8C5S62j_hljIHwmA9/exec"; 
 
-        // ลบเงื่อนไข if ออก แล้วให้มันยิงข้อมูล (fetch) ทันที
         fetch(WEB_APP_URL, {
             method: 'POST',
             mode: 'no-cors', // สำคัญมาก ป้องกัน error cross-origin
@@ -493,6 +492,9 @@
             alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
         });
     }
+</script>
+</html>
+}
 
         // ดึงเฉพาะบรรทัดแรก หรือข้อความเพื่อใช้บันทึกเบื้องต้น
         fetch(WEB_APP_URL, {
