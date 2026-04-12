@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์..กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -39,7 +39,8 @@
         .export-container { background: #293A4B; padding: 30px 40px; border-radius: 15px; display: inline-block; min-width: 1600px; margin: 0 auto; position: relative;}
         .board-wrapper { overflow-x: auto; padding-bottom: 20px; text-align: center; display: none;}
         
-        .grid-board { display: grid; grid-template-columns: repeat(14, 1fr); gap: 15px 30px; width: 100%;}
+        /* ปรับช่องว่างระหว่างบรรทัดให้กว้างขึ้น เพื่อภาพที่สวยงาม */
+        .grid-board { display: grid; grid-template-columns: repeat(14, 1fr); gap: 20px 30px; width: 100%;}
         
         .card-item { border-radius: 10px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
         .card-item img { width: 100%; height: auto; border-radius: 6px; display: block; background: #fff;}
@@ -66,12 +67,13 @@
         .teacher-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; color: rgba(255, 255, 255, 0.85); font-size: 1.8em; font-weight: 700; font-family: 'Kanit', sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); z-index: 10; pointer-events: none;}
 
         .client-info-container { display: flex; align-items: stretch; width: 100%; }
+        /* ปรับสีตัวอักษรกล่องข้อมูลเจ้าชะตาให้ชัดเจนขึ้นเมื่อเซฟภาพ */
         .client-info-box { width: 100%; background-color: transparent; border: none; color: #ffffff; font-family: 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 2.00em; font-weight: bold; line-height: 1.5; resize: none; outline: none; }
+        .client-info-box::placeholder { color: rgba(255,255,255,0.6); }
 
-        /* ปรับเป็นวงกลมสำหรับแถวที่ 6 */
         .dropdown-cell { 
             background-color: #293A4B; 
-            border-radius: 50%; /* วงกลม */
+            border-radius: 50%; 
             margin: 5px auto; 
             display: flex; align-items: center; justify-content: center; 
             height: 50px; width: 50px; 
@@ -80,10 +82,7 @@
         .number-dropdown { background: transparent; border: none; outline: none; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 1.6em; width: 100%; text-align: center; text-align-last: center; -webkit-appearance: none; appearance: none; }
 
         .custom-cell { background-color: #293A4B; border-radius: 8px; margin-top: 5px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; height: 45px; box-sizing: border-box; }
-        .custom-cell.active { background-color: #ecf0f1; border: 2px solid rgba(0,0,0,0.2); }
         .manual-input { background: transparent; color: #293A4B; font-weight: 700; font-size: 1.6em; border: none; outline: none; font-family: 'Kanit', sans-serif; width: 100%; text-align: center; }
-        .manual-input::placeholder { color: #293A4B; }
-        .custom-cell.active .manual-input { color: #ffffff; }
 
         @media (max-width: 900px) { .input-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
@@ -178,12 +177,6 @@
     const GRAPH_GROUPS = {};
     for (let i = 1; i <= 12; i++) { GRAPH_GROUPS[i] = [400 + i, 400 + i + 12, 400 + i + 24]; }
 
-    const CARD_GROUPS = {
-        "101":1, "201":1, "208":1, "301":1, "308":1, "102":2, "202":2, "209":2, "302":2, "309":2,
-        "103":3, "203":3, "210":3, "303":3, "310":3, "104":4, "204":4, "211":4, "304":4, "311":4,
-        "105":5, "205":5, "212":5, "305":5, "312":5, "106":6, "206":6, "306":6, "107":7, "207":7, "307":7
-    };
-
     const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
     const ROW_8_TITLES = ["วาสนา", "ทรัพย์สิน", "บ้านช่อง", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง", "โรคภัย", "ความสุข", "การงาน", "โชคลาภ", "สรุปชะตา"];
     const ROW_4_TITLES = ["ตัวเรา", "การเงิน", "เพื่อน", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง"];
@@ -191,7 +184,7 @@
 
     const TEACHER_CARDS = ["501", "502", "503", "504", "505", "506"];
     const DANGER_TITLES = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
-    const WEALTH_POSITIONS = ["พื้นดวง", "วาสนา", "ทรัพย์สิน", "ความสุข", "โชคลาภ"];
+    const WEALTH_POSITIONS = ["วาสนา", "ทรัพย์สิน", "ความสุข", "โชคลาภ"];
     const WEALTH_CARDS = ["410", "411", "415", "416", "424", "429"];
 
     const VERY_GOOD = ["409", "411", "424"];
@@ -201,10 +194,10 @@
     const VERY_BAD = ["401", "408", "412", "431"];
 
     const NUMBER_COLORS = {
-        "1":{bg:"#C00000",color:"#F2F2F2"}, "2":{bg:"#FFFF00",color:"#997a00"}, "3":{bg:"#FF6600",color:"#F2F2F2"},
-        "4":{bg:"#00B050",color:"#F2F2F2"}, "5":{bg:"#996633",color:"#F2F2F2"}, "6":{bg:"#00B0F0",color:"#F2F2F2"},
-        "7":{bg:"#D86ECC",color:"#F2F2F2"}, "8":{bg:"#262626",color:"#F2F2F2"}, "9":{bg:"#92D050",color:"#F2F2F2"},
-        "10":{bg:"#FFC000",color:"#F2F2F2"}, "11":{bg:"#002060",color:"#F2F2F2"}, "12":{bg:"#FF0066",color:"#F2F2F2"} 
+        "1":{bg:"#C00000",color:"#FFFFFF"}, "2":{bg:"#FFFF00",color:"#000000"}, "3":{bg:"#FF6600",color:"#FFFFFF"},
+        "4":{bg:"#00B050",color:"#FFFFFF"}, "5":{bg:"#996633",color:"#FFFFFF"}, "6":{bg:"#00B0F0",color:"#000000"},
+        "7":{bg:"#D86ECC",color:"#FFFFFF"}, "8":{bg:"#262626",color:"#FFFFFF"}, "9":{bg:"#92D050",color:"#000000"},
+        "10":{bg:"#FFC000",color:"#000000"}, "11":{bg:"#002060",color:"#FFFFFF"}, "12":{bg:"#FF0066",color:"#FFFFFF"} 
     };
 
     const DAY_RELATION_MAP = {
@@ -256,7 +249,7 @@
 
         if (!valDate || !valDay || !valMonth || !valYear) { alert("กรุณาเลือกข้อมูลให้ครบครับ"); return; }
 
-        // คำนวณอายุ
+        // คำนวณอายุปัจจุบัน
         const currentYear = new Date().getFullYear() + 543;
         let age = 0;
         if(birthYear > 2400) age = currentYear - birthYear;
@@ -304,22 +297,19 @@
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
             let styleClass = gridRow === 5 ? getCardStyleClass(code, title) : "card-default";
-            let teacherOverlay = "";
-            let extra = (gridRow === 5) ? `onclick="toggleGraphHighlight(${gridCol})"` : (gridRow === 7 ? `onclick="toggleSevenHighlight(${gridCol})"` : "");
-
             board.innerHTML += `
-                <div class="card-item ${styleClass} dim-target-graph dim-target-seven" data-col="${gridCol}" data-row="${gridRow}" data-code="${code}" style="grid-area: ${gridRow} / ${gridCol};" ${extra}>
+                <div class="card-item ${styleClass}" data-col="${gridCol}" data-row="${gridRow}" style="grid-area: ${gridRow} / ${gridCol};">
                     ${title ? `<span class="pos-label">${title}</span>` : ""}<img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">
                 </div>`;
         }
 
-        // ส่วนหัว
+        // ส่วนหัว (ลดช่องว่าง และปรับให้ตัวหนังสือข้อมูลเจ้าชะตาชัดเจน)
         addCard(data.DATE[0], 1, 2, null);
         board.innerHTML += `<div class="client-info-container" style="grid-area: 1 / 3 / span 1 / span 6;">
             <div style="display:flex; flex-direction:column; width:100%; text-align:left;">
-                <input type="text" id="db-name" class="client-info-box" placeholder="เจ้าชะตา :" style="height:50px;">
-                <input type="text" id="db-dob" class="client-info-box" placeholder="วันเดือนปีเกิด :" style="height:50px;">
-                <input type="text" id="db-note" class="client-info-box" placeholder="ข้อมูลประกอบ :" style="height:50px;">
+                <input type="text" id="db-name" class="client-info-box" placeholder="เจ้าชะตา :" style="height:45px;">
+                <input type="text" id="db-dob" class="client-info-box" placeholder="วันเดือนปีเกิด :" style="height:45px;">
+                <input type="text" id="db-note" class="client-info-box" placeholder="ข้อมูลประกอบ :" style="height:45px;">
             </div>
         </div>`;
 
@@ -329,7 +319,7 @@
         board.innerHTML += tHtml;
         board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2/9/2/15;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
-        // แถวไพ่
+        // แถวไพ่ต่างๆ
         data.DAY.forEach((c, i) => addCard(c, 2, i + 2, ROW_2_TITLES[i]));
         data.MONTH.forEach((c, i) => { let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i); addCard(c, 3, i + 2, idx!==-1?ROW_4_TITLES[idx]:null); });
         data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
@@ -338,13 +328,13 @@
         // แถวที่ 6 (Dropdown วงกลม ออโต้)
         let activePosRow6 = DAY_RELATION_MAP[data.DAY[0]] || [];
         for(let col = 2; col <= 13; col++) {
-            let idx = col - 2; let autoNum = ""; let bg = "#293A4B"; let color = "#293A4B";
+            let idx = col - 2; let autoNum = ""; let bg = "#293A4B"; let color = "transparent";
             if (activePosRow6.includes(idx)) {
                 autoNum = ((parseInt(data.GRAPH_BASE[idx]) - 401) % 12) + 1;
                 bg = NUMBER_COLORS[autoNum].bg; color = NUMBER_COLORS[autoNum].color;
             }
-            let opts = `<option value="">-</option>`;
-            for(let n=1; n<=12; n++) opts += `<option value="${n}" ${n==autoNum?'selected':''}>${n}</option>`;
+            let opts = `<option value="" style="color:#000;">-</option>`;
+            for(let n=1; n<=12; n++) opts += `<option value="${n}" ${n==autoNum?'selected':''} style="color:#000;">${n}</option>`;
             board.innerHTML += `<div class="dropdown-cell" style="grid-area: 6/${col}; background-color:${bg};">
                 <select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
         }
@@ -352,33 +342,39 @@
         // แถวที่ 7 (ไพ่เลขเจ็ดตัว)
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถวที่ 8 (คำนวณอายุอัตโนมัติ)
-        let ageCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
+        // แถวที่ 8 (คำนวณอายุต่อเนื่องวนรอบ และจัดการสีตัวหนังสือให้ตัดกับพื้นหลัง)
+        let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
+        
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2;
-            let val = (idx === ageCol) ? data.AGE : "";
+            let val = "";
             let cellBg = "#293A4B";
+            let textColor = "#293A4B"; // ซ่อนถ้าไม่มีค่า
             
-            // ถ้าเป็นช่องอายุ ให้ดึงสีจากไพ่แถวที่ 5 มาใช้
-            if(idx === ageCol) {
+            if (data.AGE > 0) {
+                // คำนวณอายุแบบต่อเนื่องวนรอบ
+                let diff = idx - startAgeCol;
+                if (diff < 0) diff += 12; // วนกลับไปคอลัมน์แรกๆ
+                val = data.AGE + diff;
+
+                // ดึงสีพื้นหลังและกำหนดสีตัวอักษรให้อ่านง่าย
                 let cardCode = data.GRAPH_BASE[idx];
                 let cardTitle = ROW_8_TITLES[idx];
                 let cardGrade = getCardStyleClass(cardCode, cardTitle);
                 
-                // แมพสีตามเกรดไพ่
-                if(cardGrade === "card-gold-zone") cellBg = "linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)";
-                else if(cardGrade === "card-very-good") cellBg = "#0047AB";
-                else if(cardGrade === "card-good") cellBg = "#bbdefb";
-                else if(cardGrade === "card-dark-gray") cellBg = "#424949";
-                else if(cardGrade === "card-black") cellBg = "#17202a";
-                else if(cardGrade === "card-red") cellBg = "#cb4335";
-                else if(cardGrade === "card-very-bad") cellBg = "#b71c1c";
-                else if(cardGrade === "card-bad") cellBg = "#212121";
-                else cellBg = "#ffffff";
+                if(cardGrade === "card-gold-zone") { cellBg = "linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)"; textColor = "#000000"; }
+                else if(cardGrade === "card-very-good") { cellBg = "#0047AB"; textColor = "#FFFFFF"; }
+                else if(cardGrade === "card-good") { cellBg = "#bbdefb"; textColor = "#000000"; }
+                else if(cardGrade === "card-dark-gray") { cellBg = "#424949"; textColor = "#FFFFFF"; }
+                else if(cardGrade === "card-black") { cellBg = "#17202a"; textColor = "#FFFFFF"; }
+                else if(cardGrade === "card-red") { cellBg = "#cb4335"; textColor = "#FFFFFF"; }
+                else if(cardGrade === "card-very-bad") { cellBg = "#b71c1c"; textColor = "#FFFFFF"; }
+                else if(cardGrade === "card-bad") { cellBg = "#212121"; textColor = "#FFFFFF"; }
+                else { cellBg = "#ffffff"; textColor = "#000000"; }
             }
 
-            board.innerHTML += `<div class="custom-cell" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${idx===ageCol?'1px solid gold':'none'};">
-                <input type="text" class="manual-input" value="${val}" style="color:${idx===ageCol?'#fff':'#293A4B'};"></div>`;
+            board.innerHTML += `<div class="custom-cell" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${idx===startAgeCol?'2px solid #f1c40f':'none'}; box-shadow:${idx===startAgeCol?'0 0 10px rgba(241,196,15,0.8)':''}">
+                <input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
         }
 
         document.getElementById('main-wrapper').style.display = 'block';
@@ -390,24 +386,36 @@
     function updateDropdown(sel) {
         let val = sel.value; let p = sel.parentElement;
         if (val) { p.style.backgroundColor = NUMBER_COLORS[val].bg; sel.style.color = NUMBER_COLORS[val].color; } 
-        else { p.style.backgroundColor = "#293A4B"; sel.style.color = "#293A4B"; }
+        else { p.style.backgroundColor = "#293A4B"; sel.style.color = "transparent"; }
     }
 
     function clearCustomRows() { document.querySelectorAll('.custom-cell input').forEach(i => i.value = ""); }
 
+    // ฟังก์ชัน Save Image ที่ปรับสีตัวหนังสือให้ชัดเจนตอนบันทึกภาพ
     function saveAsImage() {
         const target = document.getElementById('export-area');
-        // ซ่อน input ชั่วคราวเพื่อให้ภาพสวย
+        
+        // แปลง Input เป็น Span ชั่วคราวเพื่อให้ Canvas วาดภาพได้สวยงามและอ่านง่าย
         document.querySelectorAll('.number-dropdown, .manual-input, .client-info-box').forEach(el => {
             let span = document.createElement('span');
             span.className = 'temp-span';
-            span.innerText = el.value || (el.placeholder ? "" : "-");
-            span.style.cssText = "color:inherit; font-weight:bold; font-size:1.4em;";
-            el.style.display = 'none'; el.parentNode.appendChild(span);
+            
+            if (el.classList.contains('client-info-box')) {
+                span.innerText = el.value || (el.placeholder ? el.placeholder : " ");
+                span.style.cssText = "color:#FFFFFF; font-weight:bold; font-size:2em; font-family:'TH SarabunPSK', 'Sarabun', sans-serif; display:block; padding:10px 15px;";
+            } else {
+                span.innerText = el.value || "";
+                span.style.cssText = `color:${el.style.color}; font-weight:bold; font-size:1.6em; font-family:'Kanit', sans-serif; display:flex; align-items:center; justify-content:center; width:100%; height:100%;`;
+            }
+            
+            el.style.display = 'none'; 
+            el.parentNode.appendChild(span);
         });
 
-        html2canvas(target, { scale: 2, backgroundColor: "#293A4B" }).then(canvas => {
+        html2canvas(target, { scale: 2, backgroundColor: "#293A4B", useCORS: true }).then(canvas => {
             let link = document.createElement('a'); link.download = 'กราฟชีวิต-หมอวิทยา.png'; link.href = canvas.toDataURL(); link.click();
+            
+            // คืนค่ากลับเป็น Input ตามเดิม
             document.querySelectorAll('.temp-span').forEach(s => s.remove());
             document.querySelectorAll('.number-dropdown, .manual-input, .client-info-box').forEach(el => el.style.display = 'block');
         });
@@ -418,6 +426,7 @@
         const dob = document.getElementById('db-dob').value;
         const note = document.getElementById('db-note').value;
         
+        // ใส่ URL ที่ได้จาก Google Apps Script ของคุณหมอ
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_R3rj6uQExK1lFQnIA5V51gYrqzIJW7VrpyLO_7I6gbc1oFk8C5S62j_hljIHwmA9/exec"; 
 
         fetch(WEB_APP_URL, {
@@ -430,7 +439,7 @@
                 dob: dob,
                 note: note
             })
-        }).then(() => alert("☁️ บันทึกประวัติลูกค้าแยก 3 คอลัมน์ เรียบร้อยแล้วครับ!"));
+        }).then(() => alert("☁️ บันทึกประวัติลูกค้าลง Google Sheet เรียบร้อยแล้วครับ!"));
     }
 </script>
 </body>
