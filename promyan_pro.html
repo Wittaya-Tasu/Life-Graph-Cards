@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์..กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -39,13 +39,12 @@
         .export-container { background: #293A4B; padding: 30px 40px; border-radius: 15px; display: inline-block; min-width: 1600px; margin: 0 auto; position: relative;}
         .board-wrapper { overflow-x: auto; padding-bottom: 20px; text-align: center; display: none;}
         
-        /* ปรับช่องว่างระหว่างบรรทัดให้กว้างขึ้น เพื่อภาพที่สวยงาม */
         .grid-board { display: grid; grid-template-columns: repeat(14, 1fr); gap: 20px 30px; width: 100%;}
         
         .card-item { border-radius: 10px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
         .card-item img { width: 100%; height: auto; border-radius: 6px; display: block; background: #fff;}
         
-        .pos-label { display: block; font-weight: bold; font-size: 1.15em; margin-bottom: 6px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; font-family: 'TH SarabunPSK', 'Sarabun', sans-serif; line-height: 1.2; }
+        .pos-label { display: block; font-weight: bold; font-size: 1.15em; margin-bottom: 6px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; font-family: 'TH SarabunPSK', 'Sarabun', sans-serif; line-height: 1.2; text-shadow: none !important; -webkit-text-stroke: 0px !important;}
 
         .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
         .card-default .pos-label.label-danger, .card-good .pos-label.label-danger, .card-neutral-status .pos-label.label-danger { color: #d32f2f !important; }
@@ -63,26 +62,32 @@
         .card-gold-zone { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; box-shadow: 0 4px 15px rgba(170, 119, 28, 0.5); }
 
         .teacher-watermark { font-size: 1.15em; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; margin-top: -5px; }
-
         .teacher-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; color: rgba(255, 255, 255, 0.85); font-size: 1.8em; font-weight: 700; font-family: 'Kanit', sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); z-index: 10; pointer-events: none;}
 
         .client-info-container { display: flex; align-items: stretch; width: 100%; }
-        /* ปรับสีตัวอักษรกล่องข้อมูลเจ้าชะตาให้ชัดเจนขึ้นเมื่อเซฟภาพ */
         .client-info-box { width: 100%; background-color: transparent; border: none; color: #ffffff; font-family: 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 2.00em; font-weight: bold; line-height: 1.5; resize: none; outline: none; }
         .client-info-box::placeholder { color: rgba(255,255,255,0.6); }
 
-        .dropdown-cell { 
-            background-color: #293A4B; 
-            border-radius: 50%; 
-            margin: 5px auto; 
-            display: flex; align-items: center; justify-content: center; 
-            height: 50px; width: 50px; 
-            box-sizing: border-box; 
-        }
+        .dropdown-cell { background-color: #293A4B; border-radius: 50%; margin: 5px auto; display: flex; align-items: center; justify-content: center; height: 50px; width: 50px; box-sizing: border-box; }
         .number-dropdown { background: transparent; border: none; outline: none; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 1.6em; width: 100%; text-align: center; text-align-last: center; -webkit-appearance: none; appearance: none; }
 
-        .custom-cell { background-color: #293A4B; border-radius: 8px; margin-top: 5px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; height: 45px; box-sizing: border-box; }
+        .custom-cell { background-color: #293A4B; border-radius: 8px; margin-top: 5px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; height: 45px; box-sizing: border-box; transition: 0.3s;}
         .manual-input { background: transparent; color: #293A4B; font-weight: 700; font-size: 1.6em; border: none; outline: none; font-family: 'Kanit', sans-serif; width: 100%; text-align: center; }
+
+        /* ระบบแสงเงา Focus Mode */
+        .dim-target-graph { transition: all 0.4s ease; position: relative; }
+        .grid-board.has-graph-highlight .dim-target-graph { opacity: 0.2; filter: grayscale(70%); }
+        .grid-board.has-graph-highlight .dim-target-graph.highlighted { opacity: 1; filter: none; transform: scale(1.05); z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .click-to-highlight-graph { cursor: pointer; }
+        .click-to-highlight-graph:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 10;}
+        .grid-board.has-graph-highlight .dim-target-graph.click-to-highlight-graph { pointer-events: auto; }
+
+        .dim-target-seven { transition: all 0.4s ease; position: relative; }
+        .grid-board.has-seven-highlight .dim-target-seven { opacity: 0.2; filter: grayscale(70%); }
+        .grid-board.has-seven-highlight .dim-target-seven.highlighted { opacity: 1; filter: none; transform: scale(1.05); z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,0.6); border-color: #f1c40f !important; }
+        .click-to-highlight-seven { cursor: pointer; }
+        .click-to-highlight-seven:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(241, 196, 15, 0.4); z-index: 10;}
+        .grid-board.has-seven-highlight .dim-target-seven.click-to-highlight-seven { pointer-events: auto; }
 
         @media (max-width: 900px) { .input-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
@@ -177,6 +182,12 @@
     const GRAPH_GROUPS = {};
     for (let i = 1; i <= 12; i++) { GRAPH_GROUPS[i] = [400 + i, 400 + i + 12, 400 + i + 24]; }
 
+    const CARD_GROUPS = {
+        "101":1, "201":1, "208":1, "301":1, "308":1, "102":2, "202":2, "209":2, "302":2, "309":2,
+        "103":3, "203":3, "210":3, "303":3, "310":3, "104":4, "204":4, "211":4, "304":4, "311":4,
+        "105":5, "205":5, "212":5, "305":5, "312":5, "106":6, "206":6, "306":6, "107":7, "207":7, "307":7
+    };
+
     const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
     const ROW_8_TITLES = ["วาสนา", "ทรัพย์สิน", "บ้านช่อง", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง", "โรคภัย", "ความสุข", "การงาน", "โชคลาภ", "สรุปชะตา"];
     const ROW_4_TITLES = ["ตัวเรา", "การเงิน", "เพื่อน", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง"];
@@ -204,6 +215,9 @@
         "101": [0, 4, 1, 5, 8, 2, 6, 3, 11], "102": [0, 4, 7, 1, 5, 2, 10], "103": [0, 4, 1, 9, 6, 7],
         "104": [0, 8, 2, 11], "105": [1, 10, 4, 11, 6, 8], "106": [0, 9, 2, 6, 3, 10, 5, 7], "107": [1, 5, 2, 6, 9]
     };
+
+    let activeGraphHighlightCols = []; 
+    let activeSevenCols = []; 
 
     // --- ตรรกะคำนวณ ---
     function generateSequence(startId, length, minId, maxId) {
@@ -292,18 +306,35 @@
     function buildBoardUI(data) {
         const board = document.getElementById('main-board');
         board.innerHTML = '';
+        board.classList.remove('has-graph-highlight', 'has-seven-highlight');
+        activeGraphHighlightCols = []; activeSevenCols = []; 
+
         const posRow10 = calculateDynamicPositions(data.YEAR, "301");
 
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
             let styleClass = gridRow === 5 ? getCardStyleClass(code, title) : "card-default";
+            
+            // คืนค่าคลาสสำหรับระบบแสงเงา Focus
+            let dimClasses = gridRow >= 2 ? "dim-target-graph dim-target-seven" : "";
+            let clickClass = "";
+            let extraAttr = "";
+
+            if (gridRow === 5) {
+                clickClass = "click-to-highlight-graph";
+                extraAttr = `onclick="toggleGraphHighlight(${gridCol})" title="คลิกเพื่อเน้นไพ่กราฟชีวิต"`;
+            } else if (gridRow === 7) {
+                clickClass = "click-to-highlight-seven";
+                extraAttr = `onclick="toggleSevenHighlight(${gridCol})" title="คลิกเพื่อดูความสัมพันธ์กลุ่มไพ่เลข 7 ตัว"`;
+            }
+
             board.innerHTML += `
-                <div class="card-item ${styleClass}" data-col="${gridCol}" data-row="${gridRow}" style="grid-area: ${gridRow} / ${gridCol};">
+                <div class="card-item ${styleClass} ${dimClasses} ${clickClass}" data-col="${gridCol}" data-row="${gridRow}" data-code="${code}" data-has-title="${title ? 'true' : 'false'}" style="grid-area: ${gridRow} / ${gridCol};" ${extraAttr}>
                     ${title ? `<span class="pos-label">${title}</span>` : ""}<img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">
                 </div>`;
         }
 
-        // ส่วนหัว (ลดช่องว่าง และปรับให้ตัวหนังสือข้อมูลเจ้าชะตาชัดเจน)
+        // ส่วนหัว
         addCard(data.DATE[0], 1, 2, null);
         board.innerHTML += `<div class="client-info-container" style="grid-area: 1 / 3 / span 1 / span 6;">
             <div style="display:flex; flex-direction:column; width:100%; text-align:left;">
@@ -335,29 +366,29 @@
             }
             let opts = `<option value="" style="color:#000;">-</option>`;
             for(let n=1; n<=12; n++) opts += `<option value="${n}" ${n==autoNum?'selected':''} style="color:#000;">${n}</option>`;
-            board.innerHTML += `<div class="dropdown-cell" style="grid-area: 6/${col}; background-color:${bg};">
+            
+            // เพิ่มคลาส dim-target กลับเข้าไป
+            board.innerHTML += `<div class="dropdown-cell dim-target-graph dim-target-seven" data-row="6" data-col="${col}" style="grid-area: 6/${col}; background-color:${bg};">
                 <select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
         }
 
         // แถวที่ 7 (ไพ่เลขเจ็ดตัว)
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถวที่ 8 (คำนวณอายุต่อเนื่องวนรอบ และจัดการสีตัวหนังสือให้ตัดกับพื้นหลัง)
+        // แถวที่ 8 (คำนวณอายุต่อเนื่องวนรอบ)
         let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
         
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2;
             let val = "";
             let cellBg = "#293A4B";
-            let textColor = "#293A4B"; // ซ่อนถ้าไม่มีค่า
+            let textColor = "#293A4B"; 
             
             if (data.AGE > 0) {
-                // คำนวณอายุแบบต่อเนื่องวนรอบ
                 let diff = idx - startAgeCol;
-                if (diff < 0) diff += 12; // วนกลับไปคอลัมน์แรกๆ
+                if (diff < 0) diff += 12; 
                 val = data.AGE + diff;
 
-                // ดึงสีพื้นหลังและกำหนดสีตัวอักษรให้อ่านง่าย
                 let cardCode = data.GRAPH_BASE[idx];
                 let cardTitle = ROW_8_TITLES[idx];
                 let cardGrade = getCardStyleClass(cardCode, cardTitle);
@@ -373,7 +404,8 @@
                 else { cellBg = "#ffffff"; textColor = "#000000"; }
             }
 
-            board.innerHTML += `<div class="custom-cell" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${idx===startAgeCol?'2px solid #f1c40f':'none'}; box-shadow:${idx===startAgeCol?'0 0 10px rgba(241,196,15,0.8)':''}">
+            // เพิ่มคลาส dim-target กลับเข้าไป
+            board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${idx===startAgeCol?'2px solid #f1c40f':'none'}; box-shadow:${idx===startAgeCol?'0 0 10px rgba(241,196,15,0.8)':''}">
                 <input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
         }
 
@@ -382,7 +414,39 @@
         document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // --- ฟังก์ชันเสริม ---
+    // --- ระบบแสงเงา Focus (ทำงานได้แล้ว) ---
+    function toggleGraphHighlight(col) {
+        const board = document.getElementById('main-board');
+        if (activeSevenCols.length > 0) { activeSevenCols = []; board.classList.remove('has-seven-highlight'); document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); }
+        const colStr = String(col); const idx = activeGraphHighlightCols.indexOf(colStr);
+        if (idx > -1) activeGraphHighlightCols.splice(idx, 1); else activeGraphHighlightCols.push(colStr);
+        if (activeGraphHighlightCols.length === 0) { board.classList.remove('has-graph-highlight'); document.querySelectorAll('.dim-target-graph').forEach(el => el.classList.remove('highlighted')); } 
+        else {
+            board.classList.add('has-graph-highlight');
+            document.querySelectorAll('.dim-target-graph').forEach(el => {
+                if (activeGraphHighlightCols.includes(el.dataset.col) && parseInt(el.dataset.row, 10) !== 7) el.classList.add('highlighted'); else el.classList.remove('highlighted');
+            });
+        }
+    }
+
+    function toggleSevenHighlight(col) {
+        const board = document.getElementById('main-board');
+        if (activeGraphHighlightCols.length > 0) { activeGraphHighlightCols = []; board.classList.remove('has-graph-highlight'); document.querySelectorAll('.dim-target-graph').forEach(el => el.classList.remove('highlighted')); }
+        const colStr = String(col); const idx = activeSevenCols.indexOf(colStr);
+        if (idx > -1) activeSevenCols.splice(idx, 1); else activeSevenCols.push(colStr);
+        if (activeSevenCols.length === 0) { board.classList.remove('has-seven-highlight'); document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); return; }
+        board.classList.add('has-seven-highlight');
+        let activeGroups = [];
+        activeSevenCols.forEach(c => { let leader = document.querySelector(`.dim-target-seven[data-row="4"][data-col="${c}"]`); if(leader) activeGroups.push(CARD_GROUPS[leader.dataset.code]); });
+        document.querySelectorAll('.dim-target-seven').forEach(el => {
+            let row = parseInt(el.dataset.row, 10); let isHigh = false;
+            if ((row === 7 || row === 4) && activeSevenCols.includes(String(el.dataset.col))) isHigh = true;
+            else if ((row === 2 || row === 3) && activeGroups.includes(CARD_GROUPS[el.dataset.code]) && el.dataset.hasTitle === "true") isHigh = true;
+            if (isHigh) el.classList.add('highlighted'); else el.classList.remove('highlighted');
+        });
+    }
+
+    // --- ฟังก์ชันเสริมอื่นๆ ---
     function updateDropdown(sel) {
         let val = sel.value; let p = sel.parentElement;
         if (val) { p.style.backgroundColor = NUMBER_COLORS[val].bg; sel.style.color = NUMBER_COLORS[val].color; } 
@@ -391,11 +455,9 @@
 
     function clearCustomRows() { document.querySelectorAll('.custom-cell input').forEach(i => i.value = ""); }
 
-    // ฟังก์ชัน Save Image ที่ปรับสีตัวหนังสือให้ชัดเจนตอนบันทึกภาพ
     function saveAsImage() {
         const target = document.getElementById('export-area');
         
-        // แปลง Input เป็น Span ชั่วคราวเพื่อให้ Canvas วาดภาพได้สวยงามและอ่านง่าย
         document.querySelectorAll('.number-dropdown, .manual-input, .client-info-box').forEach(el => {
             let span = document.createElement('span');
             span.className = 'temp-span';
@@ -414,8 +476,6 @@
 
         html2canvas(target, { scale: 2, backgroundColor: "#293A4B", useCORS: true }).then(canvas => {
             let link = document.createElement('a'); link.download = 'กราฟชีวิต-หมอวิทยา.png'; link.href = canvas.toDataURL(); link.click();
-            
-            // คืนค่ากลับเป็น Input ตามเดิม
             document.querySelectorAll('.temp-span').forEach(s => s.remove());
             document.querySelectorAll('.number-dropdown, .manual-input, .client-info-box').forEach(el => el.style.display = 'block');
         });
@@ -426,7 +486,6 @@
         const dob = document.getElementById('db-dob').value;
         const note = document.getElementById('db-note').value;
         
-        // ใส่ URL ที่ได้จาก Google Apps Script ของคุณหมอ
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_R3rj6uQExK1lFQnIA5V51gYrqzIJW7VrpyLO_7I6gbc1oFk8C5S62j_hljIHwmA9/exec"; 
 
         fetch(WEB_APP_URL, {
