@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title> แผนผังพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -89,13 +89,53 @@
         .click-to-highlight-seven:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(241, 196, 15, 0.4); z-index: 10;}
         .grid-board.has-seven-highlight .dim-target-seven.click-to-highlight-seven { pointer-events: auto; }
 
+        /* =========================================
+           ระบบสัญลักษณ์ ทักษาจร (ศรี / กาลี) 
+           ========================================= */
+        .sri-overlay {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -45%);
+            width: 55%; aspect-ratio: 1 / 1; /* 4 เหลี่ยมจัตุรัส */
+            background-color: rgba(46, 204, 113, 0.6); /* สีเขียว โปร่งใส 60% */
+            z-index: 5; pointer-events: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);
+        }
+
+        .kalee-overlay {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -40%);
+            width: 65%; aspect-ratio: 1 / 0.866; /* 3 เหลี่ยมด้านเท่า */
+            background-color: rgba(231, 76, 60, 0.6); /* สีแดง โปร่งใส 60% */
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            z-index: 5; pointer-events: none;
+        }
+
+        .kalee-danger-circle {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -45%);
+            width: 75%; aspect-ratio: 1 / 1;
+            border: 5px solid rgba(192, 57, 43, 0.9); /* วงกลมสีแดงเข้มล้อมรอบ */
+            border-radius: 50%;
+            z-index: 6; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            background-color: rgba(231, 76, 60, 0.15);
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
+        }
+
+        .kalee-danger-circle .kalee-overlay-inner {
+            width: 65%; aspect-ratio: 1 / 0.866;
+            background-color: rgba(231, 76, 60, 0.6);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            margin-top: 6%; /* จัดกึ่งกลางสามเหลี่ยมในวงกลม */
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (อัปเกรดจับคู่สถานะ)</h2>
-    <p class="sub-title">ระบบคำนวณอายุและวิเคราะห์เกรดไพ่ 2 ฐาน (25 รูปแบบ) อัตโนมัติ</p>
+    <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (อัปเกรดทักษาจร)</h2>
+    <p class="sub-title">ระบบคำนวณอายุ วิเคราะห์เกรดไพ่ 2 ฐาน พร้อมจับสัญลักษณ์ ทักษา ศรี/กาลี อัตโนมัติ</p>
 
     <div class="input-section">
         <div class="input-grid">
@@ -281,17 +321,15 @@
         return "card-neutral-status";
     }
 
-    // ฟังก์ชันดึงเกรดไพ่ 5 ระดับเพื่อนำไปจับคู่ Matrix
     function getCardBaseStatus(code) {
         if (VERY_GOOD.includes(code)) return "VG";
         if (GOOD.includes(code)) return "G";
         if (NEUTRAL.includes(code)) return "N";
         if (BAD.includes(code)) return "B";
         if (VERY_BAD.includes(code)) return "VB";
-        return "N"; // fallback
+        return "N"; 
     }
 
-    // ฟังก์ชัน Matrix 25 รูปแบบ
     function getAgeMatrixStyles(graphStatus, sevenStatus) {
         const C_WHITE = "#FFFFFF";
         const C_BLACK = "#000000";
@@ -307,7 +345,6 @@
         const B_BLACK = "4px solid #17202a"; 
         const B_RED = "4px solid #e74c3c"; 
 
-        // เส้นขอบ (ขึ้นอยู่กับสถานะของไพ่เจ็ดตัวเท่านั้น)
         let border = B_NONE;
         if (sevenStatus === "VG") border = B_BLUE;
         if (sevenStatus === "G") border = B_BLUE;
@@ -318,7 +355,6 @@
         let bg = C_WHITE;
         let text = C_BLACK;
 
-        // การเช็คเงื่อนไขสีพื้นหลังและตัวอักษร
         if (graphStatus === "VG") {
             if (sevenStatus === "VG") { bg = C_GOLD_BG; text = C_WHITE; }
             else { bg = C_WHITE; text = C_LIGHT_BLUE_TEXT; }
@@ -412,6 +448,29 @@
 
         const posRow10 = calculateDynamicPositions(data.YEAR, "301");
 
+        // ==========================================
+        // การคำนวณ ทักษาจร (หาตำแหน่ง ศรี และ กาลี)
+        // ==========================================
+        let sriNum = 0;
+        let kaleeNum = 0;
+
+        if (data.AGE > 0) {
+            const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; // เดินเข้าตากลางหาบริวาร
+            const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    // เดิน 8 ทิศ แจกสถานะ
+            
+            let startDayNum = parseInt(data.DAY[0]) % 100; // แปลงวันเกิดเป็นเลข 1-7
+            let startIndex9 = path9.indexOf(startDayNum);
+            
+            let steps = data.AGE % 9;
+            if (steps === 0) steps = 9; // ถ้าหารลงตัว คือก้าวที่ 9
+            
+            let boriwanNum = path9[(startIndex9 + steps - 1) % 9];
+            
+            let startIndex8 = path8.indexOf(boriwanNum);
+            sriNum = path8[(startIndex8 + 3) % 8]; // ศรี นับไป 3 ก้าว (ตำแหน่งที่ 4)
+            kaleeNum = path8[(startIndex8 + 7) % 8]; // กาลี นับไป 7 ก้าว (ตำแหน่งที่ 8)
+        }
+
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
             let styleClass = gridRow === 5 ? getCardStyleClass(code, title) : "card-default";
@@ -428,9 +487,54 @@
                 extraAttr = `onclick="toggleSevenHighlight(${gridCol})" title="คลิกเพื่อดูความสัมพันธ์กลุ่มไพ่เลข 7 ตัว"`;
             }
 
+            // ==========================================
+            // Logic แสดงสัญลักษณ์ ทักษา ศรี / กาลี
+            // ==========================================
+            let overlayHtml = "";
+            if (data.AGE > 0) {
+                // เช็คว่าไพ่ใบนี้เป็นกลุ่มฐาน 7 ตำแหน่ง หรือไม่ (แถว 2,3,4 และมี title)
+                let isSevenSystem = (gridRow >= 2 && gridRow <= 4 && title != null);
+                let isSri = false;
+                let isKalee = false;
+
+                // เช็คกลุ่ม ศรี
+                if (sriNum >= 1 && sriNum <= 7) {
+                    isSri = isSevenSystem && (CARD_GROUPS[code] === sriNum);
+                } else if (sriNum === 8) {
+                    isSri = (gridRow === 7 && code === "412"); // พระราหู
+                }
+
+                // เช็คกลุ่ม กาลี
+                if (kaleeNum >= 1 && kaleeNum <= 7) {
+                    isKalee = isSevenSystem && (CARD_GROUPS[code] === kaleeNum);
+                } else if (kaleeNum === 8) {
+                    isKalee = (gridRow === 7 && code === "412"); // พระราหู
+                }
+
+                // Render สี่เหลี่ยมสีเขียว (ศรี)
+                if (isSri) {
+                    overlayHtml += `<div class="sri-overlay"></div>`;
+                }
+
+                // Render สามเหลี่ยมสีแดง (กาลี) พร้อมเงื่อนไขดักจับ ภพเสีย (วงแหวนอันตราย)
+                if (isKalee) {
+                    const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
+                    if (badTitles.includes(title)) {
+                        overlayHtml += `
+                            <div class="kalee-danger-circle">
+                                <div class="kalee-overlay-inner"></div>
+                            </div>`;
+                    } else {
+                        overlayHtml += `<div class="kalee-overlay"></div>`;
+                    }
+                }
+            }
+
             board.innerHTML += `
-                <div class="card-item ${styleClass} ${dimClasses} ${clickClass}" data-col="${gridCol}" data-row="${gridRow}" data-code="${code}" data-has-title="${title ? 'true' : 'false'}" style="grid-area: ${gridRow} / ${gridCol};" ${extraAttr}>
-                    ${title ? `<span class="pos-label">${title}</span>` : ""}<img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">
+                <div class="card-item ${styleClass} ${dimClasses} ${clickClass}" data-col="${gridCol}" data-row="${gridRow}" data-code="${code}" data-has-title="${title ? 'true' : 'false'}" style="grid-area: ${gridRow} / ${gridCol}; position:relative;" ${extraAttr}>
+                    ${title ? `<span class="pos-label">${title}</span>` : ""}
+                    <img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">
+                    ${overlayHtml}
                 </div>`;
         }
 
