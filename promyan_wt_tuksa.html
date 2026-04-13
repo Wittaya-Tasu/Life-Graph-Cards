@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> .แผนผังพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -124,10 +124,10 @@
         }
 
         .kalee-danger-circle .kalee-overlay-inner {
-            width: 65%; aspect-ratio: 1 / 0.866;
+            width: 70%; aspect-ratio: 1 / 0.866;
             background-color: rgba(231, 76, 60, 0.6);
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            margin-top: 6%; /* จัดกึ่งกลางสามเหลี่ยมในวงกลม */
+            margin-top: 6%; 
         }
     </style>
 </head>
@@ -206,6 +206,7 @@
                     <option value="1">แสดง 1 ปี (ปัจจุบัน)</option>
                     <option value="2">แสดง 2 ปี (ปัจจุบัน + 1)</option>
                     <option value="3">แสดง 3 ปี (ปัจจุบัน + 2)</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
                 </select>
             </div>
             <div class="input-group">
@@ -215,6 +216,14 @@
                     <option value="1">แสดง 1 ปี (ปีถัดไป)</option>
                     <option value="2">แสดง 2 ปี (ถัดไปอีก 2 ปี)</option>
                     <option value="3">แสดง 3 ปี (ถัดไปอีก 3 ปี)</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>8. สัญลักษณ์ทักษาจร</label>
+                <select id="sel-taksa">
+                    <option value="1" selected>✅ เปิดแสดง (ศรี/กาลี)</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
                 </select>
             </div>
         </div>
@@ -385,6 +394,7 @@
         
         const ageMode = parseInt(document.getElementById('sel-age-mode').value);
         const zodiacMode = parseInt(document.getElementById('sel-zodiac-row').value);
+        const taksaMode = parseInt(document.getElementById('sel-taksa').value);
 
         if (!valDate || !valDay || !valMonth || !valYear) { alert("กรุณาเลือกข้อมูลให้ครบครับ"); return; }
 
@@ -436,7 +446,7 @@
             DATE: [valDate.toString()], DAY: daySeq.map(String),
             MONTH: monthSeq.map(String), YEAR: yearSeq.map(String),
             GRAPH_BASE: graphBase.map(String), SEVEN_BASE: sevenBase.map(String),
-            AGE: age, AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode
+            AGE: age, AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode, TAKSA_MODE: taksaMode
         });
     }
 
@@ -454,7 +464,7 @@
         let sriNum = 0;
         let kaleeNum = 0;
 
-        if (data.AGE > 0) {
+        if (data.AGE > 0 && data.TAKSA_MODE === 1) {
             const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; // เดินเข้าตากลางหาบริวาร
             const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    // เดิน 8 ทิศ แจกสถานะ
             
@@ -488,11 +498,20 @@
             }
 
             // ==========================================
+            // ดักจับ 4 ตำแหน่งเสีย เพื่อเปลี่ยนชื่อเป็นตัวอักษรสีแดง
+            // ==========================================
+            const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
+            let titleHtml = "";
+            if (title) {
+                let dangerClass = badTitles.includes(title) ? " label-danger" : "";
+                titleHtml = `<span class="pos-label${dangerClass}">${title}</span>`;
+            }
+
+            // ==========================================
             // Logic แสดงสัญลักษณ์ ทักษา ศรี / กาลี
             // ==========================================
             let overlayHtml = "";
-            if (data.AGE > 0) {
-                // เช็คว่าไพ่ใบนี้เป็นกลุ่มฐาน 7 ตำแหน่ง หรือไม่ (แถว 2,3,4 และมี title)
+            if (data.AGE > 0 && data.TAKSA_MODE === 1) {
                 let isSevenSystem = (gridRow >= 2 && gridRow <= 4 && title != null);
                 let isSri = false;
                 let isKalee = false;
@@ -518,7 +537,6 @@
 
                 // Render สามเหลี่ยมสีแดง (กาลี) พร้อมเงื่อนไขดักจับ ภพเสีย (วงแหวนอันตราย)
                 if (isKalee) {
-                    const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
                     if (badTitles.includes(title)) {
                         overlayHtml += `
                             <div class="kalee-danger-circle">
@@ -532,7 +550,7 @@
 
             board.innerHTML += `
                 <div class="card-item ${styleClass} ${dimClasses} ${clickClass}" data-col="${gridCol}" data-row="${gridRow}" data-code="${code}" data-has-title="${title ? 'true' : 'false'}" style="grid-area: ${gridRow} / ${gridCol}; position:relative;" ${extraAttr}>
-                    ${title ? `<span class="pos-label">${title}</span>` : ""}
+                    ${titleHtml}
                     <img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">
                     ${overlayHtml}
                 </div>`;
@@ -588,14 +606,13 @@
             let textColor = "transparent"; 
             let borderStyle = "none";
             let boxShadowStyle = "";
-            let showAgeInThisCell = false;
             
-            if (data.AGE > 0) {
+            // เช็คว่าผู้ใช้เปิดโหมดแสดงอายุ (AGE_MODE > 0) หรือไม่
+            if (data.AGE > 0 && data.AGE_MODE > 0) {
                 let diff = idx - startAgeCol;
                 if (diff < 0) diff += 12; 
                 
                 if (diff < data.AGE_MODE) {
-                    showAgeInThisCell = true;
                     let displayAge = data.AGE + diff;
                     val = displayAge;
 
@@ -629,6 +646,7 @@
                 }
             }
 
+            // ถ้าผู้ใช้เลือก ปิดการแสดงผล (AGE_MODE == 0) ระบบจะข้ามเงื่อนไขด้านบนมาวาดกล่องเปล่าๆ สีพื้นกระดานเลยครับ
             board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${borderStyle}; box-shadow:${boxShadowStyle};">
                 <input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
         }
@@ -640,13 +658,16 @@
             let zodiacText = ZODIAC_MAP[yearCardCode] || "";
             let showZodiac = false;
 
-            if (data.ZODIAC_MODE === 12) {
-                showZodiac = true;
-            } else if (data.AGE > 0) {
-                let diff = idx - startAgeCol;
-                if (diff < 0) diff += 12;
-                if (diff >= 1 && diff <= data.ZODIAC_MODE) {
+            // เช็คว่าผู้ใช้เปิดโหมดแสดงปีนักษัตร (ZODIAC_MODE > 0) หรือไม่
+            if (data.ZODIAC_MODE > 0) {
+                if (data.ZODIAC_MODE === 12) {
                     showZodiac = true;
+                } else if (data.AGE > 0) {
+                    let diff = idx - startAgeCol;
+                    if (diff < 0) diff += 12;
+                    if (diff >= 1 && diff <= data.ZODIAC_MODE) {
+                        showZodiac = true;
+                    }
                 }
             }
 
