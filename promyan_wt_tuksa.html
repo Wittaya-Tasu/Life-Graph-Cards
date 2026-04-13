@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title> .กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -95,8 +95,8 @@
         .sri-overlay {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -45%);
-            width: 40%; aspect-ratio: 1 / 1; /* 4 เหลี่ยมจัตุรัส */
-            background-color: rgba(46, 204, 113, 0.6); /* สีเขียว โปร่งใส 60% */
+            width: 40%; aspect-ratio: 1 / 1; 
+            background-color: rgba(46, 204, 113, 0.6); 
             z-index: 5; pointer-events: none;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);
@@ -105,8 +105,8 @@
         .kalee-overlay {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -40%);
-            width: 40%; aspect-ratio: 1 / 0.866; /* 3 เหลี่ยมด้านเท่า */
-            background-color: rgba(231, 76, 60, 0.6); /* สีแดง โปร่งใส 60% */
+            width: 40%; aspect-ratio: 1 / 0.866; 
+            background-color: rgba(231, 76, 60, 0.6); 
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
             z-index: 5; pointer-events: none;
         }
@@ -115,7 +115,7 @@
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -45%);
             width: 55%; aspect-ratio: 1 / 1;
-            border: 5px solid rgba(192, 57, 43, 0.9); /* วงกลมสีแดงเข้มล้อมรอบ */
+            border: 5px solid rgba(192, 57, 43, 0.9); 
             border-radius: 50%;
             z-index: 6; pointer-events: none;
             display: flex; align-items: center; justify-content: center;
@@ -129,13 +129,43 @@
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
             margin-top: 6%; 
         }
+
+        /* =========================================
+           ระบบประทับอายุ (เดินยาม 21 ตำแหน่ง) 
+           ========================================= */
+        .age-text-overlay {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -45%);
+            font-size: 3.0em; font-family: 'Kanit', sans-serif; font-weight: 700;
+            z-index: 8; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            width: 60%; aspect-ratio: 1/1;
+        }
+        .age-text-overlay.default { 
+            color: rgba(0, 0, 0, 0.65); 
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.7), -1px -1px 2px rgba(255,255,255,0.7); 
+        }
+        .age-text-overlay.danger { 
+            color: #d32f2f; 
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8); 
+        }
+        .age-text-overlay.danger-circle { 
+            border: 4px solid #d32f2f; 
+            border-radius: 50%; 
+            background-color: rgba(255,255,255,0.25); 
+            box-shadow: 0 0 10px rgba(211, 47, 47, 0.4);
+        }
+        .age-text-overlay.kalee-overlap { 
+            color: #ffffff; 
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.9); 
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (อัปเกรดทักษาจร)</h2>
-    <p class="sub-title">ระบบคำนวณอายุ วิเคราะห์เกรดไพ่ 2 ฐาน พร้อมจับสัญลักษณ์ ทักษา ศรี/กาลี อัตโนมัติ</p>
+    <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (อัปเกรดทักษาจร & เดินยาม 21 ฐาน)</h2>
+    <p class="sub-title">ระบบคำนวณอายุ วิเคราะห์เกรดไพ่ 2 ฐาน พร้อมจับสัญลักษณ์และเลขอายุตกทับอัตโนมัติ</p>
 
     <div class="input-section">
         <div class="input-grid">
@@ -444,7 +474,8 @@
 
         buildBoardUI({
             DATE: [valDate.toString()], DAY: daySeq.map(String),
-            MONTH: monthSeq.map(String), YEAR: yearSeq.map(String),
+            MONTH: monthSeq.map(String), posMonth: posMonth,
+            YEAR: yearSeq.map(String), posYear: posYear,
             GRAPH_BASE: graphBase.map(String), SEVEN_BASE: sevenBase.map(String),
             AGE: age, AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode, TAKSA_MODE: taksaMode
         });
@@ -457,6 +488,7 @@
         activeGraphHighlightCols = []; activeSevenCols = []; 
 
         const posRow10 = calculateDynamicPositions(data.YEAR, "301");
+        const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
 
         // ==========================================
         // การคำนวณ ทักษาจร (หาตำแหน่ง ศรี และ กาลี)
@@ -465,20 +497,55 @@
         let kaleeNum = 0;
 
         if (data.AGE > 0 && data.TAKSA_MODE === 1) {
-            const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; // เดินเข้าตากลางหาบริวาร
-            const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    // เดิน 8 ทิศ แจกสถานะ
+            const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; 
+            const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    
             
-            let startDayNum = parseInt(data.DAY[0]) % 100; // แปลงวันเกิดเป็นเลข 1-7
+            let startDayNum = parseInt(data.DAY[0]) % 100; 
             let startIndex9 = path9.indexOf(startDayNum);
             
             let steps = data.AGE % 9;
-            if (steps === 0) steps = 9; // ถ้าหารลงตัว คือก้าวที่ 9
+            if (steps === 0) steps = 9; 
             
             let boriwanNum = path9[(startIndex9 + steps - 1) % 9];
             
             let startIndex8 = path8.indexOf(boriwanNum);
-            sriNum = path8[(startIndex8 + 3) % 8]; // ศรี นับไป 3 ก้าว (ตำแหน่งที่ 4)
-            kaleeNum = path8[(startIndex8 + 7) % 8]; // กาลี นับไป 7 ก้าว (ตำแหน่งที่ 8)
+            sriNum = path8[(startIndex8 + 3) % 8]; 
+            kaleeNum = path8[(startIndex8 + 7) % 8]; 
+        }
+
+        // ==========================================
+        // การคำนวณ จุดตกอายุ 21 ตำแหน่ง (Target A & B)
+        // ==========================================
+        let target21Title = "";
+        let targetBGridCol = -1;
+
+        if (data.AGE > 0 && data.AGE_MODE > 0) {
+            let targetIdx21 = (data.AGE - 1) % 21;
+            let targetACode = "";
+
+            if (targetIdx21 < 7) {
+                target21Title = ROW_2_TITLES[targetIdx21];
+                targetACode = data.DAY[targetIdx21];
+            } else if (targetIdx21 < 14) {
+                let posIdx = targetIdx21 - 7;
+                target21Title = ROW_4_TITLES[posIdx];
+                targetACode = data.MONTH[data.posMonth[posIdx]];
+            } else {
+                let posIdx = targetIdx21 - 14;
+                target21Title = ROW_6_TITLES[posIdx];
+                targetACode = data.YEAR[data.posYear[posIdx]];
+            }
+
+            // หาคอลัมน์ของไพ่ฐาน (Target B) โดยอิงจากกลุ่มตัวเลข
+            let targetAGroup = CARD_GROUPS[targetACode];
+            for (let i = 0; i < 7; i++) {
+                let yearIdx = data.posYear[i];
+                let codeInRow4 = data.YEAR[yearIdx];
+                if (CARD_GROUPS[codeInRow4] === targetAGroup) {
+                    targetBGridCol = yearIdx + 2;
+                    break;
+                }
+            }
         }
 
         const addCard = (code, gridRow, gridCol, title) => {
@@ -500,7 +567,6 @@
             // ==========================================
             // ดักจับ 4 ตำแหน่งเสีย เพื่อเปลี่ยนชื่อเป็นตัวอักษรสีแดง
             // ==========================================
-            const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
             let titleHtml = "";
             if (title) {
                 let dangerClass = badTitles.includes(title) ? " label-danger" : "";
@@ -511,33 +577,31 @@
             // Logic แสดงสัญลักษณ์ ทักษา ศรี / กาลี
             // ==========================================
             let overlayHtml = "";
+            let isKalee = false; // ตัวแปรกลางไว้ดึงไปใช้กับเลขอายุ
+
             if (data.AGE > 0 && data.TAKSA_MODE === 1) {
                 let isSevenSystem = (gridRow >= 2 && gridRow <= 4 && title != null);
                 let isSri = false;
-                let isKalee = false;
 
-                // เช็คกลุ่ม ศรี
                 if (sriNum >= 1 && sriNum <= 7) {
                     isSri = isSevenSystem && (CARD_GROUPS[code] === sriNum);
                 } else if (sriNum === 8) {
-                    isSri = (gridRow === 7 && code === "412"); // พระราหู
+                    isSri = (gridRow === 7 && code === "412"); 
                 }
 
-                // เช็คกลุ่ม กาลี
                 if (kaleeNum >= 1 && kaleeNum <= 7) {
                     isKalee = isSevenSystem && (CARD_GROUPS[code] === kaleeNum);
                 } else if (kaleeNum === 8) {
-                    isKalee = (gridRow === 7 && code === "412"); // พระราหู
+                    isKalee = (gridRow === 7 && code === "412"); 
                 }
 
-                // Render สี่เหลี่ยมสีเขียว (ศรี)
                 if (isSri) {
                     overlayHtml += `<div class="sri-overlay"></div>`;
                 }
 
-                // Render สามเหลี่ยมสีแดง (กาลี) พร้อมเงื่อนไขดักจับ ภพเสีย (วงแหวนอันตราย)
                 if (isKalee) {
-                    if (badTitles.includes(title)) {
+                    // หากตรงกับตำแหน่งเสีย หรือ เป็นไพ่พระราหู (412) ในแถวที่ 7 ให้แสดงวงแหวนกาลี
+                    if (badTitles.includes(title) || (code === "412" && gridRow === 7)) {
                         overlayHtml += `
                             <div class="kalee-danger-circle">
                                 <div class="kalee-overlay-inner"></div>
@@ -545,6 +609,31 @@
                     } else {
                         overlayHtml += `<div class="kalee-overlay"></div>`;
                     }
+                }
+            }
+
+            // ==========================================
+            // Logic ประทับเลขอายุ (เดินยาม 21 ตำแหน่ง)
+            // ==========================================
+            if (data.AGE > 0 && data.AGE_MODE > 0) {
+                let isTargetA = ((gridRow === 2 || gridRow === 3 || gridRow === 4) && title === target21Title);
+                let isTargetB = (gridRow === 7 && gridCol === targetBGridCol);
+
+                if (isTargetA || isTargetB) {
+                    let isDangerAge = badTitles.includes(target21Title);
+                    let ageClass = "default";
+                    
+                    if (isDangerAge) {
+                        if (isKalee) {
+                            // หากเป็นภพเสียและมีสัญลักษณ์กาลีทับอยู่ (กาลีมีวงแดงแล้ว ให้ใช้ฟอนต์ขาว + ไม่ต้องวาดวงแดงซ้อน)
+                            ageClass = "kalee-overlap";
+                        } else {
+                            // ภพเสียธรรมดา ฟอนต์แดง + วงแดงล้อมรอบ
+                            ageClass = "danger danger-circle";
+                        }
+                    }
+                    
+                    overlayHtml += `<div class="age-text-overlay ${ageClass}">${data.AGE}</div>`;
                 }
             }
 
@@ -646,7 +735,6 @@
                 }
             }
 
-            // ถ้าผู้ใช้เลือก ปิดการแสดงผล (AGE_MODE == 0) ระบบจะข้ามเงื่อนไขด้านบนมาวาดกล่องเปล่าๆ สีพื้นกระดานเลยครับ
             board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${borderStyle}; box-shadow:${boxShadowStyle};">
                 <input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
         }
