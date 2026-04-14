@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>..กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -651,7 +651,7 @@
         document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // --- ระบบแสงเงา Focus Mode ---
+    // --- ระบบแสงเงา Focus Mode (แก้ไขบั๊กและอัปเกรดแล้ว) ---
     function toggleGraphHighlight(col) {
         const board = document.getElementById('main-board');
         if (activeSevenCols.length > 0) { activeSevenCols = []; board.classList.remove('has-seven-highlight'); document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); }
@@ -668,18 +668,44 @@
 
     function toggleSevenHighlight(col) {
         const board = document.getElementById('main-board');
-        if (activeGraphHighlightCols.length > 0) { activeGraphHighlightCols = []; board.classList.remove('has-graph-highlight'); document.querySelectorAll('.dim-target-graph').forEach(el => el.classList.remove('highlighted')); }
-        const colStr = String(col); const idx = activeSevenCols.indexOf(colStr);
-        if (idx > -1) activeSevenCols.splice(idx, 1); else activeSevenCols.push(colStr);
-        if (activeSevenCols.length === 0) { board.classList.remove('has-seven-highlight'); document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); return; }
+        if (activeGraphHighlightCols.length > 0) { 
+            activeGraphHighlightCols = []; 
+            board.classList.remove('has-graph-highlight'); 
+            document.querySelectorAll('.dim-target-graph').forEach(el => el.classList.remove('highlighted')); 
+        }
+        
+        const colStr = String(col); 
+        const idx = activeSevenCols.indexOf(colStr);
+        if (idx > -1) activeSevenCols.splice(idx, 1); 
+        else activeSevenCols.push(colStr);
+        
+        if (activeSevenCols.length === 0) { 
+            board.classList.remove('has-seven-highlight'); 
+            document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); 
+            return; 
+        }
+        
         board.classList.add('has-seven-highlight');
         let activeGroups = [];
-        activeSevenCols.forEach(c => { let leader = document.querySelector(`.dim-target-seven[data-row="4"][data-col="${c}"]`); if(leader) activeGroups.push(CARD_GROരുവGROUPS[leader.dataset.code]); });
+        
+        activeSevenCols.forEach(c => { 
+            let leader = document.querySelector(`.dim-target-seven[data-row="4"][data-col="${c}"]`); 
+            if(leader) activeGroups.push(CARD_GROUPS[leader.dataset.code]); 
+        });
+        
         document.querySelectorAll('.dim-target-seven').forEach(el => {
-            let row = parseInt(el.dataset.row, 10); let isHigh = false;
-            if ((row === 7 || row === 4 || row === 9) && activeSevenCols.includes(String(el.dataset.col))) isHigh = true;
-            else if ((row === 2 || row === 3) && activeGroups.includes(CARD_GROUPS[el.dataset.code]) && el.dataset.hasTitle === "true") isHigh = true;
-            if (isHigh) el.classList.add('highlighted'); else el.classList.remove('highlighted');
+            let row = parseInt(el.dataset.row, 10); 
+            let isHigh = false;
+            
+            // อัปเกรด: สว่างวาบยกคอลัมน์ (แถว 4, 6, 7, 8, 9) + สว่างในกลุ่มฐานไพ่เดียวกัน (แถว 2, 3)
+            if ([4, 6, 7, 8, 9].includes(row) && activeSevenCols.includes(String(el.dataset.col))) {
+                isHigh = true;
+            } else if ([2, 3].includes(row) && activeGroups.includes(CARD_GROUPS[el.dataset.code]) && el.dataset.hasTitle === "true") {
+                isHigh = true;
+            }
+            
+            if (isHigh) el.classList.add('highlighted'); 
+            else el.classList.remove('highlighted');
         });
     }
 
