@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>..กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -46,7 +46,7 @@
         .card-item { border-radius: 8px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
         .card-item img { width: 100%; height: auto; border-radius: 5px; display: block; background: #fff;}
         
-        /* ปรับฟอนต์กระดานเป็น Sarabun ทั้งหมด และขยายขนาดหัวข้อ */
+        /* ปรับฟอนต์กระดานเป็น Sarabun ทั้งหมด และขยายขนาดหัวข้อเป็น 1.2vw */
         .pos-label { display: block; font-weight: 700; font-size: 1.2vw; margin-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; font-family: 'Sarabun', sans-serif; line-height: 1.2;}
 
         .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
@@ -120,7 +120,6 @@
         .circle-1 { position: absolute; width: 24px; height: 24px; border: 2px solid #e74c3c; border-radius: 50%; z-index: 2;}
         .circle-2 { position: absolute; width: 34px; height: 34px; border: 2px solid #c0392b; border-radius: 50%; z-index: 1;}
         
-        /* แก้ปัญหาตัวเลขโดนทับด้วย z-index */
         .node-age { position: absolute; top: -45px; font-weight: 800; font-family: 'Sarabun', sans-serif; color: #c0392b; font-size: 1.5vw; text-shadow: 1px 1px 4px rgba(255,255,255,1), -1px -1px 4px rgba(255,255,255,1); z-index: 20; }
     </style>
 </head>
@@ -563,20 +562,20 @@
         data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
         data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 2, ROW_8_TITLES[i]));
 
-        // แถว 6
+        // แถว 6 (เพิ่ม class dim-target-seven เพื่อให้หรี่แสงลงในโหมดเลขเจ็ดตัว)
         let activePosRow6 = DAY_RELATION_MAP[data.DAY[0]] || [];
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let autoNum = ""; let bg = "#293A4B"; let color = "transparent";
             if (activePosRow6.includes(idx)) { autoNum = ((parseInt(data.GRAPH_BASE[idx]) - 401) % 12) + 1; bg = NUMBER_COLORS[autoNum].bg; color = NUMBER_COLORS[autoNum].color; }
             let opts = `<option value="" style="color:#000; font-family:'Sarabun', sans-serif;">-</option>`; 
             for(let n=1; n<=12; n++) opts += `<option value="${n}" ${n==autoNum?'selected':''} style="color:#000; font-family:'Sarabun', sans-serif;">${n}</option>`;
-            board.innerHTML += `<div class="dropdown-cell dim-target-graph" data-row="6" data-col="${col}" style="grid-area: 6/${col}; background-color:${bg};"><select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
+            board.innerHTML += `<div class="dropdown-cell dim-target-graph dim-target-seven" data-row="6" data-col="${col}" style="grid-area: 6/${col}; background-color:${bg};"><select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
         }
 
         // แถว 7 
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถว 8 
+        // แถว 8 (เพิ่ม class dim-target-seven เพื่อให้หรี่แสงลงในโหมดเลขเจ็ดตัว)
         let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let val = ""; let cellBg = "#293A4B"; let textColor = "transparent"; let borderStyle = "none"; let boxShadowStyle = "";
@@ -593,7 +592,7 @@
                     if (idx === startAgeCol) boxShadowStyle = "0 0 15px 5px rgba(52, 152, 219, 0.8)";
                 }
             }
-            board.innerHTML += `<div class="custom-cell dim-target-graph" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${borderStyle}; box-shadow:${boxShadowStyle};"><input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
+            board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${borderStyle}; box-shadow:${boxShadowStyle};"><input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
         }
 
         // แถว 9 
@@ -697,7 +696,7 @@
             let row = parseInt(el.dataset.row, 10); 
             let isHigh = false;
             
-            // อัปเกรด: สว่างเฉพาะแถว 4, 7, 9 สำหรับกลุ่มเลข 7 ตัว (แยก 6, 8 ออกไป)
+            // อัปเกรด: สว่างเฉพาะแถว 4, 7, 9 สำหรับกลุ่มเลข 7 ตัว (แถว 6, 8 จะโดนหรี่แสงลงตามปกติ)
             if ([4, 7, 9].includes(row) && activeSevenCols.includes(String(el.dataset.col))) {
                 isHigh = true;
             } else if ([2, 3].includes(row) && activeGroups.includes(CARD_GROUPS[el.dataset.code]) && el.dataset.hasTitle === "true") {
