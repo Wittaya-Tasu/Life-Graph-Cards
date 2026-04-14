@@ -159,13 +159,30 @@
             color: #ffffff; 
             text-shadow: 2px 2px 6px rgba(0,0,0,0.9); 
         }
+
+        /* =========================================
+           ระบบ Dashboard 100 ปี 
+           ========================================= */
+        .dashboard-container { margin-top: 40px; background: #ffffff; border-radius: 15px; padding: 25px; border: 3px solid #2c3e50; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .dashboard-header { color: #c0392b; font-family: 'Kanit', sans-serif; font-size: 2.2em; margin-bottom: 20px; text-align: center; font-weight: 700; }
+        .warning-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .warning-card { border-radius: 10px; padding: 20px; text-align: left; }
+        .warning-card.star-3 { background: #fadbd8; border-left: 8px solid #c0392b; }
+        .warning-card.star-2 { background: #fdebd0; border-left: 8px solid #e67e22; }
+        .warning-card.star-1 { background: #fcf3cf; border-left: 8px solid #f1c40f; }
+        .age-badge-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .age-badge { padding: 8px 15px; border-radius: 20px; font-weight: bold; font-family: 'Kanit', sans-serif; font-size: 1.2em; cursor: help; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s;}
+        .age-badge:hover { transform: scale(1.1); }
+        .age-badge.badge-3 { background: #c0392b; color: white; }
+        .age-badge.badge-2 { background: #e67e22; color: white; }
+        .age-badge.badge-1 { background: #f1c40f; color: #2c3e50; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (อัปเกรดทักษาจร & เดินยาม 21 ฐาน)</h2>
-    <p class="sub-title">ระบบคำนวณอายุ วิเคราะห์เกรดไพ่ 2 ฐาน พร้อมจับสัญลักษณ์และเลขอายุตกทับอัตโนมัติ</p>
+    <p class="sub-title">ระบบคำนวณอายุ วิเคราะห์เกรดไพ่ 2 ฐาน พร้อมจับสัญลักษณ์และเตือนภัยชะตา 100 ปี</p>
 
     <div class="input-section">
         <div class="input-grid">
@@ -269,7 +286,7 @@
     <div class="board-wrapper" id="main-wrapper">
         <div id="export-area" class="export-container">
             <div class="grid-board" id="main-board"></div>
-        </div>
+            </div>
     </div>
 </div>
 
@@ -415,6 +432,101 @@
         return { bg, text, border };
     }
 
+    // --- ฟังก์ชันสแกนกรรม 100 ปี (Early Warning System) ---
+    function scan100Years(data) {
+        let results = { star3: [], star2: [], star1: [] };
+        
+        // ดึงเลขกลุ่มไพ่ของตำแหน่งเสียทั้ง 4 เพื่อใช้ตรวจกาลี (ข้อ 1)
+        let badGroups = [
+            CARD_GROUPS[data.DAY[1]], // ความเสื่อม (แถว 2 ตำแหน่ง 2)
+            CARD_GROUPS[data.MONTH[data.posMonth[5]]], // ศัตรู (แถว 3)
+            CARD_GROUPS[data.YEAR[data.posYear[0]]], // สูญเสีย (แถว 4)
+            CARD_GROUPS[data.YEAR[data.posYear[4]]] // โรคภัย (แถว 4)
+        ];
+
+        let path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; 
+        let path8 = [1, 2, 3, 4, 7, 5, 8, 6];
+        let startDayNum = parseInt(data.DAY[0]) % 100;
+        let startIndex9 = path9.indexOf(startDayNum);
+
+        for (let age = 1; age <= 100; age++) {
+            let cond1 = false, cond2 = false, cond3 = false, cond4 = false;
+            let reasons = [];
+
+            // ข้อ 1: ทักษากาลีตกตำแหน่งเสีย
+            let steps = age % 9; if (steps === 0) steps = 9;
+            let boriwanNum = path9[(startIndex9 + steps - 1) % 9];
+            let startIndex8 = path8.indexOf(boriwanNum);
+            let kaleeNum = path8[(startIndex8 + 7) % 8];
+            
+            if (badGroups.includes(kaleeNum)) {
+                cond1 = true;
+                reasons.push("กาลีทับภพเสีย");
+            }
+
+            // ข้อ 2 & 3: เดินอายุ 21 ฐาน
+            let targetIdx21 = (age - 1) % 21;
+            let targetACode = "";
+            let title21 = "";
+
+            if (targetIdx21 < 7) {
+                title21 = ROW_2_TITLES[targetIdx21];
+                targetACode = data.DAY[targetIdx21];
+            } else if (targetIdx21 < 14) {
+                let posIdx = targetIdx21 - 7;
+                title21 = ROW_4_TITLES[posIdx];
+                targetACode = data.MONTH[data.posMonth[posIdx]];
+            } else {
+                let posIdx = targetIdx21 - 14;
+                title21 = ROW_6_TITLES[posIdx];
+                targetACode = data.YEAR[data.posYear[posIdx]];
+            }
+
+            // เช็คข้อ 2: อายุจร 21 ฐานตกภพเสีย
+            if (["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"].includes(title21)) {
+                cond2 = true;
+                reasons.push(`อายุจรตก${title21}`);
+            }
+
+            // เช็คข้อ 3: อายุจรเหยียบฐานราหู (412)
+            let targetAGroup = CARD_GROUPS[targetACode];
+            let baseCardCode = "";
+            for (let i = 0; i < 7; i++) {
+                let yearIdx = data.posYear[i];
+                if (CARD_GROUPS[data.YEAR[yearIdx]] === targetAGroup) {
+                    baseCardCode = data.SEVEN_BASE[i];
+                    break;
+                }
+            }
+            if (baseCardCode === "412") {
+                cond3 = true;
+                reasons.push("ทับฐานราหู(412)");
+            }
+
+            // ข้อ 4: กราฟชีวิตตกภพเสีย + ไพ่ร้าย
+            let graphIdx = (age - 1) % 12;
+            let graphTitle = ROW_8_TITLES[graphIdx];
+            if (graphTitle === "ศัตรู" || graphTitle === "โรคภัย") {
+                let graphCard = data.GRAPH_BASE[graphIdx];
+                let status = getCardBaseStatus(graphCard);
+                if (status === "B" || status === "VB") {
+                    cond4 = true;
+                    reasons.push(`กราฟชีวิตตก${graphTitle}(ไพ่ร้าย)`);
+                }
+            }
+
+            // สรุปดาว
+            let matches = (cond1 ? 1 : 0) + (cond2 ? 1 : 0) + (cond3 ? 1 : 0) + (cond4 ? 1 : 0);
+            if (matches >= 2) {
+                let badgeObj = { age: age, title: reasons.join(" + ") };
+                if (matches === 4) results.star3.push(badgeObj);
+                else if (matches === 3) results.star2.push(badgeObj);
+                else if (matches === 2) results.star1.push(badgeObj);
+            }
+        }
+        return results;
+    }
+
     function generateAndRender() {
         const valDate = parseInt(document.getElementById('sel-date').value);
         const valDay = parseInt(document.getElementById('sel-day').value);
@@ -491,59 +603,41 @@
         const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
 
         // ==========================================
-        // การคำนวณ ทักษาจร (หาตำแหน่ง ศรี และ กาลี)
+        // การคำนวณ ทักษาจร
         // ==========================================
-        let sriNum = 0;
-        let kaleeNum = 0;
-
+        let sriNum = 0; let kaleeNum = 0;
         if (data.AGE > 0 && data.TAKSA_MODE === 1) {
             const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; 
             const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    
-            
             let startDayNum = parseInt(data.DAY[0]) % 100; 
             let startIndex9 = path9.indexOf(startDayNum);
-            
-            let steps = data.AGE % 9;
-            if (steps === 0) steps = 9; 
-            
+            let steps = data.AGE % 9; if (steps === 0) steps = 9; 
             let boriwanNum = path9[(startIndex9 + steps - 1) % 9];
-            
             let startIndex8 = path8.indexOf(boriwanNum);
             sriNum = path8[(startIndex8 + 3) % 8]; 
             kaleeNum = path8[(startIndex8 + 7) % 8]; 
         }
 
         // ==========================================
-        // การคำนวณ จุดตกอายุ 21 ตำแหน่ง (Target A & B)
+        // การคำนวณ จุดตกอายุ 21 ตำแหน่ง
         // ==========================================
-        let target21Title = "";
-        let targetBGridCol = -1;
-
+        let target21Title = ""; let targetBGridCol = -1;
         if (data.AGE > 0 && data.AGE_MODE > 0) {
             let targetIdx21 = (data.AGE - 1) % 21;
             let targetACode = "";
-
             if (targetIdx21 < 7) {
-                target21Title = ROW_2_TITLES[targetIdx21];
-                targetACode = data.DAY[targetIdx21];
+                target21Title = ROW_2_TITLES[targetIdx21]; targetACode = data.DAY[targetIdx21];
             } else if (targetIdx21 < 14) {
-                let posIdx = targetIdx21 - 7;
-                target21Title = ROW_4_TITLES[posIdx];
-                targetACode = data.MONTH[data.posMonth[posIdx]];
+                let posIdx = targetIdx21 - 7; target21Title = ROW_4_TITLES[posIdx]; targetACode = data.MONTH[data.posMonth[posIdx]];
             } else {
-                let posIdx = targetIdx21 - 14;
-                target21Title = ROW_6_TITLES[posIdx];
-                targetACode = data.YEAR[data.posYear[posIdx]];
+                let posIdx = targetIdx21 - 14; target21Title = ROW_6_TITLES[posIdx]; targetACode = data.YEAR[data.posYear[posIdx]];
             }
 
-            // หาคอลัมน์ของไพ่ฐาน (Target B) โดยอิงจากกลุ่มตัวเลข
             let targetAGroup = CARD_GROUPS[targetACode];
             for (let i = 0; i < 7; i++) {
                 let yearIdx = data.posYear[i];
-                let codeInRow4 = data.YEAR[yearIdx];
-                if (CARD_GROUPS[codeInRow4] === targetAGroup) {
-                    targetBGridCol = yearIdx + 2;
-                    break;
+                if (CARD_GROUPS[data.YEAR[yearIdx]] === targetAGroup) {
+                    targetBGridCol = yearIdx + 2; break;
                 }
             }
         }
@@ -551,10 +645,8 @@
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
             let styleClass = gridRow === 5 ? getCardStyleClass(code, title) : "card-default";
-            
             let dimClasses = gridRow >= 2 ? "dim-target-graph dim-target-seven" : "";
-            let clickClass = "";
-            let extraAttr = "";
+            let clickClass = ""; let extraAttr = "";
 
             if (gridRow === 5) {
                 clickClass = "click-to-highlight-graph";
@@ -564,75 +656,36 @@
                 extraAttr = `onclick="toggleSevenHighlight(${gridCol})" title="คลิกเพื่อดูความสัมพันธ์กลุ่มไพ่เลข 7 ตัว"`;
             }
 
-            // ==========================================
-            // ดักจับ 4 ตำแหน่งเสีย เพื่อเปลี่ยนชื่อเป็นตัวอักษรสีแดง
-            // ==========================================
             let titleHtml = "";
             if (title) {
                 let dangerClass = badTitles.includes(title) ? " label-danger" : "";
                 titleHtml = `<span class="pos-label${dangerClass}">${title}</span>`;
             }
 
-            // ==========================================
-            // Logic แสดงสัญลักษณ์ ทักษา ศรี / กาลี
-            // ==========================================
-            let overlayHtml = "";
-            let isKalee = false; // ตัวแปรกลางไว้ดึงไปใช้กับเลขอายุ
-
+            let overlayHtml = ""; let isKalee = false;
             if (data.AGE > 0 && data.TAKSA_MODE === 1) {
                 let isSevenSystem = (gridRow >= 2 && gridRow <= 4 && title != null);
                 let isSri = false;
-
-                if (sriNum >= 1 && sriNum <= 7) {
-                    isSri = isSevenSystem && (CARD_GROUPS[code] === sriNum);
-                } else if (sriNum === 8) {
-                    isSri = (gridRow === 7 && code === "412"); 
-                }
-
-                if (kaleeNum >= 1 && kaleeNum <= 7) {
-                    isKalee = isSevenSystem && (CARD_GROUPS[code] === kaleeNum);
-                } else if (kaleeNum === 8) {
-                    isKalee = (gridRow === 7 && code === "412"); 
-                }
-
-                if (isSri) {
-                    overlayHtml += `<div class="sri-overlay"></div>`;
-                }
-
+                if (sriNum >= 1 && sriNum <= 7) { isSri = isSevenSystem && (CARD_GROUPS[code] === sriNum); } else if (sriNum === 8) { isSri = (gridRow === 7 && code === "412"); }
+                if (kaleeNum >= 1 && kaleeNum <= 7) { isKalee = isSevenSystem && (CARD_GROUPS[code] === kaleeNum); } else if (kaleeNum === 8) { isKalee = (gridRow === 7 && code === "412"); }
+                if (isSri) { overlayHtml += `<div class="sri-overlay"></div>`; }
                 if (isKalee) {
-                    // หากตรงกับตำแหน่งเสีย หรือ เป็นไพ่พระราหู (412) ในแถวที่ 7 ให้แสดงวงแหวนกาลี
                     if (badTitles.includes(title) || (code === "412" && gridRow === 7)) {
-                        overlayHtml += `
-                            <div class="kalee-danger-circle">
-                                <div class="kalee-overlay-inner"></div>
-                            </div>`;
-                    } else {
-                        overlayHtml += `<div class="kalee-overlay"></div>`;
-                    }
+                        overlayHtml += `<div class="kalee-danger-circle"><div class="kalee-overlay-inner"></div></div>`;
+                    } else { overlayHtml += `<div class="kalee-overlay"></div>`; }
                 }
             }
 
-            // ==========================================
-            // Logic ประทับเลขอายุ (เดินยาม 21 ตำแหน่ง)
-            // ==========================================
             if (data.AGE > 0 && data.AGE_MODE > 0) {
                 let isTargetA = ((gridRow === 2 || gridRow === 3 || gridRow === 4) && title === target21Title);
                 let isTargetB = (gridRow === 7 && gridCol === targetBGridCol);
-
                 if (isTargetA || isTargetB) {
                     let isDangerAge = badTitles.includes(target21Title);
                     let ageClass = "default";
-                    
                     if (isDangerAge) {
-                        if (isKalee) {
-                            // หากเป็นภพเสียและมีสัญลักษณ์กาลีทับอยู่ (กาลีมีวงแดงแล้ว ให้ใช้ฟอนต์ขาว + ไม่ต้องวาดวงแดงซ้อน)
-                            ageClass = "kalee-overlap";
-                        } else {
-                            // ภพเสียธรรมดา ฟอนต์แดง + วงแดงล้อมรอบ
-                            ageClass = "danger danger-circle";
-                        }
+                        if (isKalee) { ageClass = "kalee-overlap"; } 
+                        else { ageClass = "danger danger-circle"; }
                     }
-                    
                     overlayHtml += `<div class="age-text-overlay ${ageClass}">${data.AGE}</div>`;
                 }
             }
@@ -654,7 +707,6 @@
                 <input type="text" id="db-note" class="client-info-box" placeholder="ข้อมูลประกอบ :" style="height:45px;">
             </div>
         </div>`;
-
         let tHtml = `<div style="grid-area: 1/9/1/15; display:flex; gap:10px; position:relative;">`;
         TEACHER_CARDS.forEach(c => tHtml += `<div class="card-item card-default" style="flex:1;"><img src="images/${c}.jpg"></div>`);
         tHtml += `<div class="teacher-overlay-text">ลิขสิทธิ์ พรหมญาณพยากรณ์ : หมอวิทยา ธรรมนาย</div></div>`;
@@ -667,7 +719,7 @@
         data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
         data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 2, ROW_8_TITLES[i]));
 
-        // แถวที่ 6 (Dropdown)
+        // แถว 6 (Dropdown)
         let activePosRow6 = DAY_RELATION_MAP[data.DAY[0]] || [];
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let autoNum = ""; let bg = "#293A4B"; let color = "transparent";
@@ -677,95 +729,91 @@
             }
             let opts = `<option value="" style="color:#000;">-</option>`;
             for(let n=1; n<=12; n++) opts += `<option value="${n}" ${n==autoNum?'selected':''} style="color:#000;">${n}</option>`;
-            
             board.innerHTML += `<div class="dropdown-cell dim-target-graph dim-target-seven" data-row="6" data-col="${col}" style="grid-area: 6/${col}; background-color:${bg};">
                 <select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
         }
 
-        // แถวที่ 7 (ไพ่เลขเจ็ดตัว)
+        // แถว 7 (ไพ่ฐานเลข 7 ตัว)
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถวที่ 8 (คำนวณอายุ + MATRIX 25 รูปแบบ พร้อมกฎทับซ้อน ภพเสีย)
+        // แถว 8 (คำนวณอายุ)
         let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
-        
         for(let col = 2; col <= 13; col++) {
-            let idx = col - 2;
-            let val = "";
-            let cellBg = "#293A4B";
-            let textColor = "transparent"; 
-            let borderStyle = "none";
-            let boxShadowStyle = "";
-            
-            // เช็คว่าผู้ใช้เปิดโหมดแสดงอายุ (AGE_MODE > 0) หรือไม่
+            let idx = col - 2; let val = ""; let cellBg = "#293A4B"; let textColor = "transparent"; let borderStyle = "none"; let boxShadowStyle = "";
             if (data.AGE > 0 && data.AGE_MODE > 0) {
-                let diff = idx - startAgeCol;
-                if (diff < 0) diff += 12; 
-                
+                let diff = idx - startAgeCol; if (diff < 0) diff += 12; 
                 if (diff < data.AGE_MODE) {
-                    let displayAge = data.AGE + diff;
-                    val = displayAge;
-
-                    // การหาไพ่ฐานที่ชนกันในอายุปีนั้น
-                    let graphIdx = idx; // ตำแหน่งคอลัมน์ของกราฟชีวิต
-                    let sevenIdx = (displayAge - 1) % 7; // คำนวณหาตำแหน่งคอลัมน์ของเลข 7 ตัว
-                    
-                    let graphCode = data.GRAPH_BASE[graphIdx];
-                    let sevenCode = data.SEVEN_BASE[sevenIdx];
-                    let cardTitle = ROW_8_TITLES[graphIdx]; // ดึงชื่อตำแหน่งในกราฟชีวิต
-
-                    // แปลงเป็นเกรด 5 ระดับ
-                    let graphStatus = getCardBaseStatus(graphCode);
-                    let sevenStatus = getCardBaseStatus(sevenCode);
-
-                    // โยนเข้าฟังก์ชัน Matrix 25 รูปแบบ
+                    let displayAge = data.AGE + diff; val = displayAge;
+                    let graphIdx = idx; let sevenIdx = (displayAge - 1) % 7; 
+                    let graphCode = data.GRAPH_BASE[graphIdx]; let sevenCode = data.SEVEN_BASE[sevenIdx]; let cardTitle = ROW_8_TITLES[graphIdx];
+                    let graphStatus = getCardBaseStatus(graphCode); let sevenStatus = getCardBaseStatus(sevenCode);
                     let matrixStyles = getAgeMatrixStyles(graphStatus, sevenStatus);
-                    cellBg = matrixStyles.bg;
-                    textColor = matrixStyles.text;
-                    borderStyle = matrixStyles.border;
-
-                    // *** กฎพิเศษ (Override Rule): ถ้าตกตำแหน่ง ศัตรู หรือ โรคภัย บังคับตัวเลขเป็นสีดำ ***
-                    if (cardTitle === "ศัตรู" || cardTitle === "โรคภัย") {
-                        textColor = "#000000";
-                    }
-
-                    // ไฮไลต์กล่องอายุปัจจุบันด้วยการเปล่งแสงเรืองแสง
-                    if (idx === startAgeCol) {
-                        boxShadowStyle = "0 0 15px 5px rgba(52, 152, 219, 0.8)";
-                    }
+                    cellBg = matrixStyles.bg; textColor = matrixStyles.text; borderStyle = matrixStyles.border;
+                    if (cardTitle === "ศัตรู" || cardTitle === "โรคภัย") textColor = "#000000";
+                    if (idx === startAgeCol) boxShadowStyle = "0 0 15px 5px rgba(52, 152, 219, 0.8)";
                 }
             }
-
             board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${borderStyle}; box-shadow:${boxShadowStyle};">
                 <input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
         }
 
-        // แถวที่ 9 (ปีนักษัตร)
+        // แถว 9 (ปีนักษัตร)
         for(let col = 2; col <= 13; col++) {
-            let idx = col - 2;
-            let yearCardCode = data.YEAR[idx]; 
-            let zodiacText = ZODIAC_MAP[yearCardCode] || "";
-            let showZodiac = false;
-
-            // เช็คว่าผู้ใช้เปิดโหมดแสดงปีนักษัตร (ZODIAC_MODE > 0) หรือไม่
+            let idx = col - 2; let yearCardCode = data.YEAR[idx]; let zodiacText = ZODIAC_MAP[yearCardCode] || ""; let showZodiac = false;
             if (data.ZODIAC_MODE > 0) {
-                if (data.ZODIAC_MODE === 12) {
-                    showZodiac = true;
-                } else if (data.AGE > 0) {
-                    let diff = idx - startAgeCol;
-                    if (diff < 0) diff += 12;
-                    if (diff >= 1 && diff <= data.ZODIAC_MODE) {
-                        showZodiac = true;
-                    }
+                if (data.ZODIAC_MODE === 12) showZodiac = true;
+                else if (data.AGE > 0) {
+                    let diff = idx - startAgeCol; if (diff < 0) diff += 12;
+                    if (diff >= 1 && diff <= data.ZODIAC_MODE) showZodiac = true;
                 }
             }
-
             if (showZodiac) {
-                board.innerHTML += `
-                    <div class="custom-cell dim-target-graph dim-target-seven" data-row="9" data-col="${col}" style="grid-area: 9/${col}; background:#293A4B; border:none; border-radius:8px;">
-                        <span style="color:#ffffff; font-weight:bold; font-size:1.4em; font-family:'Kanit', sans-serif;">${zodiacText}</span>
-                    </div>`;
+                board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="9" data-col="${col}" style="grid-area: 9/${col}; background:#293A4B; border:none; border-radius:8px;">
+                        <span style="color:#ffffff; font-weight:bold; font-size:1.4em; font-family:'Kanit', sans-serif;">${zodiacText}</span></div>`;
             }
         }
+
+        // ==========================================
+        // วาดกล่อง Early Warning System (Dashboard 100 ปี)
+        // ==========================================
+        let scanResults = scan100Years(data);
+        
+        // ลบของเก่าถ้ามี
+        let existingWarning = document.getElementById('warning-dashboard-wrapper');
+        if(existingWarning) existingWarning.remove();
+        
+        let dashboardHtml = `
+        <div id="warning-dashboard-wrapper">
+            <div class="dashboard-container">
+                <div class="dashboard-header">⚠️ Early Warning System (จุดวิกฤตชะตา 100 ปี)</div>
+                <div class="warning-grid">
+                    <div class="warning-card star-3">
+                        <div style="font-size: 1.4em; font-family: 'Kanit', sans-serif; font-weight: 700; color: #c0392b; margin-bottom: 5px;">🔴 ระดับ 3 ดาว (วิกฤตสุด)</div>
+                        <div style="color: #c0392b; font-size: 0.9em; margin-bottom: 15px; font-weight:bold;">ตรง 4 เงื่อนไข (อันตรายสูงสุด)</div>
+                        <div class="age-badge-container">
+                            ${scanResults.star3.length > 0 ? scanResults.star3.map(r => `<span class="age-badge badge-3" title="${r.title}">อายุ ${r.age}</span>`).join('') : '<span style="color: #7f8c8d; font-style: italic;">ไม่มีช่วงอายุในเกณฑ์นี้</span>'}
+                        </div>
+                    </div>
+                    <div class="warning-card star-2">
+                        <div style="font-size: 1.4em; font-family: 'Kanit', sans-serif; font-weight: 700; color: #d35400; margin-bottom: 5px;">🟠 ระดับ 2 ดาว (เฝ้าระวัง)</div>
+                        <div style="color: #d35400; font-size: 0.9em; margin-bottom: 15px; font-weight:bold;">ตรง 3 เงื่อนไข (จุดเปลี่ยนสำคัญ)</div>
+                        <div class="age-badge-container">
+                            ${scanResults.star2.length > 0 ? scanResults.star2.map(r => `<span class="age-badge badge-2" title="${r.title}">อายุ ${r.age}</span>`).join('') : '<span style="color: #7f8c8d; font-style: italic;">ไม่มีช่วงอายุในเกณฑ์นี้</span>'}
+                        </div>
+                    </div>
+                    <div class="warning-card star-1">
+                        <div style="font-size: 1.4em; font-family: 'Kanit', sans-serif; font-weight: 700; color: #b7950b; margin-bottom: 5px;">🟡 ระดับ 1 ดาว (สะดุด)</div>
+                        <div style="color: #b7950b; font-size: 0.9em; margin-bottom: 15px; font-weight:bold;">ตรง 2 เงื่อนไข (ระวังตัวทั่วไป)</div>
+                        <div class="age-badge-container">
+                            ${scanResults.star1.length > 0 ? scanResults.star1.map(r => `<span class="age-badge badge-1" title="${r.title}">อายุ ${r.age}</span>`).join('') : '<span style="color: #7f8c8d; font-style: italic;">ไม่มีช่วงอายุในเกณฑ์นี้</span>'}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        
+        // แทรกเข้าไปใน export-area เพื่อให้ Save รูปได้ครบ
+        document.getElementById('export-area').insertAdjacentHTML('beforeend', dashboardHtml);
 
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('save-area').style.display = 'flex';
