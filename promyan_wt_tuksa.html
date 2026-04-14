@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>..กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -37,7 +37,7 @@
         .btn-db { background: #8e44ad; }
         .btn-db:hover { background: #732d91; transform: translateY(-1px); }
 
-        /* ปลดล็อค min-width ทำให้แผนผังยืดตามหน้าจอได้อิสระ */
+        /* พื้นที่แผนผังยืดเต็ม 100% */
         .export-container { background: #293A4B; padding: 25px; border-radius: 15px; width: 100%; box-sizing: border-box; position: relative; margin: 0 auto;}
         .board-wrapper { width: 100%; text-align: center; display: none; }
         
@@ -93,9 +93,8 @@
 
         /* สัญลักษณ์ ทักษาจร (ศรี / กาลี) */
         .sri-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 40%; aspect-ratio: 1 / 1; background-color: rgba(46, 204, 113, 0.6); z-index: 5; pointer-events: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); }
-        .kalee-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%); width: 40%; aspect-ratio: 1 / 0.866; background-color: rgba(231, 76, 60, 0.6); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); z-index: 5; pointer-events: none; }
-        .kalee-danger-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 55%; aspect-ratio: 1 / 1; border: 5px solid rgba(192, 57, 43, 0.9); border-radius: 50%; z-index: 6; pointer-events: none; display: flex; align-items: center; justify-content: center; background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); }
-        .kalee-danger-circle .kalee-overlay-inner { width: 70%; aspect-ratio: 1 / 0.866; background-color: rgba(231, 76, 60, 0.6); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); margin-top: 6%; }
+        .kalee-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%); width: 40%; aspect-ratio: 1 / 0.866; z-index: 5; pointer-events: none; }
+        .kalee-danger-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 55%; aspect-ratio: 1 / 1; border: 4px solid rgba(192, 57, 43, 0.9); border-radius: 50%; z-index: 6; pointer-events: none; display: flex; align-items: center; justify-content: center; background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
 
         /* ระบบประทับอายุ (เดินยาม 21 ตำแหน่ง) */
         .age-text-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); font-size: 2.8vw; font-family: 'Kanit', sans-serif; font-weight: 700; z-index: 8; pointer-events: none; display: flex; align-items: center; justify-content: center; width: 60%; aspect-ratio: 1/1; }
@@ -105,25 +104,22 @@
         .age-text-overlay.kalee-overlap { color: #ffffff; text-shadow: 2px 2px 6px rgba(0,0,0,0.9); }
 
         /* =========================================
-           ระบบ Timeline เส้นชีวิต 84 ปี (อัปเกรดขนาด)
+           ระบบ Timeline เส้นชีวิต 84 ปี แบบพอดีกรอบ
            ========================================= */
-        .timeline-container { margin-top: 25px; background: #ffffff; border-radius: 15px; border: 3px solid #2c3e50; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .timeline-wrapper { width: 100%; overflow-x: auto; padding: 60px 30px 40px 30px; border-radius: 10px; background: #fdfdfd;}
+        .timeline-container { background: #fdfdfd; border-radius: 10px; border: 2px solid #bdc3c7; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); overflow: hidden;}
+        .timeline-wrapper { width: 100%; padding: 45px 15px 30px 15px; box-sizing: border-box; }
         
-        /* เพิ่มความยาวเส้น Track เพื่อไม่ให้จุดเบียดกัน */
-        .timeline-track { display: flex; align-items: center; position: relative; width: 4500px; height: 60px; justify-content: space-between; }
-        .timeline-line { position: absolute; top: 50%; left: 0; right: 0; height: 4px; background: #bdc3c7; transform: translateY(-50%); z-index: 1; }
+        .timeline-track { display: flex; align-items: center; position: relative; width: 100%; height: 40px; justify-content: space-between; }
+        .timeline-line { position: absolute; top: 50%; left: 0; right: 0; height: 3px; background: #bdc3c7; transform: translateY(-50%); z-index: 1; }
         
-        .timeline-node { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 25px; height: 25px;}
+        .timeline-node { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 10px;}
         
-        /* ปรับขนาดจุดให้ใหญ่ขึ้น */
-        .node-dot { width: 12px; height: 12px; background: #7f8c8d; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.3);}
-        .dot-alert { width: 24px; height: 24px; background: #e74c3c; border-radius: 50%; box-shadow: 0 0 12px rgba(231,76,60,0.6); z-index: 3;}
-        .circle-1 { position: absolute; width: 36px; height: 36px; border: 3px solid #e74c3c; border-radius: 50%; z-index: 2;}
-        .circle-2 { position: absolute; width: 48px; height: 48px; border: 3px solid #c0392b; border-radius: 50%; z-index: 1;}
+        .node-dot { width: 8px; height: 8px; background: #7f8c8d; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.3);}
+        .dot-alert { width: 16px; height: 16px; background: #e74c3c; border-radius: 50%; box-shadow: 0 0 8px rgba(231,76,60,0.6); z-index: 3;}
+        .circle-1 { position: absolute; width: 24px; height: 24px; border: 2px solid #e74c3c; border-radius: 50%; z-index: 2;}
+        .circle-2 { position: absolute; width: 34px; height: 34px; border: 2px solid #c0392b; border-radius: 50%; z-index: 1;}
         
-        /* ขยายตัวเลขอายุให้ชัดเจนขึ้น */
-        .node-age { position: absolute; top: -50px; font-weight: 700; font-family: 'Kanit', sans-serif; color: #c0392b; font-size: 1.6em; text-shadow: 1px 1px 3px rgba(255,255,255,0.9); }
+        .node-age { position: absolute; top: -40px; font-weight: 700; font-family: 'Kanit', sans-serif; color: #c0392b; font-size: 1.4vw; text-shadow: 1px 1px 3px rgba(255,255,255,0.9); }
     </style>
 </head>
 <body>
@@ -365,20 +361,16 @@
         let startIndex9 = path9.indexOf(startDayNum);
 
         for(let age = 1; age <= 84; age++) {
-            // เงื่อนไข 2.1: กราฟชีวิต (12 ปี) ตกตำแหน่งเสีย หรือ ไพ่ร้าย
             let graphIdx = (age - 1) % 12;
             let graphStatus = getCardBaseStatus(data.GRAPH_BASE[graphIdx]);
             let graphTitle = ROW_8_TITLES[graphIdx];
             let cond2_1 = (graphStatus === "B" || graphStatus === "VB" || graphTitle === "ศัตรู" || graphTitle === "โรคภัย");
 
-            // เงื่อนไข 2.2: ฐานเลข 7 ตัว (7 ปี) ตกไพ่ร้าย
             let sevenIdx = (age - 1) % 7;
             let sevenStatus = getCardBaseStatus(data.SEVEN_BASE[sevenIdx]);
             let cond2_2 = (sevenStatus === "B" || sevenStatus === "VB");
 
-            // *** ประตูบานแรก: ต้องตรง 2.1 และ 2.2 พร้อมกัน ถึงจะเข้าข่ายแจ้งเตือน ***
             if (cond2_1 && cond2_2) {
-                // เงื่อนไข 2.3: เดินอายุ 21 ตำแหน่ง ตกภพเสีย
                 let targetIdx21 = (age - 1) % 21;
                 let title21 = "";
                 if (targetIdx21 < 7) title21 = ROW_2_TITLES[targetIdx21];
@@ -386,7 +378,6 @@
                 else title21 = ROW_6_TITLES[targetIdx21 - 14];
                 let cond2_3 = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"].includes(title21);
 
-                // เงื่อนไข 2.4: ฐานราหู (412) โดนกาลีทับ
                 let cond2_4 = false;
                 if (has412) {
                     let steps = age % 9; if (steps === 0) steps = 9;
@@ -396,10 +387,9 @@
                     if (kaleeNum === 8) cond2_4 = true; 
                 }
 
-                // สรุประดับดาว
-                let level = 1; // ตรง 2.1 + 2.2
-                if (cond2_3 && cond2_4) level = 3; // ตรงครบ 4 ข้อ
-                else if (cond2_3 || cond2_4) level = 2; // ตรง 3 ข้อ
+                let level = 1; 
+                if (cond2_3 && cond2_4) level = 3; 
+                else if (cond2_3 || cond2_4) level = 2; 
 
                 alerts.push({ age: age, level: level });
             }
@@ -505,6 +495,9 @@
             }
         }
 
+        // SVG สามเหลี่ยมกาลี (แก้อาการ Save แล้วเป็นสี่เหลี่ยม)
+        const svgTriangle = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 86.6" style="width:100%; height:100%;"><polygon points="50,0 0,86.6 100,86.6" fill="rgba(231, 76, 60, 0.6)"/></svg>`;
+
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
             let styleClass = gridRow === 5 ? getCardStyleClass(code, title) : "card-default";
@@ -522,10 +515,14 @@
                 let isSevenSystem = (gridRow >= 2 && gridRow <= 4 && title != null); let isSri = false;
                 if (sriNum >= 1 && sriNum <= 7) { isSri = isSevenSystem && (CARD_GROUPS[code] === sriNum); } else if (sriNum === 8) { isSri = (gridRow === 7 && code === "412"); }
                 if (kaleeNum >= 1 && kaleeNum <= 7) { isKalee = isSevenSystem && (CARD_GROUPS[code] === kaleeNum); } else if (kaleeNum === 8) { isKalee = (gridRow === 7 && code === "412"); }
+                
                 if (isSri) { overlayHtml += `<div class="sri-overlay"></div>`; }
                 if (isKalee) {
-                    if (badTitles.includes(title) || (code === "412" && gridRow === 7)) overlayHtml += `<div class="kalee-danger-circle"><div class="kalee-overlay-inner"></div></div>`;
-                    else overlayHtml += `<div class="kalee-overlay"></div>`; 
+                    if (badTitles.includes(title) || (code === "412" && gridRow === 7)) {
+                        overlayHtml += `<div class="kalee-danger-circle"><div class="kalee-wrapper" style="width:70%; margin-top:6%;">${svgTriangle}</div></div>`;
+                    } else { 
+                        overlayHtml += `<div class="kalee-wrapper">${svgTriangle}</div>`; 
+                    }
                 }
             }
 
@@ -610,11 +607,9 @@
         }
 
         // ==========================================
-        // วาด Timeline เส้นชีวิต 84 ปี (เส้นกราฟล้วนๆ)
+        // วาด Timeline เส้นชีวิต 84 ปี (ฝังเข้า Grid ให้กว้าง 12 ช่องพอดี)
         // ==========================================
         let timelineAlerts = scan84YearsTimeline(data);
-        let existingWarning = document.getElementById('warning-dashboard-wrapper');
-        if(existingWarning) existingWarning.remove();
         
         let timelineNodesHtml = "";
         for (let i = 1; i <= 84; i++) {
@@ -636,9 +631,9 @@
             }
         }
 
-        // โค้ดกล่อง Timeline ที่ไม่มีหัวข้อ 
+        // ฝัง Timeline ลงใน Grid Area (แถว 10, เริ่มคอลัมน์ 2, กินพื้นที่ 12 คอลัมน์)
         let timelineHtml = `
-        <div id="warning-dashboard-wrapper">
+        <div style="grid-area: 10 / 2 / span 1 / span 12; margin-top: 20px; margin-bottom: 10px;">
             <div class="timeline-container">
                 <div class="timeline-wrapper">
                     <div class="timeline-track">
@@ -649,7 +644,7 @@
             </div>
         </div>`;
         
-        document.getElementById('export-area').insertAdjacentHTML('beforeend', timelineHtml);
+        board.innerHTML += timelineHtml;
 
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('save-area').style.display = 'flex';
@@ -679,7 +674,7 @@
         if (activeSevenCols.length === 0) { board.classList.remove('has-seven-highlight'); document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); return; }
         board.classList.add('has-seven-highlight');
         let activeGroups = [];
-        activeSevenCols.forEach(c => { let leader = document.querySelector(`.dim-target-seven[data-row="4"][data-col="${c}"]`); if(leader) activeGroups.push(CARD_GROUPS[leader.dataset.code]); });
+        activeSevenCols.forEach(c => { let leader = document.querySelector(`.dim-target-seven[data-row="4"][data-col="${c}"]`); if(leader) activeGroups.push(CARD_GROരുവGROUPS[leader.dataset.code]); });
         document.querySelectorAll('.dim-target-seven').forEach(el => {
             let row = parseInt(el.dataset.row, 10); let isHigh = false;
             if ((row === 7 || row === 4 || row === 9) && activeSevenCols.includes(String(el.dataset.col))) isHigh = true;
