@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title> แผนผังพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -41,12 +41,27 @@
         .export-container { background: #293A4B; padding: 25px; border-radius: 15px; width: 100%; box-sizing: border-box; position: relative; margin: 0 auto;}
         .board-wrapper { width: 100%; text-align: center; display: none; }
         
-        .grid-board { display: grid; grid-template-columns: repeat(14, 1fr); gap: 10px; width: 100%;}
+        /* ========================================================== */
+        /* 🛠️ จุดตั้งค่าระยะห่างกระดาน (ปรับแก้เองได้ง่ายๆ ตรงนี้ครับ) */
+        /* ========================================================== */
+        .grid-board { 
+            display: grid; 
+            grid-template-columns: repeat(14, 1fr); 
+            
+            /* 1. ระยะห่างระหว่าง "แถว" (บน-ล่าง) - เดิม 10px ปรับเพิ่ม 1.5 เท่า เป็น 15px */
+            row-gap: 15px; 
+            
+            /* 2. ระยะห่างระหว่าง "คอลัมน์" (ซ้าย-ขวา ไพ่แต่ละใบ) - ปรับเป็น 2 เท่าของระยะแถว (15 x 2 = 30px) */
+            column-gap: 30px; 
+            
+            width: 100%;
+        }
+        /* ========================================================== */
         
         .card-item { border-radius: 8px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
         .card-item img { width: 100%; height: auto; border-radius: 5px; display: block; background: #fff;}
         
-        /* ปรับฟอนต์กระดานเป็น Sarabun ทั้งหมด และขยายขนาดหัวข้อเป็น 1.2vw */
+        /* ปรับฟอนต์กระดานเป็น Sarabun ทั้งหมด และขยายขนาดหัวข้อเป็น 1.0vw ตามที่คุณหมอกำหนด */
         .pos-label { display: block; font-weight: 700; font-size: 1.0vw; margin-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; font-family: 'Sarabun', sans-serif; line-height: 1.2;}
 
         .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
