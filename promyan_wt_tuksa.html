@@ -3,62 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>..กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
+        /* ========================================================================== */
+        /* =================== ส่วนที่ 1: CSS (การตกแต่งและดีไซน์) ==================== */
+        /* ========================================================================== */
+        
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Kanit:wght@500;600;700&display=swap');
 
-        /* ปรับปรุงให้ยืดเต็มหน้าจอ 100% */
+        /* ---------------------------------------------------
+           1.1 โครงสร้างพื้นฐาน (Body & Container)
+           --------------------------------------------------- */
         body { font-family: 'Sarabun', sans-serif; background: #fdfdfd; margin: 0; padding: 10px; text-align: center; }
         .container { width: 98%; max-width: 100%; margin: 0 auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); box-sizing: border-box;}
-        
         h2 { color: #8e44ad; font-family: 'Kanit', sans-serif; margin-bottom: 5px; font-size: 2.5em; font-weight: 700;}
         .sub-title { color: #7f8c8d; margin-bottom: 25px; font-size: 1.2em; }
 
+        /* ---------------------------------------------------
+           1.2 ส่วนรับข้อมูล (Input Section)
+           --------------------------------------------------- */
         .input-section { background: #f8f9fa; padding: 25px; border-radius: 15px; border: 2px dashed #bdc3c7; margin-bottom: 25px; }
         .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 15px; text-align: left;}
-        
         .input-group { display: flex; flex-direction: column; gap: 6px;}
         .input-group label { font-family: 'Kanit', sans-serif; font-size: 0.95em; color: #2c3e50; font-weight: 600; }
         .input-group select, .input-group input { padding: 10px; font-size: 1.05em; border-radius: 8px; border: 1px solid #bdc3c7; font-family: 'Sarabun', sans-serif; outline: none; transition: 0.3s;}
         .input-group select:focus, .input-group input:focus { border-color: #8e44ad; box-shadow: 0 0 8px rgba(142, 68, 173, 0.3); }
 
+        /* ปุ่มกดต่างๆ */
         .btn-calc { background: #2980b9; color: white; padding: 15px; font-size: 1.4em; border: none; border-radius: 10px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 700; width: 100%; transition: 0.3s; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3);}
         .btn-calc:hover { background: #1f618d; transform: translateY(-2px); }
-
         .save-controls { display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; display: none; flex-wrap: wrap;}
         .btn-save { padding: 12px 30px; font-size: 1.1em; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; transition: 0.3s; color: white; flex: 1; min-width: 200px; max-width: 250px;}
-        .btn-save-image { background: #27ae60; }
-        .btn-save-image:hover { background: #2ecc71; transform: translateY(-1px); }
-        .btn-reset-row { background: #e74c3c; }
-        .btn-reset-row:hover { background: #c0392b; transform: translateY(-1px); }
-        .btn-db { background: #8e44ad; }
-        .btn-db:hover { background: #732d91; transform: translateY(-1px); }
+        .btn-save-image { background: #27ae60; } .btn-save-image:hover { background: #2ecc71; transform: translateY(-1px); }
+        .btn-reset-row { background: #e74c3c; } .btn-reset-row:hover { background: #c0392b; transform: translateY(-1px); }
+        .btn-db { background: #8e44ad; } .btn-db:hover { background: #732d91; transform: translateY(-1px); }
 
-        /* พื้นที่แผนผังยืดเต็ม 100% */
+        /* ---------------------------------------------------
+           1.3 ส่วนแผนผังกระดานหลัก (Board & Grid)
+           --------------------------------------------------- */
         .export-container { background: #293A4B; padding: 25px; border-radius: 15px; width: 100%; box-sizing: border-box; position: relative; margin: 0 auto;}
         .board-wrapper { width: 100%; text-align: center; display: none; }
         
-        /* ========================================================== */
-        /* 🛠️ จุดตั้งค่าระยะห่างกระดาน (ไพ่แถว 1-7) */
-        /* ========================================================== */
         .grid-board { 
             display: grid; 
             grid-template-columns: repeat(14, 1fr); 
-            row-gap: 15px;      /* ระยะห่างระหว่าง "แถว" (บน-ล่าง) */
-            column-gap: 30px;   /* ระยะห่างระหว่าง "คอลัมน์" (ซ้าย-ขวา) */
+            row-gap: 15px;      /* ระยะห่างระหว่าง "แถว" */
+            column-gap: 30px;   /* ระยะห่างระหว่าง "คอลัมน์" */
             width: 100%;
         }
-        /* ========================================================== */
 
-        .card-item { border-radius: 8px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
+        .card-item { border-radius: 8px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative;}
         .card-item img { width: 100%; height: auto; border-radius: 5px; display: block; background: #fff;}
         
-        /* ปรับฟอนต์กระดานเป็น Sarabun ทั้งหมด และขนาดหัวข้อเป็น 1.0vw */
+        /* ขนาดตัวอักษรหัวข้อไพ่ */
         .pos-label { display: block; font-weight: 700; font-size: 1.0vw; margin-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; font-family: 'Sarabun', sans-serif; line-height: 1.2;}
 
+        /* สีพื้นหลังของเกรดไพ่ */
         .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
         .card-default .pos-label.label-danger, .card-good .pos-label.label-danger, .card-neutral-status .pos-label.label-danger { color: #d32f2f !important; }
         .card-very-good .pos-label, .card-bad .pos-label, .card-very-bad .pos-label, .card-dark-gray .pos-label, .card-black .pos-label, .card-red .pos-label, .card-gold-zone .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.3) !important; }
@@ -74,37 +77,77 @@
         .card-red { background-color: #cb4335 !important; }
         .card-gold-zone { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; box-shadow: 0 4px 15px rgba(170, 119, 28, 0.5); }
 
+        /* ลายน้ำและป้ายชื่ออาจารย์ */
         .teacher-watermark { font-size: 1.1vw; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; margin-top: -5px; }
         .teacher-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; color: rgba(255, 255, 255, 0.85); font-size: 1.5vw; font-weight: 700; font-family: 'Sarabun', sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); z-index: 10; pointer-events: none;}
 
+        /* 🛠️ ช่องกรอกข้อมูลเจ้าชะตา (ปรับฟอนต์ให้เล็กลง) */
         .client-info-container { display: flex; align-items: stretch; width: 100%; }
-        .client-info-box { width: 100%; background-color: transparent; border: none; color: #ffffff; font-family: 'Sarabun', sans-serif; font-size: 1.8vw; font-weight: bold; line-height: 1.5; resize: none; outline: none; }
+        .client-info-box { 
+            width: 100%; background-color: transparent; border: none; color: #ffffff; 
+            font-family: 'Sarabun', sans-serif; 
+            font-size: 1.4vw; /* ปรับขนาดตรงนี้ครับ (เดิม 1.8vw) */
+            font-weight: bold; line-height: 1.5; resize: none; outline: none; 
+        }
         .client-info-box::placeholder { color: rgba(255,255,255,0.6); }
 
+        /* เซลล์กลมๆ (แถว 6) */
         .dropdown-cell { background-color: #293A4B; border-radius: 50%; margin: 3px auto; display: flex; align-items: center; justify-content: center; height: 3vw; width: 3vw; box-sizing: border-box; }
         .number-dropdown { background: transparent; border: none; outline: none; cursor: pointer; font-family: 'Sarabun', sans-serif; font-weight: 700; font-size: 1.4vw; width: 100%; text-align: center; text-align-last: center; -webkit-appearance: none; appearance: none; }
 
+        /* เซลล์สี่เหลี่ยม (แถว 8, 9) */
         .custom-cell { background-color: #293A4B; border-radius: 8px; display: flex; align-items: center; justify-content: center; height: 3.5vw; box-sizing: border-box; transition: 0.3s;}
         
-        /* ========================================================== */
-/* 🛠️ จุดตั้งค่าระยะห่างเฉพาะ แถว 8 (ตัวเลขอายุ) และ แถว 9 (ปีนักษัตร) */
-/* ========================================================== */
-.custom-cell[data-row="8"] { 
-    margin-bottom: 0px; 
-    margin-top: 5px;
-} 
+        /* ---------------------------------------------------
+           1.4 🛠️ จุดตกอายุ และ ทักษาจร (แก้ไขวงกลมสมมาตร)
+           --------------------------------------------------- */
+        .age-text-overlay { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); 
+            font-family: 'Sarabun', sans-serif; font-weight: 800; z-index: 8; pointer-events: none; 
+            display: flex; align-items: center; justify-content: center; 
+            
+            /* ปรับขนาดตัวอักษรและล็อกกรอบให้เป็นสี่เหลี่ยมจัตุรัสเป๊ะๆ เพื่อให้ border-radius 50% เป็นวงกลมสมมาตร */
+            font-size: 2.0vw; /* ปรับขนาดตัวเลขอายุให้เล็กลง */
+            width: 3.5vw;     /* ความกว้าง (ล็อกสัดส่วน) */
+            height: 3.5vw;    /* ความสูง (ต้องเท่ากับความกว้าง) */
+        }
+        .age-text-overlay.default { color: rgba(0, 0, 0, 0.65); text-shadow: 2px 2px 4px rgba(255,255,255,0.7), -1px -1px 2px rgba(255,255,255,0.7); }
+        .age-text-overlay.danger { color: #d32f2f; text-shadow: 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8); }
+        .age-text-overlay.danger-circle { border: 4px solid #d32f2f; border-radius: 50%; background-color: rgba(255,255,255,0.25); box-shadow: 0 0 10px rgba(211, 47, 47, 0.4); }
+        .age-text-overlay.kalee-overlap { color: #ffffff; text-shadow: 2px 2px 6px rgba(0,0,0,0.9); }
 
-.custom-cell[data-row="9"] { 
-    /* ใช้ค่าติดลบเพื่อดึงให้แถว 9 ขยับขึ้นไปชิดแถว 8 มากขึ้น */
-    /* คุณหมอลองปรับจาก -10px เป็น -15px หรือมากกว่านี้ได้ตามความพอใจครับ */
-    margin-top: -10px; 
-    margin-bottom: 5px;
-}
-/* ========================================================== */
+        .sri-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 40%; aspect-ratio: 1 / 1; background-color: rgba(46, 204, 113, 0.6); z-index: 5; pointer-events: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); }
+        .kalee-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%); width: 40%; aspect-ratio: 1 / 0.866; z-index: 5; pointer-events: none; }
+        .kalee-danger-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 55%; aspect-ratio: 1 / 1; border: 4px solid rgba(192, 57, 43, 0.9); border-radius: 50%; z-index: 6; pointer-events: none; display: flex; align-items: center; justify-content: center; background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+
+        /* ---------------------------------------------------
+           1.5 🛠️ การจัดการระยะห่าง แถว 8 และ แถว 9
+           --------------------------------------------------- */
+        
+        /* ปรับแต่งแถว 8: บีบกล่องให้กระชับ และขยับระยะห่าง */
+        .custom-cell[data-row="8"] { 
+            margin-bottom: 0px; 
+            margin-top: 5px;
+            
+            /* บีบกล่องพื้นหลังให้เล็กลงกระชับพอดีกับตัวเลข */
+            width: 80%; /* ความกว้างกล่อง (ปรับได้ 1-100%) */
+            height: 3vw; /* ความสูงกล่อง */
+            margin-left: auto; /* ดันกล่องให้อยู่ตรงกลางแนวนอน */
+            margin-right: auto;
+            border-radius: 8px; /* ความโค้งของกล่อง */
+        } 
+        
+        /* ปรับแต่งแถว 9: ดึงให้ชิดแถว 8 ขึ้นไปอีก */
+        .custom-cell[data-row="9"] { 
+            margin-top: -10px; 
+            margin-bottom: 5px;
+        }    
 
         .manual-input { background: transparent; color: #293A4B; font-weight: 900; font-size: 1.6vw; border: none; outline: none; font-family: 'Sarabun', sans-serif; width: 100%; text-align: center; }
 
-        /* Focus Mode */
+        /* ---------------------------------------------------
+           1.6 ระบบแสงเงา Focus Mode
+           --------------------------------------------------- */
         .dim-target-graph { transition: all 0.4s ease; position: relative; }
         .grid-board.has-graph-highlight .dim-target-graph { opacity: 0.2; filter: grayscale(70%); }
         .grid-board.has-graph-highlight .dim-target-graph.highlighted { opacity: 1; filter: none; transform: scale(1.05); z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
@@ -119,41 +162,25 @@
         .click-to-highlight-seven:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(241, 196, 15, 0.4); z-index: 10;}
         .grid-board.has-seven-highlight .dim-target-seven.click-to-highlight-seven { pointer-events: auto; }
 
-        /* สัญลักษณ์ ทักษาจร (ศรี / กาลี) */
-        .sri-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 40%; aspect-ratio: 1 / 1; background-color: rgba(46, 204, 113, 0.6); z-index: 5; pointer-events: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); }
-        .kalee-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%); width: 40%; aspect-ratio: 1 / 0.866; z-index: 5; pointer-events: none; }
-        .kalee-danger-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 55%; aspect-ratio: 1 / 1; border: 4px solid rgba(192, 57, 43, 0.9); border-radius: 50%; z-index: 6; pointer-events: none; display: flex; align-items: center; justify-content: center; background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
-
-        /* ระบบประทับอายุ (เดินยาม 21 ตำแหน่ง) */
-        .age-text-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); font-size: 2.8vw; font-family: 'Sarabun', sans-serif; font-weight: 800; z-index: 8; pointer-events: none; display: flex; align-items: center; justify-content: center; width: 60%; aspect-ratio: 1/1; }
-        .age-text-overlay.default { color: rgba(0, 0, 0, 0.65); text-shadow: 2px 2px 4px rgba(255,255,255,0.7), -1px -1px 2px rgba(255,255,255,0.7); }
-        .age-text-overlay.danger { color: #d32f2f; text-shadow: 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8); }
-        .age-text-overlay.danger-circle { border: 4px solid #d32f2f; border-radius: 50%; background-color: rgba(255,255,255,0.25); box-shadow: 0 0 10px rgba(211, 47, 47, 0.4); }
-        .age-text-overlay.kalee-overlap { color: #ffffff; text-shadow: 2px 2px 6px rgba(0,0,0,0.9); }
-
-        /* =========================================
-           ระบบ Timeline เส้นชีวิต 84 ปี แบบพอดีกรอบ
-           ========================================= */
+        /* ---------------------------------------------------
+           1.7 ระบบ Timeline 84 ปี
+           --------------------------------------------------- */
         .timeline-container { background: #fdfdfd; border-radius: 10px; border: 2px solid #bdc3c7; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); overflow: hidden;}
         .timeline-wrapper { width: 100%; padding: 50px 15px 30px 15px; box-sizing: border-box; }
-        
         .timeline-track { display: flex; align-items: center; position: relative; width: 100%; height: 40px; justify-content: space-between; }
         .timeline-line { position: absolute; top: 50%; left: 0; right: 0; height: 3px; background: #bdc3c7; transform: translateY(-50%); z-index: 1; }
-        
         .timeline-node { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 10px; z-index: 5;}
-        
-        .node-dot { width: 8px; height: 8px; background: #7f8c8d; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.3);}
-        .dot-alert { width: 16px; height: 16px; background: #e74c3c; border-radius: 50%; box-shadow: 0 0 8px rgba(231,76,60,0.6); z-index: 3;}
+        .node-dot { width: 8px; height: 8px; background: #7f8c8d; border-radius: 50%; }
+        .dot-alert { width: 16px; height: 16px; background: #e74c3c; border-radius: 50%; box-shadow: 0 0 8px rgba(231,76,60,0.6); }
         .circle-1 { position: absolute; width: 24px; height: 24px; border: 2px solid #e74c3c; border-radius: 50%; z-index: 2;}
         .circle-2 { position: absolute; width: 34px; height: 34px; border: 2px solid #c0392b; border-radius: 50%; z-index: 1;}
-        
-        .node-age { position: absolute; top: -45px; font-weight: 800; font-family: 'Sarabun', sans-serif; color: #c0392b; font-size: 1.2vw; text-shadow: 1px 1px 4px rgba(255,255,255,1), -1px -1px 4px rgba(255,255,255,1); z-index: 20; }
+        .node-age { position: absolute; top: -45px; font-weight: 800; font-family: 'Sarabun', sans-serif; color: #c0392b; font-size: 1.2vw; text-shadow: 1px 1px 4px white; z-index: 20; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (อัปเกรดทักษาจร & เดินยาม 21 ฐาน)</h2>
+    <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว</h2>
     <p class="sub-title">ระบบคำนวณอายุ วิเคราะห์เกรดไพ่ 2 ฐาน พร้อม Timeline แจ้งเตือนจุดวิกฤต 84 ปี</p>
 
     <div class="input-section">
@@ -258,12 +285,14 @@
     <div class="board-wrapper" id="main-wrapper">
         <div id="export-area" class="export-container">
             <div class="grid-board" id="main-board"></div>
-            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // --- ตั้งค่าข้อมูลพื้นฐาน ---
+    // ---------------------------------------------------
+    // 3.1 ข้อมูลตั้งต้น (Constants & Mapping)
+    // ---------------------------------------------------
     const GRAPH_GROUPS = {};
     for (let i = 1; i <= 12; i++) { GRAPH_GROUPS[i] = [400 + i, 400 + i + 12, 400 + i + 24]; }
 
@@ -274,9 +303,8 @@
     };
 
     const ZODIAC_MAP = {
-        "301": "ชวด", "302": "ฉลู", "303": "ขาล", "304": "เถาะ",
-        "305": "มะโรง", "306": "มะเส็ง", "307": "มะเมีย", "308": "มะแม",
-        "309": "วอก", "310": "ระกา", "311": "จอ", "312": "กุน"
+        "301": "ชวด", "302": "ฉลู", "303": "ขาล", "304": "เถาะ", "305": "มะโรง", "306": "มะเส็ง", 
+        "307": "มะเมีย", "308": "มะแม", "309": "วอก", "310": "ระกา", "311": "จอ", "312": "กุน"
     };
 
     const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
@@ -307,14 +335,15 @@
     };
 
     const MONTH_CALENDAR_MAP = {
-        "201": 12, "202": 1, "203": 2, "204": 3, "205": 4, "206": 5,
-        "207": 6, "208": 7, "209": 8, "210": 9, "211": 10, "212": 11
+        "201": 12, "202": 1, "203": 2, "204": 3, "205": 4, "206": 5, "207": 6, "208": 7, "209": 8, "210": 9, "211": 10, "212": 11
     };
 
     let activeGraphHighlightCols = []; 
     let activeSevenCols = []; 
 
-    // --- ตรรกะคำนวณและประเมินสถานะไพ่ ---
+    // ---------------------------------------------------
+    // 3.2 ฟังก์ชันคำนวณและประเมินสถานะไพ่
+    // ---------------------------------------------------
     function generateSequence(startId, length, minId, maxId) {
         let seq = []; let curr = startId;
         for (let i = 0; i < length; i++) { seq.push(curr); curr++; if (curr > maxId) curr = minId; }
@@ -362,7 +391,12 @@
         const C_WHITE = "#FFFFFF"; const C_BLACK = "#000000"; const C_RED_TEXT = "#d32f2f"; const C_RED_BG = "#e74c3c";
         const C_GOLD_BG = "linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)";
         const C_LIGHT_BLUE_TEXT = "#3498db"; const C_LIGHT_BLUE_BG = "#bbdefb"; const C_DARK_BLUE_TEXT = "#0047AB"; 
-        const B_NONE = "none"; const B_BLUE = "4px solid #3498db"; const B_BLACK = "4px solid #17202a"; const B_RED = "4px solid #e74c3c"; 
+        
+        // 🛠️ ปรับความหนาของเส้นขอบ แถว 8 ตรงนี้ครับ (เปลี่ยนความหนาจาก 4px เป็น 8px)
+        const B_NONE = "none"; 
+        const B_BLUE = "8px solid #3498db"; 
+        const B_BLACK = "8px solid #17202a"; 
+        const B_RED = "8px solid #e74c3c"; 
 
         let border = B_NONE;
         if (sevenStatus === "VG" || sevenStatus === "G") border = B_BLUE;
@@ -378,11 +412,10 @@
         return { bg, text, border };
     }
 
-    // --- ฟังก์ชัน Timeline สแกนจุดวิกฤต 84 ปี ---
+    // ฟังก์ชัน Timeline สแกนจุดวิกฤต 84 ปี
     function scan84YearsTimeline(data) {
         let alerts = [];
         let has412 = data.SEVEN_BASE.includes("412");
-        
         let path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; 
         let path8 = [1, 2, 3, 4, 7, 5, 8, 6];
         let startDayNum = parseInt(data.DAY[0]) % 100;
@@ -425,6 +458,9 @@
         return alerts;
     }
 
+    // ---------------------------------------------------
+    // 3.3 ระบบรวบรวมข้อมูลและสั่งวาดกระดาน (Main Render)
+    // ---------------------------------------------------
     function generateAndRender() {
         const valDate = parseInt(document.getElementById('sel-date').value);
         const valDay = parseInt(document.getElementById('sel-day').value);
@@ -493,9 +529,7 @@
         const posRow10 = calculateDynamicPositions(data.YEAR, "301");
         const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
 
-        // ==========================================
         // การคำนวณ ทักษาจร
-        // ==========================================
         let sriNum = 0; let kaleeNum = 0;
         if (data.AGE > 0 && data.TAKSA_MODE === 1) {
             const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    
@@ -506,9 +540,7 @@
             sriNum = path8[(startIndex8 + 3) % 8]; kaleeNum = path8[(startIndex8 + 7) % 8]; 
         }
 
-        // ==========================================
         // การคำนวณ จุดตกอายุ 21 ตำแหน่ง
-        // ==========================================
         let target21Title = ""; let targetBGridCol = -1;
         if (data.AGE > 0 && data.AGE_MODE > 0) {
             let targetIdx21 = (data.AGE - 1) % 21; let targetACode = "";
@@ -523,9 +555,9 @@
             }
         }
 
-        // SVG สามเหลี่ยมกาลี
         const svgTriangle = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 86.6" style="width:100%; height:100%;"><polygon points="50,0 0,86.6 100,86.6" fill="rgba(231, 76, 60, 0.6)"/></svg>`;
 
+        // ฟังก์ชันย่อยสำหรับวาดไพ่ 1 ใบ
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
             let styleClass = gridRow === 5 ? getCardStyleClass(code, title) : "card-default";
@@ -569,7 +601,7 @@
                     ${titleHtml}<img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">${overlayHtml}</div>`;
         }
 
-        // ส่วนหัว
+        // วาดส่วนหัว (ไพ่วันที่ + ข้อมูลเจ้าชะตา + ป้ายอาจารย์)
         addCard(data.DATE[0], 1, 2, null);
         board.innerHTML += `<div class="client-info-container" style="grid-area: 1 / 3 / span 1 / span 6;">
             <div style="display:flex; flex-direction:column; width:100%; text-align:left;">
@@ -583,13 +615,13 @@
         board.innerHTML += tHtml;
         board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2/9/2/15;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
-        // แถวไพ่ต่างๆ
+        // วาดไพ่แถวหลักต่างๆ
         data.DAY.forEach((c, i) => addCard(c, 2, i + 2, ROW_2_TITLES[i]));
         data.MONTH.forEach((c, i) => { let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i); addCard(c, 3, i + 2, idx!==-1?ROW_4_TITLES[idx]:null); });
         data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
         data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 2, ROW_8_TITLES[i]));
 
-        // แถว 6 (เพิ่ม class dim-target-seven เพื่อให้หรี่แสงลงในโหมดเลขเจ็ดตัว)
+        // วาดแถว 6 (เซลล์วงกลม)
         let activePosRow6 = DAY_RELATION_MAP[data.DAY[0]] || [];
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let autoNum = ""; let bg = "#293A4B"; let color = "transparent";
@@ -599,10 +631,10 @@
             board.innerHTML += `<div class="dropdown-cell dim-target-graph dim-target-seven" data-row="6" data-col="${col}" style="grid-area: 6/${col}; background-color:${bg};"><select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
         }
 
-        // แถว 7 
+        // วาดแถว 7 (ไพ่ฐาน)
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // แถว 8 (เพิ่ม class dim-target-seven เพื่อให้หรี่แสงลงในโหมดเลขเจ็ดตัว)
+        // วาดแถว 8 (กล่องสี่เหลี่ยมอายุ)
         let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let val = ""; let cellBg = "#293A4B"; let textColor = "transparent"; let borderStyle = "none"; let boxShadowStyle = "";
@@ -622,7 +654,7 @@
             board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${borderStyle}; box-shadow:${boxShadowStyle};"><input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
         }
 
-        // แถว 9 
+        // วาดแถว 9 (ปีนักษัตร)
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let yearCardCode = data.YEAR[idx]; let zodiacText = ZODIAC_MAP[yearCardCode] || ""; let showZodiac = false;
             if (data.ZODIAC_MODE > 0) {
@@ -635,11 +667,8 @@
             if (showZodiac) board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="9" data-col="${col}" style="grid-area: 9/${col}; background:#293A4B; border:none; border-radius:8px;"><span style="color:#ffffff; font-weight:bold; font-size:1.5vw; font-family:'Sarabun', sans-serif;">${zodiacText}</span></div>`;
         }
 
-        // ==========================================
-        // วาด Timeline เส้นชีวิต 84 ปี (ฝังเข้า Grid ให้กว้าง 12 ช่องพอดี)
-        // ==========================================
+        // วาดระบบ Timeline 84 ปี
         let timelineAlerts = scan84YearsTimeline(data);
-        
         let timelineNodesHtml = "";
         for (let i = 1; i <= 84; i++) {
             let alertObj = timelineAlerts.find(a => a.age === i);
@@ -657,7 +686,6 @@
                     </div>`;
             }
         }
-
         let timelineHtml = `
         <div style="grid-area: 10 / 2 / span 1 / span 12; margin-top: 20px; margin-bottom: 10px;">
             <div class="timeline-container">
@@ -677,7 +705,9 @@
         document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // --- ระบบแสงเงา Focus Mode (แยกกราฟชีวิต กับ เลขเจ็ดตัว ออกจากกัน) ---
+    // ---------------------------------------------------
+    // 3.4 ระบบแสงเงา Focus Mode (แยกไฮไลท์)
+    // ---------------------------------------------------
     function toggleGraphHighlight(col) {
         const board = document.getElementById('main-board');
         if (activeSevenCols.length > 0) { activeSevenCols = []; board.classList.remove('has-seven-highlight'); document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); }
@@ -722,27 +752,23 @@
         document.querySelectorAll('.dim-target-seven').forEach(el => {
             let row = parseInt(el.dataset.row, 10); 
             let isHigh = false;
-            
-            // อัปเกรด: สว่างเฉพาะแถว 4, 7, 9 สำหรับกลุ่มเลข 7 ตัว (แถว 6, 8 จะโดนหรี่แสงลงตามปกติ)
-            if ([4, 7, 9].includes(row) && activeSevenCols.includes(String(el.dataset.col))) {
-                isHigh = true;
-            } else if ([2, 3].includes(row) && activeGroups.includes(CARD_GROUPS[el.dataset.code]) && el.dataset.hasTitle === "true") {
-                isHigh = true;
-            }
-            
-            if (isHigh) el.classList.add('highlighted'); 
-            else el.classList.remove('highlighted');
+            if ([4, 7, 9].includes(row) && activeSevenCols.includes(String(el.dataset.col))) { isHigh = true; } 
+            else if ([2, 3].includes(row) && activeGroups.includes(CARD_GROUPS[el.dataset.code]) && el.dataset.hasTitle === "true") { isHigh = true; }
+            if (isHigh) el.classList.add('highlighted'); else el.classList.remove('highlighted');
         });
     }
 
     function updateDropdown(sel) { let val = sel.value; let p = sel.parentElement; if (val) { p.style.backgroundColor = NUMBER_COLORS[val].bg; sel.style.color = NUMBER_COLORS[val].color; } else { p.style.backgroundColor = "#293A4B"; sel.style.color = "transparent"; } }
     function clearCustomRows() { document.querySelectorAll('.custom-cell input').forEach(i => i.value = ""); }
 
+    // ---------------------------------------------------
+    // 3.5 ระบบบันทึก (Save Image & Database)
+    // ---------------------------------------------------
     function saveAsImage() {
         const target = document.getElementById('export-area');
         document.querySelectorAll('.number-dropdown, .manual-input, .client-info-box').forEach(el => {
             let span = document.createElement('span'); span.className = 'temp-span';
-            if (el.classList.contains('client-info-box')) { span.innerText = el.value || (el.placeholder ? el.placeholder : " "); span.style.cssText = "color:#FFFFFF; font-weight:bold; font-size:2vw; font-family:'Sarabun', sans-serif; display:block; padding:10px 15px;"; } 
+            if (el.classList.contains('client-info-box')) { span.innerText = el.value || (el.placeholder ? el.placeholder : " "); span.style.cssText = "color:#FFFFFF; font-weight:bold; font-size:1.4vw; font-family:'Sarabun', sans-serif; display:block; padding:10px 15px;"; } 
             else { span.innerText = el.value || ""; span.style.cssText = `color:${el.style.color}; font-weight:900; font-size:1.6vw; font-family:'Sarabun', sans-serif; display:flex; align-items:center; justify-content:center; width:100%; height:100%;`; }
             el.style.display = 'none'; el.parentNode.appendChild(span);
         });
