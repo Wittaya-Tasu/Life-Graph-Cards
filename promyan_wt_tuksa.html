@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>.กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -81,13 +81,11 @@
         .teacher-watermark { font-size: 1.1vw; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; margin-top: -5px; }
         .teacher-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; color: rgba(255, 255, 255, 0.85); font-size: 1.5vw; font-weight: 700; font-family: 'Sarabun', sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); z-index: 10; pointer-events: none;}
 
-        /* 🛠️ ช่องกรอกข้อมูลเจ้าชะตา (ปรับฟอนต์ให้เล็กลง) */
+        /* ช่องกรอกข้อมูลเจ้าชะตา */
         .client-info-container { display: flex; align-items: stretch; width: 100%; }
         .client-info-box { 
             width: 100%; background-color: transparent; border: none; color: #ffffff; 
-            font-family: 'Sarabun', sans-serif; 
-            font-size: 1.4vw; /* ปรับขนาดตรงนี้ครับ (เดิม 1.8vw) */
-            font-weight: bold; line-height: 1.5; resize: none; outline: none; 
+            font-family: 'Sarabun', sans-serif; font-size: 1.4vw; font-weight: bold; line-height: 1.5; resize: none; outline: none; 
         }
         .client-info-box::placeholder { color: rgba(255,255,255,0.6); }
 
@@ -105,11 +103,7 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); 
             font-family: 'Sarabun', sans-serif; font-weight: 800; z-index: 8; pointer-events: none; 
             display: flex; align-items: center; justify-content: center; 
-            
-            /* ปรับขนาดตัวอักษรและล็อกกรอบให้เป็นสี่เหลี่ยมจัตุรัสเป๊ะๆ เพื่อให้ border-radius 50% เป็นวงกลมสมมาตร */
-            font-size: 2.0vw; /* ปรับขนาดตัวเลขอายุให้เล็กลง */
-            width: 3.5vw;     /* ความกว้าง (ล็อกสัดส่วน) */
-            height: 3.5vw;    /* ความสูง (ต้องเท่ากับความกว้าง) */
+            font-size: 2.0vw; width: 3.5vw; height: 3.5vw;    
         }
         .age-text-overlay.default { color: rgba(0, 0, 0, 0.65); text-shadow: 2px 2px 4px rgba(255,255,255,0.7), -1px -1px 2px rgba(255,255,255,0.7); }
         .age-text-overlay.danger { color: #d32f2f; text-shadow: 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8); }
@@ -121,27 +115,30 @@
         .kalee-danger-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 55%; aspect-ratio: 1 / 1; border: 4px solid rgba(192, 57, 43, 0.9); border-radius: 50%; z-index: 6; pointer-events: none; display: flex; align-items: center; justify-content: center; background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
 
         /* ---------------------------------------------------
-           1.5 🛠️ การจัดการระยะห่าง แถว 8 และ แถว 9
+           1.5 🛠️ การจัดการระยะห่างระหว่างแถวต่างๆ
            --------------------------------------------------- */
         
-        /* ปรับแต่งแถว 8: บีบกล่องให้กระชับ และขยับระยะห่าง */
+        /* ปรับแต่งแถว 8: ตัวเลขอายุ */
         .custom-cell[data-row="8"] { 
             margin-bottom: 0px; 
             margin-top: 5px;
-            
-            /* บีบกล่องพื้นหลังให้เล็กลงกระชับพอดีกับตัวเลข */
-            width: 80%; /* ความกว้างกล่อง (ปรับได้ 1-100%) */
-            height: 3vw; /* ความสูงกล่อง */
-            margin-left: auto; /* ดันกล่องให้อยู่ตรงกลางแนวนอน */
-            margin-right: auto;
-            border-radius: 8px; /* ความโค้งของกล่อง */
+            width: 80%; height: 3vw; margin-left: auto; margin-right: auto; border-radius: 8px; 
         } 
         
-        /* ปรับแต่งแถว 9: ดึงให้ชิดแถว 8 ขึ้นไปอีก */
+        /* ปรับแต่งแถว 9: ปีนักษัตร */
         .custom-cell[data-row="9"] { 
             margin-top: -10px; 
             margin-bottom: 5px;
         }    
+
+        /* 🛠️ จุดตั้งค่าระยะห่าง: แถว 9 (ปีนักษัตร) กับ เส้นกราฟ Timeline ด้านล่าง */
+        .timeline-area-wrapper {
+            grid-area: 10 / 2 / span 1 / span 12;
+            
+            /* เปลี่ยนตัวเลขตรงนี้ครับ! ตอนนี้ผมปรับเป็น 0px หากอยากให้ชิดอีกใส่ค่าติดลบได้เลย เช่น -10px */
+            margin-top: 0px; 
+            margin-bottom: 10px;
+        }
 
         .manual-input { background: transparent; color: #293A4B; font-weight: 900; font-size: 1.6vw; border: none; outline: none; font-family: 'Sarabun', sans-serif; width: 100%; text-align: center; }
 
@@ -392,7 +389,6 @@
         const C_GOLD_BG = "linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)";
         const C_LIGHT_BLUE_TEXT = "#3498db"; const C_LIGHT_BLUE_BG = "#bbdefb"; const C_DARK_BLUE_TEXT = "#0047AB"; 
         
-        // 🛠️ ปรับความหนาของเส้นขอบ แถว 8 ตรงนี้ครับ (เปลี่ยนความหนาจาก 4px เป็น 8px)
         const B_NONE = "none"; 
         const B_BLUE = "8px solid #3498db"; 
         const B_BLACK = "8px solid #17202a"; 
@@ -686,8 +682,12 @@
                     </div>`;
             }
         }
+        
+        // ---------------------------------------------------
+        // 🚀 เพิ่ม Class ที่นี่เพื่อให้ผูกกับ CSS ส่วน 1.5 ได้
+        // ---------------------------------------------------
         let timelineHtml = `
-        <div style="grid-area: 10 / 2 / span 1 / span 12; margin-top: 20px; margin-bottom: 10px;">
+        <div class="timeline-area-wrapper">
             <div class="timeline-container">
                 <div class="timeline-wrapper">
                     <div class="timeline-track">
