@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> แผนผังพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -42,26 +42,21 @@
         .board-wrapper { width: 100%; text-align: center; display: none; }
         
         /* ========================================================== */
-        /* 🛠️ จุดตั้งค่าระยะห่างกระดาน (ปรับแก้เองได้ง่ายๆ ตรงนี้ครับ) */
+        /* 🛠️ จุดตั้งค่าระยะห่างกระดาน (ไพ่แถว 1-7) */
         /* ========================================================== */
         .grid-board { 
             display: grid; 
             grid-template-columns: repeat(14, 1fr); 
-            
-            /* 1. ระยะห่างระหว่าง "แถว" (บน-ล่าง) - เดิม 10px ปรับเพิ่ม 1.5 เท่า เป็น 15px */
-            row-gap: 15px; 
-            
-            /* 2. ระยะห่างระหว่าง "คอลัมน์" (ซ้าย-ขวา ไพ่แต่ละใบ) - ปรับเป็น 2 เท่าของระยะแถว (15 x 2 = 30px) */
-            column-gap: 30px; 
-            
+            row-gap: 15px;      /* ระยะห่างระหว่าง "แถว" (บน-ล่าง) */
+            column-gap: 30px;   /* ระยะห่างระหว่าง "คอลัมน์" (ซ้าย-ขวา) */
             width: 100%;
         }
         /* ========================================================== */
-        
+
         .card-item { border-radius: 8px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
         .card-item img { width: 100%; height: auto; border-radius: 5px; display: block; background: #fff;}
         
-        /* ปรับฟอนต์กระดานเป็น Sarabun ทั้งหมด และขยายขนาดหัวข้อเป็น 1.0vw ตามที่คุณหมอกำหนด */
+        /* ปรับฟอนต์กระดานเป็น Sarabun ทั้งหมด และขนาดหัวข้อเป็น 1.0vw */
         .pos-label { display: block; font-weight: 700; font-size: 1.0vw; margin-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; font-family: 'Sarabun', sans-serif; line-height: 1.2;}
 
         .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
@@ -89,7 +84,15 @@
         .dropdown-cell { background-color: #293A4B; border-radius: 50%; margin: 3px auto; display: flex; align-items: center; justify-content: center; height: 3vw; width: 3vw; box-sizing: border-box; }
         .number-dropdown { background: transparent; border: none; outline: none; cursor: pointer; font-family: 'Sarabun', sans-serif; font-weight: 700; font-size: 1.4vw; width: 100%; text-align: center; text-align-last: center; -webkit-appearance: none; appearance: none; }
 
-        .custom-cell { background-color: #293A4B; border-radius: 8px; margin-top: 5px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; height: 3.5vw; box-sizing: border-box; transition: 0.3s;}
+        .custom-cell { background-color: #293A4B; border-radius: 8px; display: flex; align-items: center; justify-content: center; height: 3.5vw; box-sizing: border-box; transition: 0.3s;}
+        
+        /* ========================================================== */
+        /* 🛠️ จุดตั้งค่าระยะห่างเฉพาะ แถว 8 (ตัวเลขอายุ) และ แถว 9 (ปีนักษัตร) */
+        /* ========================================================== */
+        .custom-cell[data-row="8"] { margin-bottom: 5px; margin-top: 5px;} /* ปรับช่องว่างใต้แถว 8 */
+        .custom-cell[data-row="9"] { margin-top: 5px; margin-bottom: 5px;}    /* ปรับช่องว่างเหนือแถว 9 */
+        /* ========================================================== */
+
         .manual-input { background: transparent; color: #293A4B; font-weight: 900; font-size: 1.6vw; border: none; outline: none; font-family: 'Sarabun', sans-serif; width: 100%; text-align: center; }
 
         /* Focus Mode */
