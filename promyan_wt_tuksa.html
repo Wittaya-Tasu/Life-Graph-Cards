@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>.กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -14,17 +14,11 @@
         
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Kanit:wght@500;600;700&display=swap');
 
-        /* ---------------------------------------------------
-           1.1 โครงสร้างพื้นฐาน (Body & Container)
-           --------------------------------------------------- */
         body { font-family: 'Sarabun', sans-serif; background: #fdfdfd; margin: 0; padding: 10px; text-align: center; }
         .container { width: 98%; max-width: 100%; margin: 0 auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); box-sizing: border-box;}
         h2 { color: #8e44ad; font-family: 'Kanit', sans-serif; margin-bottom: 5px; font-size: 2.5em; font-weight: 700;}
         .sub-title { color: #7f8c8d; margin-bottom: 25px; font-size: 1.2em; }
 
-        /* ---------------------------------------------------
-           1.2 ส่วนรับข้อมูล (Input Section)
-           --------------------------------------------------- */
         .input-section { background: #f8f9fa; padding: 25px; border-radius: 15px; border: 2px dashed #bdc3c7; margin-bottom: 25px; }
         .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 15px; text-align: left;}
         .input-group { display: flex; flex-direction: column; gap: 6px;}
@@ -32,7 +26,6 @@
         .input-group select, .input-group input { padding: 10px; font-size: 1.05em; border-radius: 8px; border: 1px solid #bdc3c7; font-family: 'Sarabun', sans-serif; outline: none; transition: 0.3s;}
         .input-group select:focus, .input-group input:focus { border-color: #8e44ad; box-shadow: 0 0 8px rgba(142, 68, 173, 0.3); }
 
-        /* ปุ่มกดต่างๆ */
         .btn-calc { background: #2980b9; color: white; padding: 15px; font-size: 1.4em; border: none; border-radius: 10px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 700; width: 100%; transition: 0.3s; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3);}
         .btn-calc:hover { background: #1f618d; transform: translateY(-2px); }
         .save-controls { display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; display: none; flex-wrap: wrap;}
@@ -41,27 +34,22 @@
         .btn-reset-row { background: #e74c3c; } .btn-reset-row:hover { background: #c0392b; transform: translateY(-1px); }
         .btn-db { background: #8e44ad; } .btn-db:hover { background: #732d91; transform: translateY(-1px); }
 
-        /* ---------------------------------------------------
-           1.3 ส่วนแผนผังกระดานหลัก (Board & Grid)
-           --------------------------------------------------- */
         .export-container { background: #293A4B; padding: 25px; border-radius: 15px; width: 100%; box-sizing: border-box; position: relative; margin: 0 auto;}
         .board-wrapper { width: 100%; text-align: center; display: none; }
         
         .grid-board { 
             display: grid; 
             grid-template-columns: repeat(14, 1fr); 
-            row-gap: 15px;      /* ระยะห่างระหว่าง "แถว" */
-            column-gap: 30px;   /* ระยะห่างระหว่าง "คอลัมน์" */
+            row-gap: 15px;      
+            column-gap: 30px;   
             width: 100%;
         }
 
         .card-item { border-radius: 8px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative;}
         .card-item img { width: 100%; height: auto; border-radius: 5px; display: block; background: #fff;}
         
-        /* ขนาดตัวอักษรหัวข้อไพ่ */
         .pos-label { display: block; font-weight: 700; font-size: 1.0vw; margin-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; font-family: 'Sarabun', sans-serif; line-height: 1.2;}
 
-        /* สีพื้นหลังของเกรดไพ่ */
         .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
         .card-default .pos-label.label-danger, .card-good .pos-label.label-danger, .card-neutral-status .pos-label.label-danger { color: #d32f2f !important; }
         .card-very-good .pos-label, .card-bad .pos-label, .card-very-bad .pos-label, .card-dark-gray .pos-label, .card-black .pos-label, .card-red .pos-label, .card-gold-zone .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.3) !important; }
@@ -77,11 +65,9 @@
         .card-red { background-color: #cb4335 !important; }
         .card-gold-zone { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; box-shadow: 0 4px 15px rgba(170, 119, 28, 0.5); }
 
-        /* ลายน้ำและป้ายชื่ออาจารย์ */
         .teacher-watermark { font-size: 1.1vw; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; margin-top: -5px; }
         .teacher-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; color: rgba(255, 255, 255, 0.85); font-size: 1.5vw; font-weight: 700; font-family: 'Sarabun', sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); z-index: 10; pointer-events: none;}
 
-        /* ช่องกรอกข้อมูลเจ้าชะตา */
         .client-info-container { display: flex; align-items: stretch; width: 100%; }
         .client-info-box { 
             width: 100%; background-color: transparent; border: none; color: #ffffff; 
@@ -89,16 +75,11 @@
         }
         .client-info-box::placeholder { color: rgba(255,255,255,0.6); }
 
-        /* เซลล์กลมๆ (แถว 6) */
         .dropdown-cell { background-color: #293A4B; border-radius: 50%; margin: 3px auto; display: flex; align-items: center; justify-content: center; height: 3vw; width: 3vw; box-sizing: border-box; }
         .number-dropdown { background: transparent; border: none; outline: none; cursor: pointer; font-family: 'Sarabun', sans-serif; font-weight: 700; font-size: 1.4vw; width: 100%; text-align: center; text-align-last: center; -webkit-appearance: none; appearance: none; }
 
-        /* เซลล์สี่เหลี่ยม (แถว 8, 9) */
         .custom-cell { background-color: #293A4B; border-radius: 8px; display: flex; align-items: center; justify-content: center; height: 3.5vw; box-sizing: border-box; transition: 0.3s;}
         
-        /* ---------------------------------------------------
-           1.4 🛠️ จุดตกอายุ และ ทักษาจร (แก้ไขวงกลมสมมาตร)
-           --------------------------------------------------- */
         .age-text-overlay { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); 
             font-family: 'Sarabun', sans-serif; font-weight: 800; z-index: 8; pointer-events: none; 
@@ -110,39 +91,45 @@
         .age-text-overlay.danger-circle { border: 4px solid #d32f2f; border-radius: 50%; background-color: rgba(255,255,255,0.25); box-shadow: 0 0 10px rgba(211, 47, 47, 0.4); }
         .age-text-overlay.kalee-overlap { color: #ffffff; text-shadow: 2px 2px 6px rgba(0,0,0,0.9); }
 
+        /* ========================================================== */
+        /* 🛠️ แก้ไขสัญลักษณ์ ทักษาจร (เปลี่ยนกาลีเป็นระบบ CSS) */
+        /* ========================================================== */
         .sri-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 40%; aspect-ratio: 1 / 1; background-color: rgba(46, 204, 113, 0.6); z-index: 5; pointer-events: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); }
-        .kalee-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%); width: 40%; aspect-ratio: 1 / 0.866; z-index: 5; pointer-events: none; }
-        .kalee-danger-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 55%; aspect-ratio: 1 / 1; border: 4px solid rgba(192, 57, 43, 0.9); border-radius: 50%; z-index: 6; pointer-events: none; display: flex; align-items: center; justify-content: center; background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
-
-        /* ---------------------------------------------------
-           1.5 🛠️ การจัดการระยะห่างระหว่างแถวต่างๆ
-           --------------------------------------------------- */
         
-        /* ปรับแต่งแถว 8: ตัวเลขอายุ */
-        .custom-cell[data-row="8"] { 
-            margin-bottom: 0px; 
-            margin-top: 5px;
-            width: 80%; height: 3vw; margin-left: auto; margin-right: auto; border-radius: 8px; 
-        } 
-        
-        /* ปรับแต่งแถว 9: ปีนักษัตร */
-        .custom-cell[data-row="9"] { 
-            margin-top: -10px; 
-            margin-bottom: 5px;
-        }    
-
-        /* 🛠️ จุดตั้งค่าระยะห่าง: แถว 9 (ปีนักษัตร) กับ เส้นกราฟ Timeline ด้านล่าง */
-        .timeline-area-wrapper {
-            grid-area: 10 / 2 / span 1 / span 12;
-            margin-top: 0px; 
-            margin-bottom: 10px;
+        /* สร้างสามเหลี่ยมด้วย CSS เพื่อป้องกันปัญหาภาพหายในมือถือ */
+        .kalee-wrapper { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%); 
+            width: 0; height: 0; 
+            border-left: 1.8vw solid transparent; 
+            border-right: 1.8vw solid transparent; 
+            border-bottom: 3.1vw solid rgba(231, 76, 60, 0.75); 
+            z-index: 5; pointer-events: none; 
         }
+        .kalee-danger-circle { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); 
+            width: 55%; aspect-ratio: 1 / 1; 
+            border: 4px solid rgba(192, 57, 43, 0.9); border-radius: 50%; 
+            z-index: 6; pointer-events: none; 
+            display: flex; align-items: center; justify-content: center; 
+            background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); 
+        }
+        /* ปรับขนาดสามเหลี่ยมเมื่อมันซ้อนอยู่ในวงกลมเตือนภัย */
+        .kalee-danger-circle .kalee-wrapper {
+            position: static; transform: none; 
+            border-left: 1.2vw solid transparent; 
+            border-right: 1.2vw solid transparent; 
+            border-bottom: 2.1vw solid rgba(231, 76, 60, 0.75); 
+            margin-top: 15%; 
+        }
+        /* ========================================================== */
+
+        .custom-cell[data-row="8"] { margin-bottom: 0px; margin-top: 5px; width: 80%; height: 3vw; margin-left: auto; margin-right: auto; border-radius: 8px; } 
+        .custom-cell[data-row="9"] { margin-top: -10px; margin-bottom: 5px; }    
+
+        .timeline-area-wrapper { grid-area: 10 / 2 / span 1 / span 12; margin-top: 0px; margin-bottom: 10px; }
 
         .manual-input { background: transparent; color: #293A4B; font-weight: 900; font-size: 1.6vw; border: none; outline: none; font-family: 'Sarabun', sans-serif; width: 100%; text-align: center; }
 
-        /* ---------------------------------------------------
-           1.6 ระบบแสงเงา Focus Mode
-           --------------------------------------------------- */
         .dim-target-graph { transition: all 0.4s ease; position: relative; }
         .grid-board.has-graph-highlight .dim-target-graph { opacity: 0.2; filter: grayscale(70%); }
         .grid-board.has-graph-highlight .dim-target-graph.highlighted { opacity: 1; filter: none; transform: scale(1.05); z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
@@ -157,9 +144,6 @@
         .click-to-highlight-seven:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(241, 196, 15, 0.4); z-index: 10;}
         .grid-board.has-seven-highlight .dim-target-seven.click-to-highlight-seven { pointer-events: auto; }
 
-        /* ---------------------------------------------------
-           1.7 ระบบ Timeline 84 ปี
-           --------------------------------------------------- */
         .timeline-container { background: #fdfdfd; border-radius: 10px; border: 2px solid #bdc3c7; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); overflow: hidden;}
         .timeline-wrapper { width: 100%; padding: 50px 15px 30px 15px; box-sizing: border-box; }
         .timeline-track { display: flex; align-items: center; position: relative; width: 100%; height: 40px; justify-content: space-between; }
@@ -267,7 +251,6 @@
                     <option value="0">❌ ปิดการแสดงผล</option>
                 </select>
             </div>
-            
             <div class="input-group">
                 <label>9. แสดง Timeline 84 ปี</label>
                 <select id="sel-timeline">
@@ -275,7 +258,6 @@
                     <option value="0">❌ ปิดการแสดงผล</option>
                 </select>
             </div>
-            
         </div>
         <button class="btn-calc" onclick="generateAndRender()">✨ ประมวลผลและสร้างกระดาน</button>
     </div>
@@ -294,9 +276,6 @@
 </div>
 
 <script>
-    // ---------------------------------------------------
-    // 3.1 ข้อมูลตั้งต้น (Constants & Mapping)
-    // ---------------------------------------------------
     const GRAPH_GROUPS = {};
     for (let i = 1; i <= 12; i++) { GRAPH_GROUPS[i] = [400 + i, 400 + i + 12, 400 + i + 24]; }
 
@@ -345,9 +324,6 @@
     let activeGraphHighlightCols = []; 
     let activeSevenCols = []; 
 
-    // ---------------------------------------------------
-    // 3.2 ฟังก์ชันคำนวณและประเมินสถานะไพ่
-    // ---------------------------------------------------
     function generateSequence(startId, length, minId, maxId) {
         let seq = []; let curr = startId;
         for (let i = 0; i < length; i++) { seq.push(curr); curr++; if (curr > maxId) curr = minId; }
@@ -415,7 +391,6 @@
         return { bg, text, border };
     }
 
-    // ฟังก์ชัน Timeline สแกนจุดวิกฤต 84 ปี
     function scan84YearsTimeline(data) {
         let alerts = [];
         let has412 = data.SEVEN_BASE.includes("412");
@@ -461,9 +436,6 @@
         return alerts;
     }
 
-    // ---------------------------------------------------
-    // 3.3 ระบบรวบรวมข้อมูลและสั่งวาดกระดาน (Main Render)
-    // ---------------------------------------------------
     function generateAndRender() {
         const valDate = parseInt(document.getElementById('sel-date').value);
         const valDay = parseInt(document.getElementById('sel-day').value);
@@ -474,8 +446,6 @@
         const ageMode = parseInt(document.getElementById('sel-age-mode').value);
         const zodiacMode = parseInt(document.getElementById('sel-zodiac-row').value);
         const taksaMode = parseInt(document.getElementById('sel-taksa').value);
-        
-        // 🛠️ รับค่าจากการตั้งค่าเปิด-ปิด Timeline
         const timelineMode = parseInt(document.getElementById('sel-timeline').value);
 
         if (!valDate || !valDay || !valMonth || !valYear) { alert("กรุณาเลือกข้อมูลให้ครบครับ"); return; }
@@ -522,8 +492,7 @@
         buildBoardUI({
             DATE: [valDate.toString()], DAY: daySeq.map(String), MONTH: monthSeq.map(String), posMonth: posMonth,
             YEAR: yearSeq.map(String), posYear: posYear, GRAPH_BASE: graphBase.map(String), SEVEN_BASE: sevenBase.map(String),
-            AGE: age, AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode, TAKSA_MODE: taksaMode,
-            TIMELINE_MODE: timelineMode // 🛠️ ส่งค่าไปให้ฟังก์ชันวาดหน้าจอ
+            AGE: age, AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode, TAKSA_MODE: taksaMode, TIMELINE_MODE: timelineMode
         });
     }
 
@@ -536,7 +505,6 @@
         const posRow10 = calculateDynamicPositions(data.YEAR, "301");
         const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
 
-        // การคำนวณ ทักษาจร
         let sriNum = 0; let kaleeNum = 0;
         if (data.AGE > 0 && data.TAKSA_MODE === 1) {
             const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    
@@ -547,7 +515,6 @@
             sriNum = path8[(startIndex8 + 3) % 8]; kaleeNum = path8[(startIndex8 + 7) % 8]; 
         }
 
-        // การคำนวณ จุดตกอายุ 21 ตำแหน่ง
         let target21Title = ""; let targetBGridCol = -1;
         if (data.AGE > 0 && data.AGE_MODE > 0) {
             let targetIdx21 = (data.AGE - 1) % 21; let targetACode = "";
@@ -562,9 +529,8 @@
             }
         }
 
-        const svgTriangle = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 86.6" style="width:100%; height:100%;"><polygon points="50,0 0,86.6 100,86.6" fill="rgba(231, 76, 60, 0.6)"/></svg>`;
+        // 🛠️ ไม่ต้องใช้งานตัวแปร svgTriangle แล้วครับ เราจะใช้ CSS วาดล้วนๆ 
 
-        // ฟังก์ชันย่อยสำหรับวาดไพ่ 1 ใบ
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
             let styleClass = gridRow === 5 ? getCardStyleClass(code, title) : "card-default";
@@ -584,11 +550,13 @@
                 if (kaleeNum >= 1 && kaleeNum <= 7) { isKalee = isSevenSystem && (CARD_GROUPS[code] === kaleeNum); } else if (kaleeNum === 8) { isKalee = (gridRow === 7 && code === "412"); }
                 
                 if (isSri) { overlayHtml += `<div class="sri-overlay"></div>`; }
+                
+                // 🛠️ เปลี่ยนการแทรก HTML ของกาลี ให้เป็นแค่ div class เปล่าๆ แล้ว CSS จะวาดสามเหลี่ยมให้เองครับ
                 if (isKalee) {
                     if (badTitles.includes(title) || (code === "412" && gridRow === 7)) {
-                        overlayHtml += `<div class="kalee-danger-circle"><div class="kalee-wrapper" style="width:70%; margin-top:6%;">${svgTriangle}</div></div>`;
+                        overlayHtml += `<div class="kalee-danger-circle"><div class="kalee-wrapper"></div></div>`;
                     } else { 
-                        overlayHtml += `<div class="kalee-wrapper">${svgTriangle}</div>`; 
+                        overlayHtml += `<div class="kalee-wrapper"></div>`; 
                     }
                 }
             }
@@ -608,7 +576,6 @@
                     ${titleHtml}<img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">${overlayHtml}</div>`;
         }
 
-        // วาดส่วนหัว (ไพ่วันที่ + ข้อมูลเจ้าชะตา + ป้ายอาจารย์)
         addCard(data.DATE[0], 1, 2, null);
         board.innerHTML += `<div class="client-info-container" style="grid-area: 1 / 3 / span 1 / span 6;">
             <div style="display:flex; flex-direction:column; width:100%; text-align:left;">
@@ -622,13 +589,11 @@
         board.innerHTML += tHtml;
         board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2/9/2/15;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
-        // วาดไพ่แถวหลักต่างๆ
         data.DAY.forEach((c, i) => addCard(c, 2, i + 2, ROW_2_TITLES[i]));
         data.MONTH.forEach((c, i) => { let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i); addCard(c, 3, i + 2, idx!==-1?ROW_4_TITLES[idx]:null); });
         data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
         data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 2, ROW_8_TITLES[i]));
 
-        // วาดแถว 6 (เซลล์วงกลม)
         let activePosRow6 = DAY_RELATION_MAP[data.DAY[0]] || [];
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let autoNum = ""; let bg = "#293A4B"; let color = "transparent";
@@ -638,10 +603,8 @@
             board.innerHTML += `<div class="dropdown-cell dim-target-graph dim-target-seven" data-row="6" data-col="${col}" style="grid-area: 6/${col}; background-color:${bg};"><select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
         }
 
-        // วาดแถว 7 (ไพ่ฐาน)
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        // วาดแถว 8 (กล่องสี่เหลี่ยมอายุ)
         let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let val = ""; let cellBg = "#293A4B"; let textColor = "transparent"; let borderStyle = "none"; let boxShadowStyle = "";
@@ -661,7 +624,6 @@
             board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${borderStyle}; box-shadow:${boxShadowStyle};"><input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
         }
 
-        // วาดแถว 9 (ปีนักษัตร)
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let yearCardCode = data.YEAR[idx]; let zodiacText = ZODIAC_MAP[yearCardCode] || ""; let showZodiac = false;
             if (data.ZODIAC_MODE > 0) {
@@ -674,7 +636,6 @@
             if (showZodiac) board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="9" data-col="${col}" style="grid-area: 9/${col}; background:#293A4B; border:none; border-radius:8px;"><span style="color:#ffffff; font-weight:bold; font-size:1.5vw; font-family:'Sarabun', sans-serif;">${zodiacText}</span></div>`;
         }
 
-        // 🛠️ วาดระบบ Timeline 84 ปี (มีเงื่อนไขตรวจสอบว่าเปิดใช้งานหรือไม่)
         if (data.TIMELINE_MODE === 1) {
             let timelineAlerts = scan84YearsTimeline(data);
             let timelineNodesHtml = "";
@@ -715,9 +676,6 @@
         document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // ---------------------------------------------------
-    // 3.4 ระบบแสงเงา Focus Mode (แยกไฮไลท์)
-    // ---------------------------------------------------
     function toggleGraphHighlight(col) {
         const board = document.getElementById('main-board');
         if (activeSevenCols.length > 0) { activeSevenCols = []; board.classList.remove('has-seven-highlight'); document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted')); }
@@ -771,9 +729,6 @@
     function updateDropdown(sel) { let val = sel.value; let p = sel.parentElement; if (val) { p.style.backgroundColor = NUMBER_COLORS[val].bg; sel.style.color = NUMBER_COLORS[val].color; } else { p.style.backgroundColor = "#293A4B"; sel.style.color = "transparent"; } }
     function clearCustomRows() { document.querySelectorAll('.custom-cell input').forEach(i => i.value = ""); }
 
-    // ---------------------------------------------------
-    // 3.5 ระบบบันทึก (Save Image & Database)
-    // ---------------------------------------------------
     function saveAsImage() {
         const target = document.getElementById('export-area');
         document.querySelectorAll('.number-dropdown, .manual-input, .client-info-box').forEach(el => {
