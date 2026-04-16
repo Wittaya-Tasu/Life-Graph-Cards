@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>.กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -134,8 +134,6 @@
         /* 🛠️ จุดตั้งค่าระยะห่าง: แถว 9 (ปีนักษัตร) กับ เส้นกราฟ Timeline ด้านล่าง */
         .timeline-area-wrapper {
             grid-area: 10 / 2 / span 1 / span 12;
-            
-            /* เปลี่ยนตัวเลขตรงนี้ครับ! ตอนนี้ผมปรับเป็น 0px หากอยากให้ชิดอีกใส่ค่าติดลบได้เลย เช่น -10px */
             margin-top: 0px; 
             margin-bottom: 10px;
         }
@@ -269,6 +267,15 @@
                     <option value="0">❌ ปิดการแสดงผล</option>
                 </select>
             </div>
+            
+            <div class="input-group">
+                <label>9. แสดง Timeline 84 ปี</label>
+                <select id="sel-timeline">
+                    <option value="1" selected>✅ เปิดแสดง</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+            
         </div>
         <button class="btn-calc" onclick="generateAndRender()">✨ ประมวลผลและสร้างกระดาน</button>
     </div>
@@ -467,6 +474,9 @@
         const ageMode = parseInt(document.getElementById('sel-age-mode').value);
         const zodiacMode = parseInt(document.getElementById('sel-zodiac-row').value);
         const taksaMode = parseInt(document.getElementById('sel-taksa').value);
+        
+        // 🛠️ รับค่าจากการตั้งค่าเปิด-ปิด Timeline
+        const timelineMode = parseInt(document.getElementById('sel-timeline').value);
 
         if (!valDate || !valDay || !valMonth || !valYear) { alert("กรุณาเลือกข้อมูลให้ครบครับ"); return; }
 
@@ -512,7 +522,8 @@
         buildBoardUI({
             DATE: [valDate.toString()], DAY: daySeq.map(String), MONTH: monthSeq.map(String), posMonth: posMonth,
             YEAR: yearSeq.map(String), posYear: posYear, GRAPH_BASE: graphBase.map(String), SEVEN_BASE: sevenBase.map(String),
-            AGE: age, AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode, TAKSA_MODE: taksaMode
+            AGE: age, AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode, TAKSA_MODE: taksaMode,
+            TIMELINE_MODE: timelineMode // 🛠️ ส่งค่าไปให้ฟังก์ชันวาดหน้าจอ
         });
     }
 
@@ -663,42 +674,41 @@
             if (showZodiac) board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="9" data-col="${col}" style="grid-area: 9/${col}; background:#293A4B; border:none; border-radius:8px;"><span style="color:#ffffff; font-weight:bold; font-size:1.5vw; font-family:'Sarabun', sans-serif;">${zodiacText}</span></div>`;
         }
 
-        // วาดระบบ Timeline 84 ปี
-        let timelineAlerts = scan84YearsTimeline(data);
-        let timelineNodesHtml = "";
-        for (let i = 1; i <= 84; i++) {
-            let alertObj = timelineAlerts.find(a => a.age === i);
-            if (!alertObj) {
-                timelineNodesHtml += `<div class="timeline-node"><div class="node-dot"></div></div>`;
-            } else {
-                let ringsHtml = "";
-                if (alertObj.level >= 2) ringsHtml += `<div class="circle-1"></div>`;
-                if (alertObj.level === 3) ringsHtml += `<div class="circle-2"></div>`;
-                timelineNodesHtml += `
-                    <div class="timeline-node">
-                        <div class="node-age">${i}</div>
-                        <div class="dot-alert"></div>
-                        ${ringsHtml}
-                    </div>`;
+        // 🛠️ วาดระบบ Timeline 84 ปี (มีเงื่อนไขตรวจสอบว่าเปิดใช้งานหรือไม่)
+        if (data.TIMELINE_MODE === 1) {
+            let timelineAlerts = scan84YearsTimeline(data);
+            let timelineNodesHtml = "";
+            for (let i = 1; i <= 84; i++) {
+                let alertObj = timelineAlerts.find(a => a.age === i);
+                if (!alertObj) {
+                    timelineNodesHtml += `<div class="timeline-node"><div class="node-dot"></div></div>`;
+                } else {
+                    let ringsHtml = "";
+                    if (alertObj.level >= 2) ringsHtml += `<div class="circle-1"></div>`;
+                    if (alertObj.level === 3) ringsHtml += `<div class="circle-2"></div>`;
+                    timelineNodesHtml += `
+                        <div class="timeline-node">
+                            <div class="node-age">${i}</div>
+                            <div class="dot-alert"></div>
+                            ${ringsHtml}
+                        </div>`;
+                }
             }
-        }
-        
-        // ---------------------------------------------------
-        // 🚀 เพิ่ม Class ที่นี่เพื่อให้ผูกกับ CSS ส่วน 1.5 ได้
-        // ---------------------------------------------------
-        let timelineHtml = `
-        <div class="timeline-area-wrapper">
-            <div class="timeline-container">
-                <div class="timeline-wrapper">
-                    <div class="timeline-track">
-                        <div class="timeline-line"></div>
-                        ${timelineNodesHtml}
+            
+            let timelineHtml = `
+            <div class="timeline-area-wrapper">
+                <div class="timeline-container">
+                    <div class="timeline-wrapper">
+                        <div class="timeline-track">
+                            <div class="timeline-line"></div>
+                            ${timelineNodesHtml}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>`;
-        
-        board.innerHTML += timelineHtml;
+            </div>`;
+            
+            board.innerHTML += timelineHtml;
+        }
 
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('save-area').style.display = 'flex';
