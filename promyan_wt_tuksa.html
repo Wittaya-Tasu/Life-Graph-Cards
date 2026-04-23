@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>.กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -395,7 +395,9 @@
         let path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; 
         let path8 = [1, 2, 3, 4, 7, 5, 8, 6];
         let startDayNum = parseInt(data.DAY[0]) % 100;
-        let startIndex9 = path9.indexOf(startDayNum);
+        
+        // 🛠️ แก้ไข: วันพฤหัสบดี (5) ให้เริ่มที่ตำแหน่ง 5 ตัวที่ 2 (index 6)
+        let startIndex9 = (startDayNum === 5) ? path9.lastIndexOf(5) : path9.indexOf(startDayNum);
 
         for(let age = 1; age <= 84; age++) {
             let graphIdx = (age - 1) % 12;
@@ -417,7 +419,6 @@
 
                 let cond2_4 = false;
                 if (has412) {
-                    // 🛠️ แก้ไข: นับจุดเริ่มต้นเป็นก้าวที่ 1 (ดังนั้นจำนวนก้าวเดินจะเท่ากับ age - 1)
                     let boriwanNum = path9[(startIndex9 + age - 1) % 9];
                     let startIndex8 = path8.indexOf(boriwanNum);
                     let kaleeNum = path8[(startIndex8 + 7) % 8];
@@ -506,9 +507,11 @@
         let sriNum = 0; let kaleeNum = 0;
         if (data.AGE > 0 && data.TAKSA_MODE === 1) {
             const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    
-            let startDayNum = parseInt(data.DAY[0]) % 100; let startIndex9 = path9.indexOf(startDayNum);
+            let startDayNum = parseInt(data.DAY[0]) % 100; 
             
-            // 🛠️ แก้ไข: นับจุดเริ่มต้นเป็นก้าวที่ 1 (ดังนั้นจำนวนก้าวเดินจะเท่ากับ data.AGE - 1)
+            // 🛠️ แก้ไข: วันพฤหัสบดี (5) ให้เริ่มที่ตำแหน่ง 5 ตัวที่ 2 (index 6)
+            let startIndex9 = (startDayNum === 5) ? path9.lastIndexOf(5) : path9.indexOf(startDayNum);
+            
             let boriwanNum = path9[(startIndex9 + data.AGE - 1) % 9];
             
             let startIndex8 = path8.indexOf(boriwanNum);
