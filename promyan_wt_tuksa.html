@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>.กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -96,7 +96,6 @@
         /* ========================================================== */
         .sri-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 40%; aspect-ratio: 1 / 1; background-color: rgba(46, 204, 113, 0.6); z-index: 5; pointer-events: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); }
         
-        /* สร้างสามเหลี่ยมด้วย CSS เพื่อป้องกันปัญหาภาพหายในมือถือ */
         .kalee-wrapper { 
             position: absolute; top: 70%; left: 50%; transform: translate(-50%, -40%); 
             width: 0; height: 0; 
@@ -113,7 +112,6 @@
             display: flex; align-items: center; justify-content: center; 
             background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); 
         }
-        /* ปรับขนาดสามเหลี่ยมเมื่อมันซ้อนอยู่ในวงกลมเตือนภัย */
         .kalee-danger-circle .kalee-wrapper {
             position: static; transform: none; 
             border-left: 1.1vw solid transparent; 
@@ -515,21 +513,33 @@
             sriNum = path8[(startIndex8 + 3) % 8]; kaleeNum = path8[(startIndex8 + 7) % 8]; 
         }
 
-        let target21Title = ""; let targetBGridCol = -1;
+        // ---------------------------------------------------------
+        // 🛠️ ส่วนที่แก้ไข: การคำนวณตำแหน่งจุดตกอายุ (แสดงทั้ง 2 ระบบ)
+        // ---------------------------------------------------------
+        let target21Title = ""; 
+        let targetBGridCol_Sys1 = -1; // คอลัมน์แถว 7 จากระบบ 21 ภพ
+        let targetBGridCol_Sys2 = -1; // คอลัมน์แถว 7 จากระบบ 7 ฐาน
+
         if (data.AGE > 0 && data.AGE_MODE > 0) {
+            
+            // ระบบที่ 1: นับอายุแบบ 21 ภพ (สำหรับแถว 2, 3, 4)
             let targetIdx21 = (data.AGE - 1) % 21; let targetACode = "";
             if (targetIdx21 < 7) { target21Title = ROW_2_TITLES[targetIdx21]; targetACode = data.DAY[targetIdx21]; } 
             else if (targetIdx21 < 14) { let posIdx = targetIdx21 - 7; target21Title = ROW_4_TITLES[posIdx]; targetACode = data.MONTH[data.posMonth[posIdx]]; } 
             else { let posIdx = targetIdx21 - 14; target21Title = ROW_6_TITLES[posIdx]; targetACode = data.YEAR[data.posYear[posIdx]]; }
 
+            // หา column สำหรับแถว 7 จากกลุ่มไพ่ของระบบ 21 ภพ
             let targetAGroup = CARD_GROUPS[targetACode];
             for (let i = 0; i < 7; i++) {
                 let yearIdx = data.posYear[i];
-                if (CARD_GROUPS[data.YEAR[yearIdx]] === targetAGroup) { targetBGridCol = yearIdx + 2; break; }
+                if (CARD_GROUPS[data.YEAR[yearIdx]] === targetAGroup) { targetBGridCol_Sys1 = yearIdx + 2; break; }
             }
-        }
 
-        // 🛠️ ไม่ต้องใช้งานตัวแปร svgTriangle แล้วครับ เราจะใช้ CSS วาดล้วนๆ 
+            // ระบบที่ 2: นับอายุแบบ 7 ฐาน (วนลูป 7 ปี เฉพาะแถวฐาน)
+            let targetIdx7 = (data.AGE - 1) % 7;
+            targetBGridCol_Sys2 = posRow10[targetIdx7] + 2; 
+        }
+        // ---------------------------------------------------------
 
         const addCard = (code, gridRow, gridCol, title) => {
             if (!code) return;
@@ -551,7 +561,6 @@
                 
                 if (isSri) { overlayHtml += `<div class="sri-overlay"></div>`; }
                 
-                // 🛠️ เปลี่ยนการแทรก HTML ของกาลี ให้เป็นแค่ div class เปล่าๆ แล้ว CSS จะวาดสามเหลี่ยมให้เองครับ
                 if (isKalee) {
                     if (badTitles.includes(title) || (code === "412" && gridRow === 7)) {
                         overlayHtml += `<div class="kalee-danger-circle"><div class="kalee-wrapper"></div></div>`;
@@ -561,16 +570,34 @@
                 }
             }
 
+            // ---------------------------------------------------------
+            // 🛠️ ส่วนที่แก้ไข: การวางตัวเลขอายุบนหน้าไพ่
+            // ---------------------------------------------------------
             if (data.AGE > 0 && data.AGE_MODE > 0) {
                 let isTargetA = ((gridRow === 2 || gridRow === 3 || gridRow === 4) && title === target21Title);
-                let isTargetB = (gridRow === 7 && gridCol === targetBGridCol);
-                if (isTargetA || isTargetB) {
-                    let isDangerAge = badTitles.includes(target21Title);
+                let isTargetB_Sys1 = (gridRow === 7 && gridCol === targetBGridCol_Sys1);
+                let isTargetB_Sys2 = (gridRow === 7 && gridCol === targetBGridCol_Sys2);
+
+                // ถ้าเป็นจุดตกอายุของระบบใดระบบหนึ่ง หรือทั้งคู่
+                if (isTargetA || isTargetB_Sys1 || isTargetB_Sys2) {
+                    
+                    // เช็คว่าจุดตกอายุนั้นเป็นตำแหน่งอันตรายไหม (อ้างอิงจากตำแหน่ง 21 ภพ)
+                    let isDangerAge = false;
+                    if ((isTargetA || isTargetB_Sys1) && badTitles.includes(target21Title)) {
+                        isDangerAge = true;
+                    }
+
                     let ageClass = "default";
-                    if (isDangerAge) { if (isKalee) ageClass = "kalee-overlap"; else ageClass = "danger danger-circle"; }
+                    if (isDangerAge) { 
+                        if (isKalee) ageClass = "kalee-overlap"; else ageClass = "danger danger-circle"; 
+                    } else {
+                        // ถ้าตกกาลีแต่ไม่ได้ตกภพเสีย ให้ตัวหนังสือเป็นสีขาวจะได้อ่านชัดๆ บนวงกลมแดง
+                        if (isKalee) ageClass = "kalee-overlap"; 
+                    }
                     overlayHtml += `<div class="age-text-overlay ${ageClass}">${data.AGE}</div>`;
                 }
             }
+            // ---------------------------------------------------------
 
             board.innerHTML += `<div class="card-item ${styleClass} ${dimClasses} ${clickClass}" data-col="${gridCol}" data-row="${gridRow}" data-code="${code}" data-has-title="${title ? 'true' : 'false'}" style="grid-area: ${gridRow} / ${gridCol}; position:relative;" ${extraAttr}>
                     ${titleHtml}<img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">${overlayHtml}</div>`;
