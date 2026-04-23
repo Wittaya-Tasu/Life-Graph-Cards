@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>.กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -417,8 +417,8 @@
 
                 let cond2_4 = false;
                 if (has412) {
-                    // 🛠️ แก้ไข: ใช้ "อายุเต็ม" เป็นจำนวนก้าวเดิน (ไม่ต้องลบ 1)
-                    let boriwanNum = path9[(startIndex9 + age) % 9];
+                    // 🛠️ แก้ไข: นับจุดเริ่มต้นเป็นก้าวที่ 1 (ดังนั้นจำนวนก้าวเดินจะเท่ากับ age - 1)
+                    let boriwanNum = path9[(startIndex9 + age - 1) % 9];
                     let startIndex8 = path8.indexOf(boriwanNum);
                     let kaleeNum = path8[(startIndex8 + 7) % 8];
                     if (kaleeNum === 8) cond2_4 = true; 
@@ -504,12 +504,12 @@
         const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
 
         let sriNum = 0; let kaleeNum = 0;
-        if (data.AGE >= 0 && data.TAKSA_MODE === 1) {
+        if (data.AGE > 0 && data.TAKSA_MODE === 1) {
             const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    
             let startDayNum = parseInt(data.DAY[0]) % 100; let startIndex9 = path9.indexOf(startDayNum);
             
-            // 🛠️ แก้ไข: ใช้ "อายุเต็ม" เป็นจำนวนก้าวเดิน (ไม่ต้องลบ 1)
-            let boriwanNum = path9[(startIndex9 + data.AGE) % 9];
+            // 🛠️ แก้ไข: นับจุดเริ่มต้นเป็นก้าวที่ 1 (ดังนั้นจำนวนก้าวเดินจะเท่ากับ data.AGE - 1)
+            let boriwanNum = path9[(startIndex9 + data.AGE - 1) % 9];
             
             let startIndex8 = path8.indexOf(boriwanNum);
             sriNum = path8[(startIndex8 + 3) % 8]; // ศรี = ตำแหน่งที่ 4 (+3 จากบริวาร)
@@ -553,7 +553,7 @@
             if (title) { let dangerClass = badTitles.includes(title) ? " label-danger" : ""; titleHtml = `<span class="pos-label${dangerClass}">${title}</span>`; }
 
             let overlayHtml = ""; let isKalee = false;
-            if (data.AGE >= 0 && data.TAKSA_MODE === 1) {
+            if (data.AGE > 0 && data.TAKSA_MODE === 1) {
                 let isSevenSystem = (gridRow >= 2 && gridRow <= 4 && title != null); let isSri = false;
                 if (sriNum >= 1 && sriNum <= 7) { isSri = isSevenSystem && (CARD_GROUPS[code] === sriNum); } else if (sriNum === 8) { isSri = (gridRow === 7 && code === "412"); }
                 if (kaleeNum >= 1 && kaleeNum <= 7) { isKalee = isSevenSystem && (CARD_GROUPS[code] === kaleeNum); } else if (kaleeNum === 8) { isKalee = (gridRow === 7 && code === "412"); }
