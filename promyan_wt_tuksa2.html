@@ -65,6 +65,23 @@
         .card-red { background-color: #cb4335 !important; }
         .card-gold-zone { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; box-shadow: 0 4px 15px rgba(170, 119, 28, 0.5); }
 
+        .r5-filter-controls {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: clamp(10px, 1.2vw, 18px); align-self: stretch;
+        }
+        .r5-filter-button {
+            width: clamp(24px, 2.4vw, 36px); height: clamp(24px, 2.4vw, 36px);
+            padding: 0; border: 1.5px solid #ffffff; border-radius: 50%;
+            cursor: pointer; -webkit-appearance: none; appearance: none;
+            box-shadow: 0 2px 7px rgba(0,0,0,0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease;
+        }
+        .r5-filter-button.good { background-color: #bbdefb; }
+        .r5-filter-button.bad { background-color: #b71c1c; }
+        .r5-filter-button:hover { transform: scale(1.12); box-shadow: 0 4px 12px rgba(255,255,255,0.35); }
+        .r5-filter-button.is-active { outline: 2px solid #ffffff; outline-offset: 3px; transform: scale(1.08); box-shadow: 0 0 14px rgba(255,255,255,0.75); }
+        .card-item.r5-filter-dimmed { opacity: 0.14 !important; filter: grayscale(85%) !important; }
+
         .teacher-watermark { font-size: 1.1vw; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; margin-top: -5px; }
         .teacher-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; color: rgba(255, 255, 255, 0.85); font-size: 1.5vw; font-weight: 700; font-family: 'Sarabun', sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); z-index: 10; pointer-events: none;}
 
@@ -347,6 +364,7 @@
     let activeGraphHighlightCols = []; 
     let activeSevenCols = []; 
     let currentBoardData = null;
+    let activeR5Filter = null;
 
     function generateSequence(startId, length, minId, maxId) {
         let seq = []; let curr = startId;
@@ -514,6 +532,7 @@
             sevenBase.push(400 + (dVal + mVal + yVal));
         }
 
+        activeR5Filter = null;
         buildBoardUI({
             DATE: [valDate.toString()], DAY: daySeq.map(String), MONTH: monthSeq.map(String), posMonth: posMonth,
             YEAR: yearSeq.map(String), posYear: posYear, GRAPH_BASE: graphBase.map(String), SEVEN_BASE: sevenBase.map(String),
@@ -648,7 +667,12 @@
         data.DAY.forEach((c, i) => addCard(c, 2, i + 2, ROW_2_TITLES[i]));
         data.MONTH.forEach((c, i) => { let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i); addCard(c, 3, i + 2, idx!==-1?ROW_4_TITLES[idx]:null); });
         data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
+        board.innerHTML += `<div class="r5-filter-controls" style="grid-area: 5/1;" aria-label="ตัวกรองสถานะไพ่แถวกราฟชีวิต">
+            <button type="button" class="r5-filter-button good" data-r5-filter="good" aria-label="แสดงไพ่ดีและดีมาก" aria-pressed="false" title="แสดงไพ่ดีและดีมาก" onclick="toggleR5Filter('good')"></button>
+            <button type="button" class="r5-filter-button bad" data-r5-filter="bad" aria-label="แสดงไพ่ร้ายและร้ายมาก" aria-pressed="false" title="แสดงไพ่ร้ายและร้ายมาก" onclick="toggleR5Filter('bad')"></button>
+        </div>`;
         data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 2, ROW_8_TITLES[i]));
+        applyR5Filter();
 
         let activePosRow6 = DAY_RELATION_MAP[data.DAY[0]] || [];
         for(let col = 2; col <= 13; col++) {
@@ -735,6 +759,29 @@
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('save-area').style.display = 'flex';
         if (shouldScroll) document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function applyR5Filter() {
+        const rowCards = document.querySelectorAll('#main-board .card-item[data-row="5"]');
+        rowCards.forEach(card => {
+            const status = getCardBaseStatus(card.dataset.code);
+            const matchesGood = status === "VG" || status === "G";
+            const matchesBad = status === "VB" || status === "B";
+            const shouldDim = activeR5Filter === "good" ? !matchesGood : activeR5Filter === "bad" ? !matchesBad : false;
+            card.classList.toggle('r5-filter-dimmed', shouldDim);
+        });
+
+        document.querySelectorAll('.r5-filter-button').forEach(button => {
+            const isActive = button.dataset.r5Filter === activeR5Filter;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', String(isActive));
+        });
+    }
+
+    function toggleR5Filter(filter) {
+        if (filter !== "good" && filter !== "bad") return;
+        activeR5Filter = activeR5Filter === filter ? null : filter;
+        applyR5Filter();
     }
 
     function captureBoardState() {
