@@ -121,6 +121,16 @@
         }
         /* ========================================================== */
 
+        .age-button {
+            margin: 5px auto 0 auto; width: 80%; height: 3vw; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+            font-family: 'Sarabun', sans-serif; font-size: 1.6vw; font-weight: 900;
+            padding: 0; line-height: 1; -webkit-appearance: none; appearance: none;
+            cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease;
+        }
+        .age-button:hover { transform: translateY(-3px) scale(1.04); z-index: 24; box-shadow: 0 8px 18px rgba(0,0,0,0.35); }
+        .age-button.is-selected { outline: 4px solid #3498db; outline-offset: 2px; box-shadow: 0 0 15px 5px rgba(52, 152, 219, 0.8); z-index: 25; }
+        .age-button.is-current:not(.is-selected) { outline: 2px dashed rgba(52, 152, 219, 0.9); outline-offset: 2px; }
         .custom-cell[data-row="8"] { margin-bottom: 0px; margin-top: 5px; width: 80%; height: 3vw; margin-left: auto; margin-right: auto; border-radius: 8px; } 
         .custom-cell[data-row="9"] { margin-top: -10px; margin-bottom: 5px; }    
 
@@ -158,7 +168,6 @@
 
 <div class="container">
     <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว</h2>
-    <p class="sub-title">ระบบคำนวณอายุ วิเคราะห์เกรดไพ่ 2 ฐาน พร้อม Timeline แจ้งเตือนจุดวิกฤต 84 ปี</p>
 
     <div class="input-section">
         <div class="input-grid">
@@ -252,8 +261,8 @@
             <div class="input-group">
                 <label>9. แสดง Timeline 84 ปี</label>
                 <select id="sel-timeline">
-                    <option value="1" selected>✅ เปิดแสดง</option>
-                    <option value="0">❌ ปิดการแสดงผล</option>
+                    <option value="1">✅ เปิดแสดง</option>
+                    <option value="0" selected>❌ ปิดการแสดงผล</option>
                 </select>
             </div>
         </div>
@@ -262,7 +271,7 @@
 
     <div id="save-area" class="save-controls">
         <button class="btn-save btn-save-image" onclick="saveAsImage()">💾 SAVE IMAGE</button>
-        <button class="btn-save btn-reset-row" onclick="clearCustomRows()">🧹 RESET แถวอายุ</button>
+        <button class="btn-save btn-reset-row" onclick="resetSelectedAge()">↩️ กลับสู่อายุปัจจุบัน</button>
         <button class="btn-save btn-db" onclick="saveToDatabase()">☁️ บันทึกประวัติลง Google Sheet</button>
     </div>
 
@@ -337,6 +346,7 @@
 
     let activeGraphHighlightCols = []; 
     let activeSevenCols = []; 
+    let currentBoardData = null;
 
     function generateSequence(startId, length, minId, maxId) {
         let seq = []; let curr = startId;
@@ -507,12 +517,16 @@
         buildBoardUI({
             DATE: [valDate.toString()], DAY: daySeq.map(String), MONTH: monthSeq.map(String), posMonth: posMonth,
             YEAR: yearSeq.map(String), posYear: posYear, GRAPH_BASE: graphBase.map(String), SEVEN_BASE: sevenBase.map(String),
-            AGE: age, AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode, TAKSA_MODE: taksaMode, TIMELINE_MODE: timelineMode
+            AGE: age, BASE_AGE: age, SELECTED_AGE: age,
+            AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode, TAKSA_MODE: taksaMode, TIMELINE_MODE: timelineMode
         });
     }
 
-    function buildBoardUI(data) {
+    function buildBoardUI(data, shouldScroll = true) {
         const board = document.getElementById('main-board');
+        currentBoardData = data;
+        const baseAge = data.BASE_AGE ?? data.AGE;
+        const selectedAge = data.SELECTED_AGE ?? baseAge;
         board.innerHTML = '';
         board.classList.remove('has-graph-highlight', 'has-seven-highlight');
         activeGraphHighlightCols = []; activeSevenCols = []; 
@@ -521,14 +535,14 @@
         const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
 
         let sriNum = 0; let kaleeNum = 0;
-        if (data.AGE > 0 && data.TAKSA_MODE === 1) {
+        if (selectedAge > 0 && data.TAKSA_MODE === 1) {
             const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    
             let startDayNum = parseInt(data.DAY[0]) % 100; 
             
             // 🛠️ แก้ไข: วันพฤหัสบดี (5) ให้เริ่มที่ตำแหน่ง 5 ตัวที่ 2 (index 6)
             let startIndex9 = (startDayNum === 5) ? path9.lastIndexOf(5) : path9.indexOf(startDayNum);
             
-            let boriwanNum = path9[(startIndex9 + data.AGE - 1) % 9];
+            let boriwanNum = path9[(startIndex9 + selectedAge - 1) % 9];
             
             let startIndex8 = path8.indexOf(boriwanNum);
             sriNum = path8[(startIndex8 + 3) % 8]; // ศรี = ตำแหน่งที่ 4 (+3 จากบริวาร)
@@ -539,10 +553,10 @@
         let targetBGridCol_Sys1 = -1; // คอลัมน์แถว 7 จากระบบ 21 ภพ
         let targetBGridCol_Sys2 = -1; // คอลัมน์แถว 7 จากระบบ 7 ฐาน
 
-        if (data.AGE > 0 && data.AGE_MODE > 0) {
+        if (selectedAge > 0 && data.AGE_MODE > 0) {
             
             // ระบบที่ 1: นับอายุแบบ 21 ภพ (สำหรับแถว 2, 3, 4)
-            let targetIdx21 = (data.AGE - 1) % 21; let targetACode = "";
+            let targetIdx21 = (selectedAge - 1) % 21; let targetACode = "";
             if (targetIdx21 < 7) { target21Title = ROW_2_TITLES[targetIdx21]; targetACode = data.DAY[targetIdx21]; } 
             else if (targetIdx21 < 14) { let posIdx = targetIdx21 - 7; target21Title = ROW_4_TITLES[posIdx]; targetACode = data.MONTH[data.posMonth[posIdx]]; } 
             else { let posIdx = targetIdx21 - 14; target21Title = ROW_6_TITLES[posIdx]; targetACode = data.YEAR[data.posYear[posIdx]]; }
@@ -555,7 +569,7 @@
             }
 
             // ระบบที่ 2: นับอายุแบบ 7 ฐาน (วนลูป 7 ปี เฉพาะแถวฐาน)
-            let targetIdx7 = (data.AGE - 1) % 7;
+            let targetIdx7 = (selectedAge - 1) % 7;
             targetBGridCol_Sys2 = posRow10[targetIdx7] + 2; 
         }
 
@@ -573,7 +587,7 @@
             if (title) { let dangerClass = badTitles.includes(title) ? " label-danger" : ""; titleHtml = `<span class="pos-label${dangerClass}">${title}</span>`; }
 
             let overlayHtml = ""; let isKalee = false;
-            if (data.AGE > 0 && data.TAKSA_MODE === 1) {
+            if (selectedAge > 0 && data.TAKSA_MODE === 1) {
                 let isSevenSystem = (gridRow >= 2 && gridRow <= 4 && title != null); let isSri = false;
                 if (sriNum >= 1 && sriNum <= 7) { isSri = isSevenSystem && (CARD_GROUPS[code] === sriNum); } else if (sriNum === 8) { isSri = (gridRow === 7 && code === "412"); }
                 if (kaleeNum >= 1 && kaleeNum <= 7) { isKalee = isSevenSystem && (CARD_GROUPS[code] === kaleeNum); } else if (kaleeNum === 8) { isKalee = (gridRow === 7 && code === "412"); }
@@ -589,7 +603,7 @@
                 }
             }
 
-            if (data.AGE > 0 && data.AGE_MODE > 0) {
+            if (selectedAge > 0 && data.AGE_MODE > 0) {
                 let isTargetA = ((gridRow === 2 || gridRow === 3 || gridRow === 4) && title === target21Title);
                 let isTargetB_Sys1 = (gridRow === 7 && gridCol === targetBGridCol_Sys1);
                 let isTargetB_Sys2 = (gridRow === 7 && gridCol === targetBGridCol_Sys2);
@@ -610,7 +624,7 @@
                         // ถ้าตกกาลีแต่ไม่ได้ตกภพเสีย ให้ตัวหนังสือเป็นสีขาวจะได้อ่านชัดๆ บนวงกลมแดง
                         if (isKalee) ageClass = "kalee-overlap"; 
                     }
-                    overlayHtml += `<div class="age-text-overlay ${ageClass}">${data.AGE}</div>`;
+                    overlayHtml += `<div class="age-text-overlay ${ageClass}">${selectedAge}</div>`;
                 }
             }
 
@@ -647,30 +661,35 @@
 
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
 
-        let startAgeCol = (data.AGE > 0) ? ((data.AGE - 1) % 12) : -1;
+        let startAgeCol = (baseAge > 0) ? ((baseAge - 1) % 12) : -1;
         for(let col = 2; col <= 13; col++) {
-            let idx = col - 2; let val = ""; let cellBg = "#293A4B"; let textColor = "transparent"; let borderStyle = "none"; let boxShadowStyle = "";
-            if (data.AGE > 0 && data.AGE_MODE > 0) {
+            let idx = col - 2; let val = ""; let cellBg = "#293A4B"; let textColor = "transparent"; let borderStyle = "none";
+            if (baseAge > 0 && data.AGE_MODE > 0) {
                 let diff = idx - startAgeCol; if (diff < 0) diff += 12; 
                 if (diff < data.AGE_MODE) {
-                    let displayAge = data.AGE + diff; val = displayAge;
+                    let displayAge = baseAge + diff; val = displayAge;
                     let graphIdx = idx; let sevenIdx = (displayAge - 1) % 7; 
                     let graphCode = data.GRAPH_BASE[graphIdx]; let sevenCode = data.SEVEN_BASE[sevenIdx]; let cardTitle = ROW_8_TITLES[graphIdx];
                     let graphStatus = getCardBaseStatus(graphCode); let sevenStatus = getCardBaseStatus(sevenCode);
                     let matrixStyles = getAgeMatrixStyles(graphStatus, sevenStatus);
                     cellBg = matrixStyles.bg; textColor = matrixStyles.text; borderStyle = matrixStyles.border;
                     if (cardTitle === "ศัตรู" || cardTitle === "โรคภัย") textColor = "#000000";
-                    if (idx === startAgeCol) boxShadowStyle = "0 0 15px 5px rgba(52, 152, 219, 0.8)";
                 }
             }
-            board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:${cellBg}; border:${borderStyle}; box-shadow:${boxShadowStyle};"><input type="text" class="manual-input" value="${val}" style="color:${textColor};" onchange="this.style.color='#000'"></div>`;
+            if (val !== "") {
+                let selectedClass = val === selectedAge ? " is-selected" : "";
+                let currentClass = val === baseAge ? " is-current" : "";
+                board.innerHTML += `<button type="button" class="age-button dim-target-graph dim-target-seven${selectedClass}${currentClass}" data-row="8" data-col="${col}" data-age="${val}" aria-pressed="${val === selectedAge}" onclick="selectPredictionAge(${val})" title="เลือกดูคำพยากรณ์อายุ ${val} ปี" style="grid-area: 8/${col}; background:${cellBg}; color:${textColor}; border:${borderStyle};">${val}</button>`;
+            } else {
+                board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:#293A4B; border:none;"></div>`;
+            }
         }
 
         for(let col = 2; col <= 13; col++) {
             let idx = col - 2; let yearCardCode = data.YEAR[idx]; let zodiacText = ZODIAC_MAP[yearCardCode] || ""; let showZodiac = false;
             if (data.ZODIAC_MODE > 0) {
                 if (data.ZODIAC_MODE === 12) showZodiac = true;
-                else if (data.AGE > 0) {
+                else if (baseAge > 0) {
                     let diff = idx - startAgeCol; if (diff < 0) diff += 12;
                     if (diff >= 1 && diff <= data.ZODIAC_MODE) showZodiac = true;
                 }
@@ -715,7 +734,41 @@
 
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('save-area').style.display = 'flex';
-        document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
+        if (shouldScroll) document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function captureBoardState() {
+        return {
+            clientValues: ['db-name', 'db-dob', 'db-note'].map(id => document.getElementById(id)?.value || ''),
+            dropdownValues: Array.from(document.querySelectorAll('.number-dropdown')).map(el => el.value)
+        };
+    }
+
+    function restoreBoardState(state) {
+        ['db-name', 'db-dob', 'db-note'].forEach((id, index) => {
+            const input = document.getElementById(id);
+            if (input) input.value = state.clientValues[index] || '';
+        });
+        document.querySelectorAll('.number-dropdown').forEach((select, index) => {
+            if (state.dropdownValues[index] !== undefined) {
+                select.value = state.dropdownValues[index];
+                updateDropdown(select);
+            }
+        });
+    }
+
+    function selectPredictionAge(age) {
+        if (!currentBoardData || !Number.isInteger(age) || age <= 0) return;
+        const preservedState = captureBoardState();
+        currentBoardData = { ...currentBoardData, SELECTED_AGE: age };
+        buildBoardUI(currentBoardData, false);
+        restoreBoardState(preservedState);
+    }
+
+    function resetSelectedAge() {
+        if (!currentBoardData) return;
+        const baseAge = currentBoardData.BASE_AGE ?? currentBoardData.AGE;
+        selectPredictionAge(baseAge);
     }
 
     function toggleGraphHighlight(col) {
@@ -769,7 +822,6 @@
     }
 
     function updateDropdown(sel) { let val = sel.value; let p = sel.parentElement; if (val) { p.style.backgroundColor = NUMBER_COLORS[val].bg; sel.style.color = NUMBER_COLORS[val].color; } else { p.style.backgroundColor = "#293A4B"; sel.style.color = "transparent"; } }
-    function clearCustomRows() { document.querySelectorAll('.custom-cell input').forEach(i => i.value = ""); }
 
     function saveAsImage() {
         const target = document.getElementById('export-area');
