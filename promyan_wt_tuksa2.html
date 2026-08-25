@@ -177,6 +177,7 @@
         .node-dot { width: 8px; height: 8px; background: #7f8c8d; border-radius: 50%; }
         .dot-alert { width: 16px; height: 16px; background: #e74c3c; border-radius: 50%; box-shadow: 0 0 8px rgba(231,76,60,0.6); }
         .circle-1 { position: absolute; width: 24px; height: 24px; border: 2px solid #e74c3c; border-radius: 50%; z-index: 2;}
+        .circle-2 { position: absolute; width: 34px; height: 34px; border: 2px solid #c0392b; border-radius: 50%; z-index: 1;}
         .node-age { position: absolute; top: -45px; font-weight: 800; font-family: 'Sarabun', sans-serif; color: #c0392b; font-size: 1.2vw; text-shadow: 1px 1px 4px white; z-index: 20; }
     </style>
 </head>
@@ -469,6 +470,19 @@
         });
         bad21HouseGroups.delete(undefined);
 
+        // กลุ่มดาวที่วางอยู่ในตำแหน่งวาสนาและตัวเราของระบบ 21 ภพ
+        const core21HouseGroups = new Set();
+        ROW_2_TITLES.forEach((title, index) => {
+            if (title === "วาสนา" || title === "ตัวเรา") core21HouseGroups.add(CARD_GROUPS[data.DAY[index]]);
+        });
+        ROW_4_TITLES.forEach((title, index) => {
+            if (title === "วาสนา" || title === "ตัวเรา") core21HouseGroups.add(CARD_GROUPS[data.MONTH[data.posMonth[index]]]);
+        });
+        ROW_6_TITLES.forEach((title, index) => {
+            if (title === "วาสนา" || title === "ตัวเรา") core21HouseGroups.add(CARD_GROUPS[data.YEAR[data.posYear[index]]]);
+        });
+        core21HouseGroups.delete(undefined);
+
         for(let age = 1; age <= 84; age++) {
             let graphIdx = (age - 1) % 12;
             let graphStatus = getCardBaseStatus(data.GRAPH_BASE[graphIdx]);
@@ -496,9 +510,13 @@
             let kaleeAt21HouseAge = age21Group === kaleeNum;
             let kaleeAtRahuCard = kaleeNum === 8 && hasRahuCard;
             let hasLevel2KaleeCondition = kaleeAtBad21HousePosition || kaleeAt21HouseAge || kaleeAtRahuCard;
+            let kaleeAtCore21HousePosition = core21HouseGroups.has(kaleeNum);
 
             // ระดับ 2: ผ่านระดับ 1 + (อายุตกตำแหน่งเสียใน 21 ภพ หรือกาลีเข้าอย่างน้อย 1 เงื่อนไข)
-            let level = (ageAtBad21HousePosition || hasLevel2KaleeCondition) ? 2 : 1;
+            let meetsLevel2 = ageAtBad21HousePosition || hasLevel2KaleeCondition;
+            let level = 1;
+            // ระดับ 3: ผ่านระดับ 2 และกาลีตรงตำแหน่งวาสนาหรือตัวเราในระบบ 21 ภพ
+            if (meetsLevel2) level = kaleeAtCore21HousePosition ? 3 : 2;
             alerts.push({ age: age, level: level });
         }
         return alerts;
@@ -756,6 +774,7 @@
                 } else {
                     let ringsHtml = "";
                     if (alertObj.level >= 2) ringsHtml += `<div class="circle-1"></div>`;
+                    if (alertObj.level === 3) ringsHtml += `<div class="circle-2"></div>`;
                     timelineNodesHtml += `
                         <div class="timeline-node">
                             <div class="node-age">${i}</div>
