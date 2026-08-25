@@ -177,7 +177,6 @@
         .node-dot { width: 8px; height: 8px; background: #7f8c8d; border-radius: 50%; }
         .dot-alert { width: 16px; height: 16px; background: #e74c3c; border-radius: 50%; box-shadow: 0 0 8px rgba(231,76,60,0.6); }
         .circle-1 { position: absolute; width: 24px; height: 24px; border: 2px solid #e74c3c; border-radius: 50%; z-index: 2;}
-        .circle-2 { position: absolute; width: 34px; height: 34px; border: 2px solid #c0392b; border-radius: 50%; z-index: 1;}
         .node-age { position: absolute; top: -45px; font-weight: 800; font-family: 'Sarabun', sans-serif; color: #c0392b; font-size: 1.2vw; text-shadow: 1px 1px 4px white; z-index: 20; }
     </style>
 </head>
@@ -435,7 +434,8 @@
 
     function scan84YearsTimeline(data) {
         let alerts = [];
-        let has412 = data.SEVEN_BASE.includes("412");
+        const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
+        const hasRahuCard = data.SEVEN_BASE.some(code => code === "408" || code === "412");
         let path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; 
         let path8 = [1, 2, 3, 4, 7, 5, 8, 6];
         let startDayNum = parseInt(data.DAY[0]) % 100;
@@ -443,38 +443,60 @@
         // 🛠️ แก้ไข: วันพฤหัสบดี (5) ให้เริ่มที่ตำแหน่ง 5 ตัวที่ 2 (index 6)
         let startIndex9 = (startDayNum === 5) ? path9.lastIndexOf(5) : path9.indexOf(startDayNum);
 
+        const get21HousePoint = (age) => {
+            let targetIdx21 = (age - 1) % 21;
+            if (targetIdx21 < 7) {
+                return { title: ROW_2_TITLES[targetIdx21], code: data.DAY[targetIdx21] };
+            }
+            if (targetIdx21 < 14) {
+                let posIdx = targetIdx21 - 7;
+                return { title: ROW_4_TITLES[posIdx], code: data.MONTH[data.posMonth[posIdx]] };
+            }
+            let posIdx = targetIdx21 - 14;
+            return { title: ROW_6_TITLES[posIdx], code: data.YEAR[data.posYear[posIdx]] };
+        };
+
+        // กลุ่มดาวที่วางอยู่ใน 4 ตำแหน่งเสียของระบบ 21 ภพ
+        const bad21HouseGroups = new Set();
+        ROW_2_TITLES.forEach((title, index) => {
+            if (badTitles.includes(title)) bad21HouseGroups.add(CARD_GROUPS[data.DAY[index]]);
+        });
+        ROW_4_TITLES.forEach((title, index) => {
+            if (badTitles.includes(title)) bad21HouseGroups.add(CARD_GROUPS[data.MONTH[data.posMonth[index]]]);
+        });
+        ROW_6_TITLES.forEach((title, index) => {
+            if (badTitles.includes(title)) bad21HouseGroups.add(CARD_GROUPS[data.YEAR[data.posYear[index]]]);
+        });
+        bad21HouseGroups.delete(undefined);
+
         for(let age = 1; age <= 84; age++) {
             let graphIdx = (age - 1) % 12;
             let graphStatus = getCardBaseStatus(data.GRAPH_BASE[graphIdx]);
-            let graphTitle = ROW_8_TITLES[graphIdx];
-            let cond2_1 = (graphStatus === "B" || graphStatus === "VB" || graphTitle === "ศัตรู" || graphTitle === "โรคภัย");
+            let graphIsBad = (graphStatus === "B" || graphStatus === "VB");
 
             let sevenIdx = (age - 1) % 7;
             let sevenStatus = getCardBaseStatus(data.SEVEN_BASE[sevenIdx]);
-            let cond2_2 = (sevenStatus === "B" || sevenStatus === "VB");
+            let sevenIsBad = (sevenStatus === "B" || sevenStatus === "VB");
 
-            if (cond2_1 && cond2_2) {
-                let targetIdx21 = (age - 1) % 21;
-                let title21 = "";
-                if (targetIdx21 < 7) title21 = ROW_2_TITLES[targetIdx21];
-                else if (targetIdx21 < 14) title21 = ROW_4_TITLES[targetIdx21 - 7];
-                else title21 = ROW_6_TITLES[targetIdx21 - 14];
-                let cond2_3 = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"].includes(title21);
+            // ระดับ 1: ไพ่กราฟชีวิตและไพ่เลขเจ็ดตัวต้องเป็นร้าย/ร้ายมากพร้อมกัน
+            if (!graphIsBad || !sevenIsBad) continue;
 
-                let cond2_4 = false;
-                if (has412) {
-                    let boriwanNum = path9[(startIndex9 + age - 1) % 9];
-                    let startIndex8 = path8.indexOf(boriwanNum);
-                    let kaleeNum = path8[(startIndex8 + 7) % 8];
-                    if (kaleeNum === 8) cond2_4 = true; 
-                }
+            let point21 = get21HousePoint(age);
+            let ageAtBad21HousePosition = badTitles.includes(point21.title);
+            let age21Group = CARD_GROUPS[point21.code];
 
-                let level = 1; 
-                if (cond2_3 && cond2_4) level = 3; 
-                else if (cond2_3 || cond2_4) level = 2; 
+            let boriwanNum = path9[(startIndex9 + age - 1) % 9];
+            let startIndex8 = path8.indexOf(boriwanNum);
+            let kaleeNum = path8[(startIndex8 + 7) % 8];
 
-                alerts.push({ age: age, level: level });
-            }
+            let kaleeAtBad21HousePosition = bad21HouseGroups.has(kaleeNum);
+            let kaleeAt21HouseAge = age21Group === kaleeNum;
+            let kaleeAtRahuCard = kaleeNum === 8 && hasRahuCard;
+            let hasLevel2KaleeCondition = kaleeAtBad21HousePosition || kaleeAt21HouseAge || kaleeAtRahuCard;
+
+            // ระดับ 2: ผ่านระดับ 1 + อายุตกตำแหน่งเสียใน 21 ภพ + กาลีเข้าอย่างน้อย 1 เงื่อนไข
+            let level = (ageAtBad21HousePosition && hasLevel2KaleeCondition) ? 2 : 1;
+            alerts.push({ age: age, level: level });
         }
         return alerts;
     }
@@ -731,7 +753,6 @@
                 } else {
                     let ringsHtml = "";
                     if (alertObj.level >= 2) ringsHtml += `<div class="circle-1"></div>`;
-                    if (alertObj.level === 3) ringsHtml += `<div class="circle-2"></div>`;
                     timelineNodesHtml += `
                         <div class="timeline-node">
                             <div class="node-age">${i}</div>
