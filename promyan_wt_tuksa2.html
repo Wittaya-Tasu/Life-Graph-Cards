@@ -473,13 +473,16 @@
             let graphIdx = (age - 1) % 12;
             let graphStatus = getCardBaseStatus(data.GRAPH_BASE[graphIdx]);
             let graphIsBad = (graphStatus === "B" || graphStatus === "VB");
+            let graphTitle = ROW_8_TITLES[graphIdx];
+            let graphAtDangerPosition = (graphTitle === "ศัตรู" || graphTitle === "โรคภัย");
+            let graphMeetsLevel1 = graphIsBad || graphAtDangerPosition;
 
             let sevenIdx = (age - 1) % 7;
             let sevenStatus = getCardBaseStatus(data.SEVEN_BASE[sevenIdx]);
             let sevenIsBad = (sevenStatus === "B" || sevenStatus === "VB");
 
-            // ระดับ 1: ไพ่กราฟชีวิตและไพ่เลขเจ็ดตัวต้องเป็นร้าย/ร้ายมากพร้อมกัน
-            if (!graphIsBad || !sevenIsBad) continue;
+            // ระดับ 1: R5 เป็นไพ่ร้าย/ร้ายมากหรือตกศัตรู/โรคภัย และ R7 เป็นไพ่ร้าย/ร้ายมาก
+            if (!graphMeetsLevel1 || !sevenIsBad) continue;
 
             let point21 = get21HousePoint(age);
             let ageAtBad21HousePosition = badTitles.includes(point21.title);
@@ -494,8 +497,8 @@
             let kaleeAtRahuCard = kaleeNum === 8 && hasRahuCard;
             let hasLevel2KaleeCondition = kaleeAtBad21HousePosition || kaleeAt21HouseAge || kaleeAtRahuCard;
 
-            // ระดับ 2: ผ่านระดับ 1 + อายุตกตำแหน่งเสียใน 21 ภพ + กาลีเข้าอย่างน้อย 1 เงื่อนไข
-            let level = (ageAtBad21HousePosition && hasLevel2KaleeCondition) ? 2 : 1;
+            // ระดับ 2: ผ่านระดับ 1 + (อายุตกตำแหน่งเสียใน 21 ภพ หรือกาลีเข้าอย่างน้อย 1 เงื่อนไข)
+            let level = (ageAtBad21HousePosition || hasLevel2KaleeCondition) ? 2 : 1;
             alerts.push({ age: age, level: level });
         }
         return alerts;
