@@ -757,8 +757,8 @@
         data.MONTH.forEach((c, i) => { let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i); addCard(c, 3, i + 2, idx!==-1?ROW_4_TITLES[idx]:null); });
         data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
         board.innerHTML += `<div class="board-mode-controls" style="grid-area: 4/14;" aria-label="รูปแบบการเน้นไพ่กราฟชีวิต">
-            <button type="button" class="board-control-button graph-mode-button vertical" data-graph-mode="vertical" aria-label="แสดงไพ่กราฟชีวิตแบบแนวดิ่ง" aria-pressed="true" title="แนวดิ่ง" onclick="setGraphHighlightMode('vertical')">↕</button>
-            <button type="button" class="board-control-button graph-mode-button diagonal" data-graph-mode="diagonal" aria-label="แสดงไพ่กราฟชีวิตแบบแนวทแยง" aria-pressed="false" title="แนวทแยง" onclick="setGraphHighlightMode('diagonal')">⟋</button>
+            <button type="button" class="board-control-button graph-mode-button vertical" data-graph-mode="vertical" aria-label="แสดงไพ่กราฟชีวิตแบบแนวดิ่ง" aria-pressed="true" title="แนวดิ่ง" onclick="setGraphHighlightMode('vertical')"></button>
+            <button type="button" class="board-control-button graph-mode-button diagonal" data-graph-mode="diagonal" aria-label="แสดงไพ่กราฟชีวิตแบบแนวทแยง" aria-pressed="false" title="แนวทแยง" onclick="setGraphHighlightMode('diagonal')"></button>
         </div>`;
         board.innerHTML += `<div class="r5-filter-controls" style="grid-area: 5/1;" aria-label="ตัวกรองสถานะไพ่แถวกราฟชีวิต">
             <button type="button" class="r5-filter-button good" data-r5-filter="good" aria-label="แสดงไพ่ดีและดีมาก" aria-pressed="false" title="แสดงไพ่ดีและดีมาก" onclick="toggleR5Filter('good')"></button>
@@ -917,13 +917,13 @@
         selectPredictionAge(baseAge);
     }
 
-    function updateTwoPositionSelection(selection, value) {
+    function updatePositionSelection(selection, value, maxPositions) {
         const idx = selection.indexOf(value);
         if (idx > -1) {
             selection.splice(idx, 1);
             return;
         }
-        if (selection.length >= 2) selection.shift();
+        if (selection.length >= maxPositions) selection.shift();
         selection.push(value);
     }
 
@@ -997,6 +997,9 @@
     function setGraphHighlightMode(mode) {
         if (mode !== 'vertical' && mode !== 'diagonal') return;
         graphHighlightMode = mode;
+        if (graphHighlightMode === 'diagonal' && activeGraphHighlightCols.length > 2) {
+            activeGraphHighlightCols = activeGraphHighlightCols.slice(-2);
+        }
         applyGraphModeControls();
         applyGraphHighlights();
     }
@@ -1004,7 +1007,8 @@
     function toggleGraphHighlight(col) {
         clearSevenHighlight();
         const colStr = String(col);
-        updateTwoPositionSelection(activeGraphHighlightCols, colStr);
+        const maxGraphPositions = graphHighlightMode === 'vertical' ? 3 : 2;
+        updatePositionSelection(activeGraphHighlightCols, colStr, maxGraphPositions);
         sevenLabelsVisible = false;
         applySevenLabelVisibility();
         applyGraphHighlights();
@@ -1017,7 +1021,7 @@
         applySevenLabelVisibility();
 
         const colStr = String(col);
-        updateTwoPositionSelection(activeSevenCols, colStr);
+        updatePositionSelection(activeSevenCols, colStr, 2);
 
         if (activeSevenCols.length === 0) {
             board.classList.remove('has-seven-highlight');
