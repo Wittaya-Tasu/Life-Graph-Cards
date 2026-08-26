@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>.กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว (หมอวิทยา ธรรมนาย)</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        /* ========================================================================== */
+        /* =================== ส่วนที่ 1: CSS (การตกแต่งและดีไซน์) ==================== */
+        /* ========================================================================== */
+        
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Kanit:wght@500;600;700&display=swap');
+
+        body { font-family: 'Sarabun', sans-serif; background: #fdfdfd; margin: 0; padding: 10px; text-align: center; }
+        .container { width: 98%; max-width: 100%; margin: 0 auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); box-sizing: border-box;}
+        h2 { color: #8e44ad; font-family: 'Kanit', sans-serif; margin-bottom: 5px; font-size: 2.5em; font-weight: 700;}
+        .sub-title { color: #7f8c8d; margin-bottom: 25px; font-size: 1.2em; }
+
+        .input-section { background: #f8f9fa; padding: 25px; border-radius: 15px; border: 2px dashed #bdc3c7; margin-bottom: 25px; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 15px; text-align: left;}
+        .input-group { display: flex; flex-direction: column; gap: 6px;}
+        .input-group label { font-family: 'Kanit', sans-serif; font-size: 0.95em; color: #2c3e50; font-weight: 600; }
+        .input-group select, .input-group input { padding: 10px; font-size: 1.05em; border-radius: 8px; border: 1px solid #bdc3c7; font-family: 'Sarabun', sans-serif; outline: none; transition: 0.3s;}
+        .input-group select:focus, .input-group input:focus { border-color: #8e44ad; box-shadow: 0 0 8px rgba(142, 68, 173, 0.3); }
+
+        .btn-calc { background: #2980b9; color: white; padding: 15px; font-size: 1.4em; border: none; border-radius: 10px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 700; width: 100%; transition: 0.3s; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3);}
+        .btn-calc:hover { background: #1f618d; transform: translateY(-2px); }
+        .save-controls { display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; display: none; flex-wrap: wrap;}
+        .btn-save { padding: 12px 30px; font-size: 1.1em; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; transition: 0.3s; color: white; flex: 1; min-width: 200px; max-width: 250px;}
+        .btn-save-image { background: #27ae60; } .btn-save-image:hover { background: #2ecc71; transform: translateY(-1px); }
+        .btn-reset-row { background: #e74c3c; } .btn-reset-row:hover { background: #c0392b; transform: translateY(-1px); }
+        .btn-db { background: #8e44ad; } .btn-db:hover { background: #732d91; transform: translateY(-1px); }
+
+        .export-container { background: #293A4B; padding: 25px; border-radius: 15px; width: 100%; box-sizing: border-box; position: relative; margin: 0 auto;}
+        .board-wrapper { width: 100%; text-align: center; display: none; }
+        
+        .grid-board { 
+            display: grid; 
+            grid-template-columns: repeat(14, 1fr); 
+            row-gap: 15px;      
+            column-gap: 30px;   
+            width: 100%;
+        }
+
+        .card-item { border-radius: 8px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative;}
+        .card-item img { width: 100%; height: auto; border-radius: 5px; display: block; background: #fff;}
+        
+        .pos-label { display: block; font-weight: 700; font-size: 1.0vw; margin-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; font-family: 'Sarabun', sans-serif; line-height: 1.2;}
+
+        .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
+        .card-default .pos-label.label-danger, .card-good .pos-label.label-danger, .card-neutral-status .pos-label.label-danger { color: #d32f2f !important; }
+        .card-very-good .pos-label, .card-bad .pos-label, .card-very-bad .pos-label, .card-dark-gray .pos-label, .card-black .pos-label, .card-red .pos-label, .card-gold-zone .pos-label { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.3) !important; }
+
+        .card-default { background-color: #f2f4f4 !important; }
+        .card-very-good { background-color: #0047AB !important; }
+        .card-good { background-color: #bbdefb !important; }
+        .card-neutral-status { background-color: #ffffff !important; }
+        .card-bad { background-color: #212121 !important; }
+        .card-very-bad { background-color: #b71c1c !important; }
+        .card-dark-gray { background-color: #424949 !important; }
+        .card-black { background-color: #17202a !important; }
+        .card-red { background-color: #cb4335 !important; }
+        .card-gold-zone { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; box-shadow: 0 4px 15px rgba(170, 119, 28, 0.5); }
+
+        .r5-filter-controls {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: clamp(10px, 1.2vw, 18px); align-self: stretch;
+        }
+        .r5-filter-button {
+            width: clamp(24px, 2.4vw, 36px); height: clamp(24px, 2.4vw, 36px);
+            padding: 0; border: 1.5px solid #ffffff; border-radius: 50%;
+            cursor: pointer; -webkit-appearance: none; appearance: none;
+            box-shadow: 0 2px 7px rgba(0,0,0,0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease;
+        }
+        .r5-filter-button.good { background-color: #bbdefb; }
+        .r5-filter-button.bad { background-color: #b71c1c; }
+        .r5-filter-button:hover { transform: scale(1.12); box-shadow: 0 4px 12px rgba(255,255,255,0.35); }
+        .r5-filter-button.is-active { outline: 2px solid #ffffff; outline-offset: 3px; transform: scale(1.08); box-shadow: 0 0 14px rgba(255,255,255,0.75); }
+        .card-item.r5-filter-dimmed { opacity: 0.14 !important; filter: grayscale(85%) !important; }
+
+        .board-mode-controls, .seven-label-controls {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: clamp(10px, 1.2vw, 18px); align-self: stretch;
+        }
+        .board-control-button {
+            width: clamp(24px, 2.4vw, 36px); height: clamp(24px, 2.4vw, 36px);
+            padding: 0; border: 1.5px solid #ffffff; border-radius: 50%;
+            cursor: pointer; -webkit-appearance: none; appearance: none;
+            display: flex; align-items: center; justify-content: center;
+            background-color: #566573; color: #ffffff;
+            font-family: 'Sarabun', sans-serif; font-size: clamp(13px, 1.3vw, 20px); font-weight: 800;
+            line-height: 1; box-shadow: 0 2px 7px rgba(0,0,0,0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease, opacity 0.2s ease;
+        }
+        .board-control-button:hover { transform: scale(1.12); box-shadow: 0 4px 12px rgba(255,255,255,0.35); }
+        .board-control-button.is-active { outline: 2px solid #ffffff; outline-offset: 3px; transform: scale(1.08); box-shadow: 0 0 14px rgba(255,255,255,0.75); }
+        .graph-mode-button.vertical { background-color: #2471a3; }
+        .graph-mode-button.diagonal { background-color: #8e44ad; }
+        .seven-label-toggle { background-color: #117864; }
+        .seven-label-toggle:not(.is-active) { background-color: #566573; opacity: 0.65; }
+        .grid-board.hide-seven-labels .seven-position-label { display: none !important; }
+
+        .teacher-watermark { font-size: 1.1vw; color: #f1c40f; font-family: 'Sarabun', sans-serif; font-weight: bold; text-align: right; margin-top: -5px; }
+        .teacher-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; color: rgba(255, 255, 255, 0.85); font-size: 1.5vw; font-weight: 700; font-family: 'Sarabun', sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); z-index: 10; pointer-events: none;}
+
+        .client-info-container { display: flex; align-items: stretch; width: 100%; }
+        .client-info-box { 
+            width: 100%; background-color: transparent; border: none; color: #ffffff; 
+            font-family: 'Sarabun', sans-serif; font-size: 1.4vw; font-weight: bold; line-height: 1.5; resize: none; outline: none; 
+        }
+        .client-info-box::placeholder { color: rgba(255,255,255,0.6); }
+
+        .dropdown-cell { background-color: #293A4B; border-radius: 50%; margin: 3px auto; display: flex; align-items: center; justify-content: center; height: 3vw; width: 3vw; box-sizing: border-box; }
+        .number-dropdown { background: transparent; border: none; outline: none; cursor: pointer; font-family: 'Sarabun', sans-serif; font-weight: 700; font-size: 1.4vw; width: 100%; text-align: center; text-align-last: center; -webkit-appearance: none; appearance: none; }
+
+        .custom-cell { background-color: #293A4B; border-radius: 8px; display: flex; align-items: center; justify-content: center; height: 3.5vw; box-sizing: border-box; transition: 0.3s;}
+        
+        .age-text-overlay { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); 
+            font-family: 'Sarabun', sans-serif; font-weight: 800; z-index: 8; pointer-events: none; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 2.0vw; width: 3.5vw; height: 3.5vw;    
+        }
+        .age-text-overlay.default { color: rgba(0, 0, 0, 0.65); text-shadow: 2px 2px 4px rgba(255,255,255,0.7), -1px -1px 2px rgba(255,255,255,0.7); }
+        .age-text-overlay.danger { color: #d32f2f; text-shadow: 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8); }
+        .age-text-overlay.danger-circle { border: 4px solid #d32f2f; border-radius: 50%; background-color: rgba(255,255,255,0.25); box-shadow: 0 0 10px rgba(211, 47, 47, 0.4); }
+        .age-text-overlay.kalee-overlap { color: #ffffff; text-shadow: 2px 2px 6px rgba(0,0,0,0.9); }
+
+        /* ========================================================== */
+        /* 🛠️ แก้ไขสัญลักษณ์ ทักษาจร (เปลี่ยนกาลีเป็นระบบ CSS) */
+        /* ========================================================== */
+        .sri-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 40%; aspect-ratio: 1 / 1; background-color: rgba(46, 204, 113, 0.6); z-index: 5; pointer-events: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); }
+        
+        .kalee-wrapper { 
+            position: absolute; top: 70%; left: 50%; transform: translate(-50%, -40%); 
+            width: 0; height: 0; 
+            border-left: 1.2vw solid transparent; 
+            border-right: 1.2vw solid transparent; 
+            border-bottom: 2.5vw solid rgba(231, 76, 60, 0.75); 
+            z-index: 5; pointer-events: none; 
+        }
+        .kalee-danger-circle { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); 
+            width: 55%; aspect-ratio: 1 / 1; 
+            border: 4px solid rgba(192, 57, 43, 0.9); border-radius: 50%; 
+            z-index: 6; pointer-events: none; 
+            display: flex; align-items: center; justify-content: center; 
+            background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); 
+        }
+        .kalee-danger-circle .kalee-wrapper {
+            position: static; transform: none; 
+            border-left: 1.1vw solid transparent; 
+            border-right: 1.1vw solid transparent; 
+            border-bottom: 2.1vw solid rgba(231, 76, 60, 0.75); 
+            margin-top: 15%; 
+        }
+        /* ========================================================== */
+
+        .age-button {
+            margin: 5px auto 0 auto; width: 80%; height: 3vw; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+            font-family: 'Sarabun', sans-serif; font-size: 1.6vw; font-weight: 900;
+            padding: 0; line-height: 1; -webkit-appearance: none; appearance: none;
+            cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease;
+        }
+        .age-button:hover { transform: translateY(-3px) scale(1.04); z-index: 24; box-shadow: 0 8px 18px rgba(0,0,0,0.35); }
+        .age-button.is-selected { outline: 4px solid #3498db; outline-offset: 2px; box-shadow: 0 0 15px 5px rgba(52, 152, 219, 0.8); z-index: 25; }
+        .age-button.is-current:not(.is-selected) { outline: 2px dashed rgba(52, 152, 219, 0.9); outline-offset: 2px; }
+        .custom-cell[data-row="8"] { margin-bottom: 0px; margin-top: 5px; width: 80%; height: 3vw; margin-left: auto; margin-right: auto; border-radius: 8px; } 
+        .custom-cell[data-row="9"] { margin-top: -10px; margin-bottom: 5px; }    
+
+        .timeline-area-wrapper { grid-area: 10 / 2 / span 1 / span 12; margin-top: 0px; margin-bottom: 10px; }
+
+        .manual-input { background: transparent; color: #293A4B; font-weight: 900; font-size: 1.6vw; border: none; outline: none; font-family: 'Sarabun', sans-serif; width: 100%; text-align: center; }
+
+        .dim-target-graph { transition: all 0.4s ease; position: relative; }
+        .grid-board.has-graph-highlight .dim-target-graph { opacity: 0.2; filter: grayscale(70%); }
+        .grid-board.has-graph-highlight .dim-target-graph.highlighted { opacity: 1; filter: none; transform: scale(1.05); z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .click-to-highlight-graph { cursor: pointer; }
+        .click-to-highlight-graph:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 10;}
+        .grid-board.has-graph-highlight .dim-target-graph.click-to-highlight-graph { pointer-events: auto; }
+
+        .dim-target-seven { transition: all 0.4s ease; position: relative; }
+        .grid-board.has-seven-highlight .dim-target-seven { opacity: 0.2; filter: grayscale(70%); }
+        .grid-board.has-seven-highlight .dim-target-seven.highlighted { opacity: 1; filter: none; transform: scale(1.05); z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,0.6); border-color: #f1c40f !important; }
+        .click-to-highlight-seven { cursor: pointer; }
+        .click-to-highlight-seven:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(241, 196, 15, 0.4); z-index: 10;}
+        .grid-board.has-seven-highlight .dim-target-seven.click-to-highlight-seven { pointer-events: auto; }
+
+        .timeline-container { background: #fdfdfd; border-radius: 10px; border: 2px solid #bdc3c7; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); overflow: hidden;}
+        .timeline-wrapper { width: 100%; padding: 50px 15px 30px 15px; box-sizing: border-box; }
+        .timeline-track { display: flex; align-items: center; position: relative; width: 100%; height: 40px; justify-content: space-between; }
+        .timeline-line { position: absolute; top: 50%; left: 0; right: 0; height: 3px; background: #bdc3c7; transform: translateY(-50%); z-index: 1; }
+        .timeline-node { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 10px; z-index: 5;}
+        .node-dot { width: 8px; height: 8px; background: #7f8c8d; border-radius: 50%; }
+        .dot-alert { width: 16px; height: 16px; background: #e74c3c; border-radius: 50%; box-shadow: 0 0 8px rgba(231,76,60,0.6); }
+        .circle-1 { position: absolute; width: 24px; height: 24px; border: 2px solid #e74c3c; border-radius: 50%; z-index: 2;}
+        .circle-2 { position: absolute; width: 34px; height: 34px; border: 2px solid #c0392b; border-radius: 50%; z-index: 1;}
+        .node-age { position: absolute; top: -45px; font-weight: 800; font-family: 'Sarabun', sans-serif; color: #c0392b; font-size: 1.2vw; text-shadow: 1px 1px 4px white; z-index: 20; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว</h2>
+
+    <div class="input-section">
+        <div class="input-grid">
+            <div class="input-group">
+                <label>1. วันที่เกิด (1-31)</label>
+                <select id="sel-date">
+                    <option value="" disabled selected>-- เลือกวันที่ --</option>
+                    <script>for(let i=1; i<=31; i++) document.write(`<option value="${400+i}">วันที่ ${i}</option>`);</script>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>2. วันเกิด (อาทิตย์-เสาร์)</label>
+                <select id="sel-day">
+                    <option value="" disabled selected>-- เลือกวัน --</option>
+                    <option value="101">วันอาทิตย์ (1)</option>
+                    <option value="102">วันจันทร์ (2)</option>
+                    <option value="103">วันอังคาร (3)</option>
+                    <option value="104">วันพุธ (4)</option>
+                    <option value="105">วันพฤหัสบดี (5)</option>
+                    <option value="106">วันศุกร์ (6)</option>
+                    <option value="107">วันเสาร์ (7)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>3. เดือนเกิด (1-12)</label>
+                <select id="sel-month">
+                    <option value="" disabled selected>-- เลือกเดือน --</option>
+                    <option value="201">เดือน 1 (อ้าย) / ธันวาคม</option>
+                    <option value="202">เดือน 2 (ยี่) / มกราคม</option>
+                    <option value="203">เดือน 3 / กุมภาพันธ์</option>
+                    <option value="204">เดือน 4 / มีนาคม</option>
+                    <option value="205">เดือน 5 / เมษายน</option>
+                    <option value="206">เดือน 6 / พฤษภาคม</option>
+                    <option value="207">เดือน 7 / มิถุนายน</option>
+                    <option value="208">เดือน 8 / กรกฎาคม</option>
+                    <option value="209">เดือน 9 / สิงหาคม</option>
+                    <option value="210">เดือน 10 / กันยายน</option>
+                    <option value="211">เดือน 11 / ตุลาคม</option>
+                    <option value="212">เดือน 12 / พฤศจิกายน</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>4. ปีนักษัตร (1-12)</label>
+                <select id="sel-year">
+                    <option value="" disabled selected>-- เลือกปีนักษัตร --</option>
+                    <option value="301">ปี 1 / ชวด</option>
+                    <option value="302">ปี 2 / ฉลู</option>
+                    <option value="303">ปี 3 / ขาล</option>
+                    <option value="304">ปี 4 / เถาะ</option>
+                    <option value="305">ปี 5 / มะโรง</option>
+                    <option value="306">ปี 6 / มะเส็ง</option>
+                    <option value="307">ปี 7 / มะเมีย</option>
+                    <option value="308">ปี 8 / มะแม</option>
+                    <option value="309">ปี 9 / วอก</option>
+                    <option value="310">ปี 10 / ระกา</option>
+                    <option value="311">ปี 11 / จอ</option>
+                    <option value="312">ปี 12 / กุน</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>5. ปี พ.ศ. เกิด (คำนวณอายุ)</label>
+                <input type="number" id="birth-be-year" placeholder="ตัวอย่าง 2533" min="2400" max="2600">
+            </div>
+            <div class="input-group">
+                <label>6. โหมดแสดงอายุ (แถว 8)</label>
+                <select id="sel-age-mode">
+                    <option value="12" selected>แสดงเต็มรอบ (12 ปี)</option>
+                    <option value="1">แสดง 1 ปี (ปัจจุบัน)</option>
+                    <option value="2">แสดง 2 ปี (ปัจจุบัน + 1)</option>
+                    <option value="3">แสดง 3 ปี (ปัจจุบัน + 2)</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>7. แสดงปีนักษัตร (แถว 9)</label>
+                <select id="sel-zodiac-row">
+                    <option value="12" selected>แสดงเต็มรอบ (12 ปี)</option>
+                    <option value="1">แสดง 1 ปี (ปีถัดไป)</option>
+                    <option value="2">แสดง 2 ปี (ถัดไปอีก 2 ปี)</option>
+                    <option value="3">แสดง 3 ปี (ถัดไปอีก 3 ปี)</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>8. สัญลักษณ์ทักษาจร</label>
+                <select id="sel-taksa">
+                    <option value="1" selected>✅ เปิดแสดง (ศรี/กาลี)</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>9. แสดง Timeline 84 ปี</label>
+                <select id="sel-timeline">
+                    <option value="1">✅ เปิดแสดง</option>
+                    <option value="0" selected>❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn-calc" onclick="generateAndRender()">✨ ประมวลผลและสร้างกระดาน</button>
+    </div>
+
+    <div id="save-area" class="save-controls">
+        <button class="btn-save btn-save-image" onclick="saveAsImage()">💾 SAVE IMAGE</button>
+        <button class="btn-save btn-reset-row" onclick="resetSelectedAge()">↩️ กลับสู่อายุปัจจุบัน</button>
+        <button class="btn-save btn-db" onclick="saveToDatabase()">☁️ บันทึกประวัติลง Google Sheet</button>
+    </div>
+
+    <div class="board-wrapper" id="main-wrapper">
+        <div id="export-area" class="export-container">
+            <div class="grid-board" id="main-board"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const GRAPH_GROUPS = {};
+    for (let i = 1; i <= 12; i++) { GRAPH_GROUPS[i] = [400 + i, 400 + i + 12, 400 + i + 24]; }
+
+    const CARD_GROUPS = {
+        "101":1, "201":1, "208":1, "301":1, "308":1, "102":2, "202":2, "209":2, "302":2, "309":2,
+        "103":3, "203":3, "210":3, "303":3, "310":3, "104":4, "204":4, "211":4, "304":4, "311":4,
+        "105":5, "205":5, "212":5, "305":5, "312":5, "106":6, "206":6, "306":6, "107":7, "207":7, "307":7
+    };
+
+    const ZODIAC_MAP = {
+        "301": "ชวด", "302": "ฉลู", "303": "ขาล", "304": "เถาะ", "305": "มะโรง", "306": "มะเส็ง", 
+        "307": "มะเมีย", "308": "มะแม", "309": "วอก", "310": "ระกา", "311": "จอ", "312": "กุน"
+    };
+
+    const ROW_2_TITLES = ["วาสนา", "ความเสื่อม", "ทรัพย์สิน", "บิดา", "มารดา", "บ้านช่อง", "สายกลาง"];
+    const ROW_8_TITLES = ["วาสนา", "ทรัพย์สิน", "บ้านช่อง", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง", "โรคภัย", "ความสุข", "การงาน", "โชคลาภ", "สรุปชะตา"];
+    const ROW_4_TITLES = ["ตัวเรา", "การเงิน", "เพื่อน", "ญาติพี่น้อง", "บริวาร", "ศัตรู", "คู่ครอง"];
+    const ROW_6_TITLES = ["สูญเสีย", "ความสุข", "การงาน", "โชคลาภ", "โรคภัย", "รับใช้ ช.", "รับใช้ ญ."];
+
+    const TEACHER_CARDS = ["501", "502", "503", "504", "505", "506"];
+    const WEALTH_POSITIONS = ["วาสนา", "ทรัพย์สิน", "ความสุข", "โชคลาภ"];
+    const WEALTH_CARDS = ["410", "411", "415", "416", "424", "429"];
+
+    // สถานะไพ่ทุกชุด อ้างอิงจากไฟล์ 01_card_status_and_group - Copy.xlsx
+    const VERY_GOOD = ["101", "409", "411", "424"];
+    const GOOD = [
+        "104", "105", "106",
+        "201", "202", "203", "204", "206", "207",
+        "301", "304", "307", "312",
+        "402", "404", "405", "406", "410", "414", "415", "416", "417", "418", "419", "421", "422", "426", "429"
+    ];
+    const NEUTRAL = [
+        "102",
+        "209", "210", "211",
+        "303", "305", "309", "311",
+        "403", "407", "420", "435", "436"
+    ];
+    const BAD = [
+        "103", "107",
+        "205", "208", "212",
+        "302", "306", "308", "310",
+        "413", "423", "425", "427", "428", "430", "432", "433", "434"
+    ];
+    const VERY_BAD = ["401", "408", "412", "431"];
+
+    const NUMBER_COLORS = {
+        "1":{bg:"#C00000",color:"#FFFFFF"}, "2":{bg:"#FFFF00",color:"#000000"}, "3":{bg:"#FF6600",color:"#FFFFFF"},
+        "4":{bg:"#00B050",color:"#FFFFFF"}, "5":{bg:"#996633",color:"#FFFFFF"}, "6":{bg:"#00B0F0",color:"#000000"},
+        "7":{bg:"#D86ECC",color:"#FFFFFF"}, "8":{bg:"#262626",color:"#FFFFFF"}, "9":{bg:"#92D050",color:"#000000"},
+        "10":{bg:"#FFC000",color:"#000000"}, "11":{bg:"#002060",color:"#FFFFFF"}, "12":{bg:"#FF0066",color:"#FFFFFF"} 
+    };
+
+    const DAY_RELATION_MAP = {
+        "101": [0, 4, 1, 5, 8, 2, 6, 3, 11], "102": [0, 4, 7, 1, 5, 2, 10], "103": [0, 4, 1, 9, 6, 7],
+        "104": [0, 8, 2, 11], "105": [1, 10, 4, 11, 6, 8], "106": [0, 9, 2, 6, 3, 10, 5, 7], "107": [1, 5, 2, 6, 9]
+    };
+
+    const MONTH_CALENDAR_MAP = {
+        "201": 12, "202": 1, "203": 2, "204": 3, "205": 4, "206": 5, "207": 6, "208": 7, "209": 8, "210": 9, "211": 10, "212": 11
+    };
+
+    // เส้นทางแนวทแยงของกราฟชีวิต ใช้พิกัดแบบ "แถว:คอลัมน์" ตามที่กำหนดไว้โดยตรง
+    const GRAPH_DIAGONAL_PATHS = {
+        "2":  ["5:2", "4:3", "3:4", "2:5", "3:6", "4:7", "5:8", "4:9", "3:10", "4:11", "5:12", "4:13"],
+        "3":  ["4:2", "5:3", "4:4", "3:5", "2:6", "3:7", "4:8", "5:9", "4:10", "3:11", "4:12", "5:13"],
+        "4":  ["3:2", "4:3", "5:4", "4:5", "3:6", "2:7", "3:8", "4:9", "5:10", "4:11", "3:12", "4:13"],
+        "5":  ["2:2", "3:3", "4:4", "5:5", "4:6", "3:7", "2:8", "3:9", "4:10", "5:11", "4:12", "3:13"],
+        "6":  ["3:2", "2:3", "3:4", "4:5", "5:6", "4:7", "3:8", "4:9", "5:10", "4:11", "3:12", "4:13"],
+        "7":  ["4:2", "3:3", "2:4", "3:5", "4:6", "5:7", "4:8", "3:9", "4:10", "5:11", "4:12", "3:13"]
+    };
+    GRAPH_DIAGONAL_PATHS["8"] = GRAPH_DIAGONAL_PATHS["2"];
+    GRAPH_DIAGONAL_PATHS["9"] = GRAPH_DIAGONAL_PATHS["3"];
+    GRAPH_DIAGONAL_PATHS["10"] = GRAPH_DIAGONAL_PATHS["4"];
+    GRAPH_DIAGONAL_PATHS["11"] = GRAPH_DIAGONAL_PATHS["5"];
+    GRAPH_DIAGONAL_PATHS["12"] = GRAPH_DIAGONAL_PATHS["2"];
+    GRAPH_DIAGONAL_PATHS["13"] = GRAPH_DIAGONAL_PATHS["3"];
+
+    let activeGraphHighlightCols = []; 
+    let activeSevenCols = []; 
+    let currentBoardData = null;
+    let activeR5Filter = null;
+    let graphHighlightMode = "vertical";
+    let sevenLabelsVisible = true;
+
+    function generateSequence(startId, length, minId, maxId) {
+        let seq = []; let curr = startId;
+        for (let i = 0; i < length; i++) { seq.push(curr); curr++; if (curr > maxId) curr = minId; }
+        return seq;
+    }
+
+    function calculateDynamicPositions(arrayData, targetCode) {
+        let splitIndex = arrayData.indexOf(targetCode);
+        if(splitIndex === -1) splitIndex = 0; 
+        let positions = [];
+        if (splitIndex === 0 || splitIndex >= 7) { for(let i=0; i<7; i++) positions.push(i); } 
+        else {
+            for(let i=0; i<splitIndex; i++) positions.push(i);
+            let remaining = 7 - splitIndex; let startRight = 12 - remaining;
+            for(let i=0; i<remaining; i++) positions.push(startRight + i);
+        }
+        return positions;
+    }
+
+    function getCardStyleClass(code, title) {
+        if (WEALTH_POSITIONS.includes(title) && WEALTH_CARDS.includes(code)) return "card-gold-zone";
+        if (title === "ศัตรู" || title === "โรคภัย") {
+            if (VERY_GOOD.includes(code) || GOOD.includes(code)) return "card-dark-gray";
+            if (NEUTRAL.includes(code)) return "card-black";
+            if (BAD.includes(code) || VERY_BAD.includes(code)) return "card-red";
+        }
+        if (VERY_GOOD.includes(code)) return "card-very-good";
+        if (GOOD.includes(code)) return "card-good";
+        if (NEUTRAL.includes(code)) return "card-neutral-status";
+        if (BAD.includes(code)) return "card-bad";
+        if (VERY_BAD.includes(code)) return "card-very-bad";
+        return "card-neutral-status";
+    }
+
+    function getCardBaseStatus(code) {
+        if (VERY_GOOD.includes(code)) return "VG";
+        if (GOOD.includes(code)) return "G";
+        if (NEUTRAL.includes(code)) return "N";
+        if (BAD.includes(code)) return "B";
+        if (VERY_BAD.includes(code)) return "VB";
+        return "N"; 
+    }
+
+    function getAgeMatrixStyles(graphStatus, sevenStatus) {
+        const C_WHITE = "#FFFFFF"; const C_BLACK = "#000000"; const C_RED_TEXT = "#d32f2f"; const C_RED_BG = "#e74c3c";
+        const C_GOLD_BG = "linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)";
+        const C_LIGHT_BLUE_TEXT = "#3498db"; const C_LIGHT_BLUE_BG = "#bbdefb"; const C_DARK_BLUE_TEXT = "#0047AB"; 
+        
+        const B_NONE = "none"; 
+        const B_BLUE = "8px solid #3498db"; 
+        const B_BLACK = "8px solid #17202a"; 
+        const B_RED = "8px solid #e74c3c"; 
+
+        let border = B_NONE;
+        if (sevenStatus === "VG" || sevenStatus === "G") border = B_BLUE;
+        else if (sevenStatus === "B") border = B_BLACK;
+        else if (sevenStatus === "VB") border = B_RED;
+
+        let bg = C_WHITE; let text = C_BLACK;
+        if (graphStatus === "VG") { if (sevenStatus === "VG") { bg = C_GOLD_BG; text = C_WHITE; } else { text = C_LIGHT_BLUE_TEXT; } }
+        else if (graphStatus === "G") { if (sevenStatus === "VG") { bg = C_LIGHT_BLUE_BG; text = C_DARK_BLUE_TEXT; } else { text = C_LIGHT_BLUE_TEXT; } }
+        else if (graphStatus === "B") { text = C_RED_TEXT; }
+        else if (graphStatus === "VB") { bg = C_RED_BG; text = C_WHITE; }
+
+        return { bg, text, border };
+    }
+
+    function scan84YearsTimeline(data) {
+        let alerts = [];
+        const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
+        const hasRahuCard = data.SEVEN_BASE.some(code => code === "408" || code === "412");
+        let path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; 
+        let path8 = [1, 2, 3, 4, 7, 5, 8, 6];
+        let startDayNum = parseInt(data.DAY[0]) % 100;
+        
+        // 🛠️ แก้ไข: วันพฤหัสบดี (5) ให้เริ่มที่ตำแหน่ง 5 ตัวที่ 2 (index 6)
+        let startIndex9 = (startDayNum === 5) ? path9.lastIndexOf(5) : path9.indexOf(startDayNum);
+
+        const get21HousePoint = (age) => {
+            let targetIdx21 = (age - 1) % 21;
+            if (targetIdx21 < 7) {
+                return { title: ROW_2_TITLES[targetIdx21], code: data.DAY[targetIdx21] };
+            }
+            if (targetIdx21 < 14) {
+                let posIdx = targetIdx21 - 7;
+                return { title: ROW_4_TITLES[posIdx], code: data.MONTH[data.posMonth[posIdx]] };
+            }
+            let posIdx = targetIdx21 - 14;
+            return { title: ROW_6_TITLES[posIdx], code: data.YEAR[data.posYear[posIdx]] };
+        };
+
+        // กลุ่มดาวที่วางอยู่ใน 4 ตำแหน่งเสียของระบบ 21 ภพ
+        const bad21HouseGroups = new Set();
+        ROW_2_TITLES.forEach((title, index) => {
+            if (badTitles.includes(title)) bad21HouseGroups.add(CARD_GROUPS[data.DAY[index]]);
+        });
+        ROW_4_TITLES.forEach((title, index) => {
+            if (badTitles.includes(title)) bad21HouseGroups.add(CARD_GROUPS[data.MONTH[data.posMonth[index]]]);
+        });
+        ROW_6_TITLES.forEach((title, index) => {
+            if (badTitles.includes(title)) bad21HouseGroups.add(CARD_GROUPS[data.YEAR[data.posYear[index]]]);
+        });
+        bad21HouseGroups.delete(undefined);
+
+        // กลุ่มดาวที่วางอยู่ในตำแหน่งวาสนาและตัวเราของระบบ 21 ภพ
+        const core21HouseGroups = new Set();
+        ROW_2_TITLES.forEach((title, index) => {
+            if (title === "วาสนา" || title === "ตัวเรา") core21HouseGroups.add(CARD_GROUPS[data.DAY[index]]);
+        });
+        ROW_4_TITLES.forEach((title, index) => {
+            if (title === "วาสนา" || title === "ตัวเรา") core21HouseGroups.add(CARD_GROUPS[data.MONTH[data.posMonth[index]]]);
+        });
+        ROW_6_TITLES.forEach((title, index) => {
+            if (title === "วาสนา" || title === "ตัวเรา") core21HouseGroups.add(CARD_GROUPS[data.YEAR[data.posYear[index]]]);
+        });
+        core21HouseGroups.delete(undefined);
+
+        for(let age = 1; age <= 84; age++) {
+            let graphIdx = (age - 1) % 12;
+            let graphStatus = getCardBaseStatus(data.GRAPH_BASE[graphIdx]);
+            let graphIsBad = (graphStatus === "B" || graphStatus === "VB");
+            let graphTitle = ROW_8_TITLES[graphIdx];
+            let graphAtDangerPosition = (graphTitle === "ศัตรู" || graphTitle === "โรคภัย");
+            let graphMeetsLevel1 = graphIsBad || graphAtDangerPosition;
+
+            let sevenIdx = (age - 1) % 7;
+            let sevenStatus = getCardBaseStatus(data.SEVEN_BASE[sevenIdx]);
+            let sevenIsBad = (sevenStatus === "B" || sevenStatus === "VB");
+
+            // ระดับ 1: R5 เป็นไพ่ร้าย/ร้ายมากหรือตกศัตรู/โรคภัย และ R7 เป็นไพ่ร้าย/ร้ายมาก
+            if (!graphMeetsLevel1 || !sevenIsBad) continue;
+
+            let point21 = get21HousePoint(age);
+            let ageAtBad21HousePosition = badTitles.includes(point21.title);
+            let age21Group = CARD_GROUPS[point21.code];
+
+            let boriwanNum = path9[(startIndex9 + age - 1) % 9];
+            let startIndex8 = path8.indexOf(boriwanNum);
+            let kaleeNum = path8[(startIndex8 + 7) % 8];
+
+            let kaleeAtBad21HousePosition = bad21HouseGroups.has(kaleeNum);
+            let kaleeAt21HouseAge = age21Group === kaleeNum;
+            let kaleeAtRahuCard = kaleeNum === 8 && hasRahuCard;
+            let hasLevel2KaleeCondition = kaleeAtBad21HousePosition || kaleeAt21HouseAge || kaleeAtRahuCard;
+            let kaleeAtCore21HousePosition = core21HouseGroups.has(kaleeNum);
+
+            // ระดับ 2: ผ่านระดับ 1 + (อายุตกตำแหน่งเสียใน 21 ภพ หรือกาลีเข้าอย่างน้อย 1 เงื่อนไข)
+            let meetsLevel2 = ageAtBad21HousePosition || hasLevel2KaleeCondition;
+            let level = 1;
+            // ระดับ 3: ผ่านระดับ 2 และกาลีตรงตำแหน่งวาสนาหรือตัวเราในระบบ 21 ภพ
+            if (meetsLevel2) level = kaleeAtCore21HousePosition ? 3 : 2;
+            alerts.push({ age: age, level: level });
+        }
+        return alerts;
+    }
+
+    function generateAndRender() {
+        const valDate = parseInt(document.getElementById('sel-date').value);
+        const valDay = parseInt(document.getElementById('sel-day').value);
+        const valMonth = document.getElementById('sel-month').value;
+        const valYear = parseInt(document.getElementById('sel-year').value);
+        const birthYear = parseInt(document.getElementById('birth-be-year').value);
+        
+        const ageMode = parseInt(document.getElementById('sel-age-mode').value);
+        const zodiacMode = parseInt(document.getElementById('sel-zodiac-row').value);
+        const taksaMode = parseInt(document.getElementById('sel-taksa').value);
+        const timelineMode = parseInt(document.getElementById('sel-timeline').value);
+
+        if (!valDate || !valDay || !valMonth || !valYear) { alert("กรุณาเลือกข้อมูลให้ครบครับ"); return; }
+
+        let age = 0;
+        if (birthYear > 2400) {
+            const birthDayNum = valDate - 400; 
+            const birthMonthNum = MONTH_CALENDAR_MAP[valMonth]; 
+            const today = new Date();
+            const currentYearBE = today.getFullYear() + 543;
+            const currentMonthNum = today.getMonth() + 1; 
+            const currentDayNum = today.getDate();
+            age = currentYearBE - birthYear; 
+            if (currentMonthNum < birthMonthNum || (currentMonthNum === birthMonthNum && currentDayNum < birthDayNum)) { age--; }
+        }
+
+        const daySeq = generateSequence(valDay, 7, 101, 107);
+        const monthSeq = generateSequence(parseInt(valMonth), 12, 201, 212);
+        const yearSeq = generateSequence(valYear, 12, 301, 312);
+
+        let graphBase = []; let usedGraphCards = new Set();
+        for (let i = 0; i < 12; i++) {
+            let dVal = (i < 7) ? (daySeq[i] % 100) : 0; 
+            let mVal = monthSeq[i] % 100; let yVal = yearSeq[i] % 100;
+            let sum = dVal + mVal + yVal; let targetCard = 400 + sum;
+            if (usedGraphCards.has(targetCard)) {
+                let groupId = sum % 12 || 12; let groupCards = GRAPH_GROUPS[groupId];
+                let availableCards = groupCards.filter(c => !usedGraphCards.has(c));
+                if (availableCards.length > 0) targetCard = availableCards[0];
+            }
+            usedGraphCards.add(targetCard); graphBase.push(targetCard);
+        }
+
+        let sevenBase = [];
+        let posMonth = calculateDynamicPositions(monthSeq, 201);
+        let posYear = calculateDynamicPositions(yearSeq, 301);
+        for (let i = 0; i < 7; i++) {
+            let dVal = daySeq[i] % 100; 
+            let mIdx = posMonth[i]; let mVal = ((monthSeq[mIdx] - 201) % 7) + 1; 
+            let yIdx = posYear[i]; let yVal = ((yearSeq[yIdx] - 301) % 7) + 1;
+            sevenBase.push(400 + (dVal + mVal + yVal));
+        }
+
+        activeR5Filter = null;
+        graphHighlightMode = "vertical";
+        sevenLabelsVisible = true;
+        buildBoardUI({
+            DATE: [valDate.toString()], DAY: daySeq.map(String), MONTH: monthSeq.map(String), posMonth: posMonth,
+            YEAR: yearSeq.map(String), posYear: posYear, GRAPH_BASE: graphBase.map(String), SEVEN_BASE: sevenBase.map(String),
+            AGE: age, BASE_AGE: age, SELECTED_AGE: age,
+            AGE_MODE: ageMode, ZODIAC_MODE: zodiacMode, TAKSA_MODE: taksaMode, TIMELINE_MODE: timelineMode
+        });
+    }
+
+    function buildBoardUI(data, shouldScroll = true) {
+        const board = document.getElementById('main-board');
+        currentBoardData = data;
+        const baseAge = data.BASE_AGE ?? data.AGE;
+        const selectedAge = data.SELECTED_AGE ?? baseAge;
+        board.innerHTML = '';
+        board.classList.remove('has-graph-highlight', 'has-seven-highlight');
+        activeGraphHighlightCols = []; activeSevenCols = []; 
+
+        const posRow10 = calculateDynamicPositions(data.YEAR, "301");
+        const badTitles = ["ความเสื่อม", "ศัตรู", "สูญเสีย", "โรคภัย"];
+
+        let sriNum = 0; let kaleeNum = 0;
+        if (selectedAge > 0 && data.TAKSA_MODE === 1) {
+            const path9 = [1, 5, 2, 3, 4, 7, 5, 8, 6]; const path8 = [1, 2, 3, 4, 7, 5, 8, 6];    
+            let startDayNum = parseInt(data.DAY[0]) % 100; 
+            
+            // 🛠️ แก้ไข: วันพฤหัสบดี (5) ให้เริ่มที่ตำแหน่ง 5 ตัวที่ 2 (index 6)
+            let startIndex9 = (startDayNum === 5) ? path9.lastIndexOf(5) : path9.indexOf(startDayNum);
+            
+            let boriwanNum = path9[(startIndex9 + selectedAge - 1) % 9];
+            
+            let startIndex8 = path8.indexOf(boriwanNum);
+            sriNum = path8[(startIndex8 + 3) % 8]; // ศรี = ตำแหน่งที่ 4 (+3 จากบริวาร)
+            kaleeNum = path8[(startIndex8 + 7) % 8]; // กาลี = ตำแหน่งที่ 8 (+7 จากบริวาร)
+        }
+
+        let target21Title = ""; 
+        let targetBGridCol_Sys1 = -1; // คอลัมน์แถว 7 จากระบบ 21 ภพ
+        let targetBGridCol_Sys2 = -1; // คอลัมน์แถว 7 จากระบบ 7 ฐาน
+
+        if (selectedAge > 0 && data.AGE_MODE > 0) {
+            
+            // ระบบที่ 1: นับอายุแบบ 21 ภพ (สำหรับแถว 2, 3, 4)
+            let targetIdx21 = (selectedAge - 1) % 21; let targetACode = "";
+            if (targetIdx21 < 7) { target21Title = ROW_2_TITLES[targetIdx21]; targetACode = data.DAY[targetIdx21]; } 
+            else if (targetIdx21 < 14) { let posIdx = targetIdx21 - 7; target21Title = ROW_4_TITLES[posIdx]; targetACode = data.MONTH[data.posMonth[posIdx]]; } 
+            else { let posIdx = targetIdx21 - 14; target21Title = ROW_6_TITLES[posIdx]; targetACode = data.YEAR[data.posYear[posIdx]]; }
+
+            // หา column สำหรับแถว 7 จากกลุ่มไพ่ของระบบ 21 ภพ
+            let targetAGroup = CARD_GROUPS[targetACode];
+            for (let i = 0; i < 7; i++) {
+                let yearIdx = data.posYear[i];
+                if (CARD_GROUPS[data.YEAR[yearIdx]] === targetAGroup) { targetBGridCol_Sys1 = yearIdx + 2; break; }
+            }
+
+            // ระบบที่ 2: นับอายุแบบ 7 ฐาน (วนลูป 7 ปี เฉพาะแถวฐาน)
+            let targetIdx7 = (selectedAge - 1) % 7;
+            targetBGridCol_Sys2 = posRow10[targetIdx7] + 2; 
+        }
+
+        const addCard = (code, gridRow, gridCol, title) => {
+            if (!code) return;
+            // V2: ใช้สีสถานะกับไพ่ทุกแถว ไม่จำกัดเฉพาะแถวฐานกราฟชีวิต
+            let styleClass = getCardStyleClass(code, title);
+            let dimClasses = gridRow >= 2 ? "dim-target-graph dim-target-seven" : "";
+            let clickClass = ""; let extraAttr = "";
+
+            if (gridRow === 5) { clickClass = "click-to-highlight-graph"; extraAttr = `onclick="toggleGraphHighlight(${gridCol})" title="คลิกเพื่อเน้นไพ่กราฟชีวิต"`; } 
+            else if (gridRow === 7) { clickClass = "click-to-highlight-seven"; extraAttr = `onclick="toggleSevenHighlight(${gridCol})" title="คลิกเพื่อดูความสัมพันธ์กลุ่มไพ่เลข 7 ตัว"`; }
+
+            let titleHtml = "";
+            if (title) {
+                let dangerClass = badTitles.includes(title) ? " label-danger" : "";
+                let systemClass = gridRow >= 2 && gridRow <= 4 ? " seven-position-label" : "";
+                titleHtml = `<span class="pos-label${dangerClass}${systemClass}">${title}</span>`;
+            }
+
+            let overlayHtml = ""; let isKalee = false;
+            if (selectedAge > 0 && data.TAKSA_MODE === 1) {
+                let isSevenSystem = (gridRow >= 2 && gridRow <= 4 && title != null); let isSri = false;
+                if (sriNum >= 1 && sriNum <= 7) { isSri = isSevenSystem && (CARD_GROUPS[code] === sriNum); } else if (sriNum === 8) { isSri = (gridRow === 7 && code === "412"); }
+                if (kaleeNum >= 1 && kaleeNum <= 7) { isKalee = isSevenSystem && (CARD_GROUPS[code] === kaleeNum); } else if (kaleeNum === 8) { isKalee = (gridRow === 7 && code === "412"); }
+                
+                if (isSri) { overlayHtml += `<div class="sri-overlay"></div>`; }
+                
+                if (isKalee) {
+                    if (badTitles.includes(title) || (code === "412" && gridRow === 7)) {
+                        overlayHtml += `<div class="kalee-danger-circle"><div class="kalee-wrapper"></div></div>`;
+                    } else { 
+                        overlayHtml += `<div class="kalee-wrapper"></div>`; 
+                    }
+                }
+            }
+
+            if (selectedAge > 0 && data.AGE_MODE > 0) {
+                let isTargetA = ((gridRow === 2 || gridRow === 3 || gridRow === 4) && title === target21Title);
+                let isTargetB_Sys1 = (gridRow === 7 && gridCol === targetBGridCol_Sys1);
+                let isTargetB_Sys2 = (gridRow === 7 && gridCol === targetBGridCol_Sys2);
+
+                // ถ้าเป็นจุดตกอายุของระบบใดระบบหนึ่ง หรือทั้งคู่
+                if (isTargetA || isTargetB_Sys1 || isTargetB_Sys2) {
+                    
+                    // เช็คว่าจุดตกอายุนั้นเป็นตำแหน่งอันตรายไหม (อ้างอิงจากตำแหน่ง 21 ภพ)
+                    let isDangerAge = false;
+                    if ((isTargetA || isTargetB_Sys1) && badTitles.includes(target21Title)) {
+                        isDangerAge = true;
+                    }
+
+                    let ageClass = "default";
+                    if (isDangerAge) { 
+                        if (isKalee) ageClass = "kalee-overlap"; else ageClass = "danger danger-circle"; 
+                    } else {
+                        // ถ้าตกกาลีแต่ไม่ได้ตกภพเสีย ให้ตัวหนังสือเป็นสีขาวจะได้อ่านชัดๆ บนวงกลมแดง
+                        if (isKalee) ageClass = "kalee-overlap"; 
+                    }
+                    overlayHtml += `<div class="age-text-overlay ${ageClass}">${selectedAge}</div>`;
+                }
+            }
+
+            board.innerHTML += `<div class="card-item ${styleClass} ${dimClasses} ${clickClass}" data-col="${gridCol}" data-row="${gridRow}" data-code="${code}" data-has-title="${title ? 'true' : 'false'}" style="grid-area: ${gridRow} / ${gridCol}; position:relative;" ${extraAttr}>
+                    ${titleHtml}<img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">${overlayHtml}</div>`;
+        }
+
+        addCard(data.DATE[0], 1, 2, null);
+        board.innerHTML += `<div class="client-info-container" style="grid-area: 1 / 3 / span 1 / span 6;">
+            <div style="display:flex; flex-direction:column; width:100%; text-align:left;">
+                <input type="text" id="db-name" class="client-info-box" placeholder="เจ้าชะตา :" style="height:100%;">
+                <input type="text" id="db-dob" class="client-info-box" placeholder="วันเดือนปีเกิด :" style="height:100%;">
+                <input type="text" id="db-note" class="client-info-box" placeholder="ข้อมูลประกอบ :" style="height:100%;">
+            </div></div>`;
+        let tHtml = `<div style="grid-area: 1/9/1/15; display:flex; gap:10px; position:relative;">`;
+        TEACHER_CARDS.forEach(c => tHtml += `<div class="card-item card-default" style="flex:1;"><img src="images/${c}.jpg"></div>`);
+        tHtml += `<div class="teacher-overlay-text">ลิขสิทธิ์ พรหมญาณพยากรณ์ : หมอวิทยา ธรรมนาย</div></div>`;
+        board.innerHTML += tHtml;
+        board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2/9/2/15;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
+
+        data.DAY.forEach((c, i) => addCard(c, 2, i + 2, ROW_2_TITLES[i]));
+        data.MONTH.forEach((c, i) => { let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i); addCard(c, 3, i + 2, idx!==-1?ROW_4_TITLES[idx]:null); });
+        data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
+        board.innerHTML += `<div class="board-mode-controls" style="grid-area: 4/14;" aria-label="รูปแบบการเน้นไพ่กราฟชีวิต">
+            <button type="button" class="board-control-button graph-mode-button vertical" data-graph-mode="vertical" aria-label="แสดงไพ่กราฟชีวิตแบบแนวดิ่ง" aria-pressed="true" title="แนวดิ่ง" onclick="setGraphHighlightMode('vertical')">↕</button>
+            <button type="button" class="board-control-button graph-mode-button diagonal" data-graph-mode="diagonal" aria-label="แสดงไพ่กราฟชีวิตแบบแนวทแยง" aria-pressed="false" title="แนวทแยง" onclick="setGraphHighlightMode('diagonal')">⟋</button>
+        </div>`;
+        board.innerHTML += `<div class="r5-filter-controls" style="grid-area: 5/1;" aria-label="ตัวกรองสถานะไพ่แถวกราฟชีวิต">
+            <button type="button" class="r5-filter-button good" data-r5-filter="good" aria-label="แสดงไพ่ดีและดีมาก" aria-pressed="false" title="แสดงไพ่ดีและดีมาก" onclick="toggleR5Filter('good')"></button>
+            <button type="button" class="r5-filter-button bad" data-r5-filter="bad" aria-label="แสดงไพ่ร้ายและร้ายมาก" aria-pressed="false" title="แสดงไพ่ร้ายและร้ายมาก" onclick="toggleR5Filter('bad')"></button>
+        </div>`;
+        board.innerHTML += `<div class="seven-label-controls" style="grid-area: 5/14;" aria-label="การแสดงชื่อตำแหน่งเลข 7 ตัว">
+            <button type="button" class="board-control-button seven-label-toggle" aria-label="เปิดหรือปิดชื่อตำแหน่งเลข 7 ตัว" aria-pressed="true" title="เปิด/ปิด ชื่อตำแหน่งเลข 7 ตัว" onclick="toggleSevenLabels()">7</button>
+        </div>`;
+        data.GRAPH_BASE.forEach((c, i) => addCard(c, 5, i + 2, ROW_8_TITLES[i]));
+        applyR5Filter();
+
+        let activePosRow6 = DAY_RELATION_MAP[data.DAY[0]] || [];
+        for(let col = 2; col <= 13; col++) {
+            let idx = col - 2; let autoNum = ""; let bg = "#293A4B"; let color = "transparent";
+            if (activePosRow6.includes(idx)) { autoNum = ((parseInt(data.GRAPH_BASE[idx]) - 401) % 12) + 1; bg = NUMBER_COLORS[autoNum].bg; color = NUMBER_COLORS[autoNum].color; }
+            let opts = `<option value="" style="color:#000; font-family:'Sarabun', sans-serif;">-</option>`; 
+            for(let n=1; n<=12; n++) opts += `<option value="${n}" ${n==autoNum?'selected':''} style="color:#000; font-family:'Sarabun', sans-serif;">${n}</option>`;
+            board.innerHTML += `<div class="dropdown-cell dim-target-graph dim-target-seven" data-row="6" data-col="${col}" style="grid-area: 6/${col}; background-color:${bg};"><select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
+        }
+
+        data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
+
+        let startAgeCol = (baseAge > 0) ? ((baseAge - 1) % 12) : -1;
+        for(let col = 2; col <= 13; col++) {
+            let idx = col - 2; let val = ""; let cellBg = "#293A4B"; let textColor = "transparent"; let borderStyle = "none";
+            if (baseAge > 0 && data.AGE_MODE > 0) {
+                let diff = idx - startAgeCol; if (diff < 0) diff += 12; 
+                if (diff < data.AGE_MODE) {
+                    let displayAge = baseAge + diff; val = displayAge;
+                    let graphIdx = idx; let sevenIdx = (displayAge - 1) % 7; 
+                    let graphCode = data.GRAPH_BASE[graphIdx]; let sevenCode = data.SEVEN_BASE[sevenIdx]; let cardTitle = ROW_8_TITLES[graphIdx];
+                    let graphStatus = getCardBaseStatus(graphCode); let sevenStatus = getCardBaseStatus(sevenCode);
+                    let matrixStyles = getAgeMatrixStyles(graphStatus, sevenStatus);
+                    cellBg = matrixStyles.bg; textColor = matrixStyles.text; borderStyle = matrixStyles.border;
+                    if (cardTitle === "ศัตรู" || cardTitle === "โรคภัย") textColor = "#000000";
+                }
+            }
+            if (val !== "") {
+                let selectedClass = val === selectedAge ? " is-selected" : "";
+                let currentClass = val === baseAge ? " is-current" : "";
+                board.innerHTML += `<button type="button" class="age-button dim-target-graph dim-target-seven${selectedClass}${currentClass}" data-row="8" data-col="${col}" data-age="${val}" aria-pressed="${val === selectedAge}" onclick="selectPredictionAge(${val})" title="เลือกดูคำพยากรณ์อายุ ${val} ปี" style="grid-area: 8/${col}; background:${cellBg}; color:${textColor}; border:${borderStyle};">${val}</button>`;
+            } else {
+                board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="8" data-col="${col}" style="grid-area: 8/${col}; background:#293A4B; border:none;"></div>`;
+            }
+        }
+
+        for(let col = 2; col <= 13; col++) {
+            let idx = col - 2; let yearCardCode = data.YEAR[idx]; let zodiacText = ZODIAC_MAP[yearCardCode] || ""; let showZodiac = false;
+            if (data.ZODIAC_MODE > 0) {
+                if (data.ZODIAC_MODE === 12) showZodiac = true;
+                else if (baseAge > 0) {
+                    let diff = idx - startAgeCol; if (diff < 0) diff += 12;
+                    if (diff >= 1 && diff <= data.ZODIAC_MODE) showZodiac = true;
+                }
+            }
+            if (showZodiac) board.innerHTML += `<div class="custom-cell dim-target-graph dim-target-seven" data-row="9" data-col="${col}" style="grid-area: 9/${col}; background:#293A4B; border:none; border-radius:8px;"><span style="color:#ffffff; font-weight:bold; font-size:1.5vw; font-family:'Sarabun', sans-serif;">${zodiacText}</span></div>`;
+        }
+
+        if (data.TIMELINE_MODE === 1) {
+            let timelineAlerts = scan84YearsTimeline(data);
+            let timelineNodesHtml = "";
+            for (let i = 1; i <= 84; i++) {
+                let alertObj = timelineAlerts.find(a => a.age === i);
+                if (!alertObj) {
+                    timelineNodesHtml += `<div class="timeline-node"><div class="node-dot"></div></div>`;
+                } else {
+                    let ringsHtml = "";
+                    if (alertObj.level >= 2) ringsHtml += `<div class="circle-1"></div>`;
+                    if (alertObj.level === 3) ringsHtml += `<div class="circle-2"></div>`;
+                    timelineNodesHtml += `
+                        <div class="timeline-node">
+                            <div class="node-age">${i}</div>
+                            <div class="dot-alert"></div>
+                            ${ringsHtml}
+                        </div>`;
+                }
+            }
+            
+            let timelineHtml = `
+            <div class="timeline-area-wrapper">
+                <div class="timeline-container">
+                    <div class="timeline-wrapper">
+                        <div class="timeline-track">
+                            <div class="timeline-line"></div>
+                            ${timelineNodesHtml}
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            
+            board.innerHTML += timelineHtml;
+        }
+
+        applyGraphModeControls();
+        applySevenLabelVisibility();
+
+        document.getElementById('main-wrapper').style.display = 'block';
+        document.getElementById('save-area').style.display = 'flex';
+        if (shouldScroll) document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function applyR5Filter() {
+        const rowCards = document.querySelectorAll('#main-board .card-item[data-row="5"]');
+        rowCards.forEach(card => {
+            const status = getCardBaseStatus(card.dataset.code);
+            const matchesGood = status === "VG" || status === "G";
+            const matchesBad = status === "VB" || status === "B";
+            const shouldDim = activeR5Filter === "good" ? !matchesGood : activeR5Filter === "bad" ? !matchesBad : false;
+            card.classList.toggle('r5-filter-dimmed', shouldDim);
+        });
+
+        document.querySelectorAll('.r5-filter-button').forEach(button => {
+            const isActive = button.dataset.r5Filter === activeR5Filter;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', String(isActive));
+        });
+    }
+
+    function toggleR5Filter(filter) {
+        if (filter !== "good" && filter !== "bad") return;
+        activeR5Filter = activeR5Filter === filter ? null : filter;
+        applyR5Filter();
+    }
+
+    function captureBoardState() {
+        return {
+            clientValues: ['db-name', 'db-dob', 'db-note'].map(id => document.getElementById(id)?.value || ''),
+            dropdownValues: Array.from(document.querySelectorAll('.number-dropdown')).map(el => el.value)
+        };
+    }
+
+    function restoreBoardState(state) {
+        ['db-name', 'db-dob', 'db-note'].forEach((id, index) => {
+            const input = document.getElementById(id);
+            if (input) input.value = state.clientValues[index] || '';
+        });
+        document.querySelectorAll('.number-dropdown').forEach((select, index) => {
+            if (state.dropdownValues[index] !== undefined) {
+                select.value = state.dropdownValues[index];
+                updateDropdown(select);
+            }
+        });
+    }
+
+    function selectPredictionAge(age) {
+        if (!currentBoardData || !Number.isInteger(age) || age <= 0) return;
+        const preservedState = captureBoardState();
+        currentBoardData = { ...currentBoardData, SELECTED_AGE: age };
+        buildBoardUI(currentBoardData, false);
+        restoreBoardState(preservedState);
+    }
+
+    function resetSelectedAge() {
+        if (!currentBoardData) return;
+        const baseAge = currentBoardData.BASE_AGE ?? currentBoardData.AGE;
+        selectPredictionAge(baseAge);
+    }
+
+    function updateTwoPositionSelection(selection, value) {
+        const idx = selection.indexOf(value);
+        if (idx > -1) {
+            selection.splice(idx, 1);
+            return;
+        }
+        if (selection.length >= 2) selection.shift();
+        selection.push(value);
+    }
+
+    function clearSevenHighlight() {
+        const board = document.getElementById('main-board');
+        activeSevenCols = [];
+        board.classList.remove('has-seven-highlight');
+        document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted'));
+    }
+
+    function clearGraphHighlight() {
+        const board = document.getElementById('main-board');
+        activeGraphHighlightCols = [];
+        board.classList.remove('has-graph-highlight');
+        document.querySelectorAll('.dim-target-graph').forEach(el => el.classList.remove('highlighted'));
+    }
+
+    function applyGraphModeControls() {
+        document.querySelectorAll('.graph-mode-button').forEach(button => {
+            const isActive = button.dataset.graphMode === graphHighlightMode;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', String(isActive));
+        });
+    }
+
+    function applySevenLabelVisibility() {
+        const board = document.getElementById('main-board');
+        if (!board) return;
+        board.classList.toggle('hide-seven-labels', !sevenLabelsVisible);
+        const button = board.querySelector('.seven-label-toggle');
+        if (button) {
+            button.classList.toggle('is-active', sevenLabelsVisible);
+            button.setAttribute('aria-pressed', String(sevenLabelsVisible));
+            button.textContent = sevenLabelsVisible ? '7' : '7×';
+            button.title = sevenLabelsVisible ? 'ปิดชื่อตำแหน่งเลข 7 ตัว' : 'เปิดชื่อตำแหน่งเลข 7 ตัว';
+        }
+    }
+
+    function toggleSevenLabels() {
+        sevenLabelsVisible = !sevenLabelsVisible;
+        applySevenLabelVisibility();
+    }
+
+    function applyGraphHighlights() {
+        const board = document.getElementById('main-board');
+        const targets = document.querySelectorAll('.dim-target-graph');
+        if (activeGraphHighlightCols.length === 0) {
+            board.classList.remove('has-graph-highlight');
+            targets.forEach(el => el.classList.remove('highlighted'));
+            return;
+        }
+
+        board.classList.add('has-graph-highlight');
+        const diagonalCoordinates = new Set();
+        if (graphHighlightMode === 'diagonal') {
+            activeGraphHighlightCols.forEach(col => {
+                (GRAPH_DIAGONAL_PATHS[col] || []).forEach(coordinate => diagonalCoordinates.add(coordinate));
+            });
+        }
+
+        targets.forEach(el => {
+            const row = parseInt(el.dataset.row, 10);
+            const coordinate = `${row}:${el.dataset.col}`;
+            const isHighlighted = graphHighlightMode === 'diagonal'
+                ? diagonalCoordinates.has(coordinate)
+                : activeGraphHighlightCols.includes(el.dataset.col) && row !== 7;
+            el.classList.toggle('highlighted', isHighlighted);
+        });
+    }
+
+    function setGraphHighlightMode(mode) {
+        if (mode !== 'vertical' && mode !== 'diagonal') return;
+        graphHighlightMode = mode;
+        applyGraphModeControls();
+        applyGraphHighlights();
+    }
+
+    function toggleGraphHighlight(col) {
+        clearSevenHighlight();
+        const colStr = String(col);
+        updateTwoPositionSelection(activeGraphHighlightCols, colStr);
+        sevenLabelsVisible = false;
+        applySevenLabelVisibility();
+        applyGraphHighlights();
+    }
+
+    function toggleSevenHighlight(col) {
+        const board = document.getElementById('main-board');
+        clearGraphHighlight();
+        sevenLabelsVisible = true;
+        applySevenLabelVisibility();
+
+        const colStr = String(col);
+        updateTwoPositionSelection(activeSevenCols, colStr);
+
+        if (activeSevenCols.length === 0) {
+            board.classList.remove('has-seven-highlight');
+            document.querySelectorAll('.dim-target-seven').forEach(el => el.classList.remove('highlighted'));
+            return;
+        }
+
+        board.classList.add('has-seven-highlight');
+        const activeGroups = [];
+
+        activeSevenCols.forEach(c => {
+            const leader = document.querySelector(`.dim-target-seven[data-row="4"][data-col="${c}"]`);
+            if (leader) activeGroups.push(CARD_GROUPS[leader.dataset.code]);
+        });
+
+        document.querySelectorAll('.dim-target-seven').forEach(el => {
+            const row = parseInt(el.dataset.row, 10);
+            let isHigh = false;
+            if ([4, 7, 9].includes(row) && activeSevenCols.includes(String(el.dataset.col))) isHigh = true;
+            else if ([2, 3].includes(row) && activeGroups.includes(CARD_GROUPS[el.dataset.code]) && el.dataset.hasTitle === "true") isHigh = true;
+            el.classList.toggle('highlighted', isHigh);
+        });
+    }
+
+    function updateDropdown(sel) { let val = sel.value; let p = sel.parentElement; if (val) { p.style.backgroundColor = NUMBER_COLORS[val].bg; sel.style.color = NUMBER_COLORS[val].color; } else { p.style.backgroundColor = "#293A4B"; sel.style.color = "transparent"; } }
+
+    function saveAsImage() {
+        const target = document.getElementById('export-area');
+        document.querySelectorAll('.number-dropdown, .manual-input, .client-info-box').forEach(el => {
+            let span = document.createElement('span'); span.className = 'temp-span';
+            if (el.classList.contains('client-info-box')) { span.innerText = el.value || (el.placeholder ? el.placeholder : " "); span.style.cssText = "color:#FFFFFF; font-weight:bold; font-size:1.4vw; font-family:'Sarabun', sans-serif; display:block; padding:10px 15px;"; } 
+            else { span.innerText = el.value || ""; span.style.cssText = `color:${el.style.color}; font-weight:900; font-size:1.6vw; font-family:'Sarabun', sans-serif; display:flex; align-items:center; justify-content:center; width:100%; height:100%;`; }
+            el.style.display = 'none'; el.parentNode.appendChild(span);
+        });
+
+        html2canvas(target, { scale: 2, backgroundColor: "#293A4B", useCORS: true }).then(canvas => {
+            let link = document.createElement('a'); link.download = 'กราฟชีวิต-หมอวิทยา.png'; link.href = canvas.toDataURL(); link.click();
+            document.querySelectorAll('.temp-span').forEach(s => s.remove());
+            document.querySelectorAll('.number-dropdown, .manual-input, .client-info-box').forEach(el => el.style.display = 'block');
+        });
+    }
+
+    function saveToDatabase() {
+        const name = document.getElementById('db-name').value; const dob = document.getElementById('db-dob').value; const note = document.getElementById('db-note').value;
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_R3rj6uQExK1lFQnIA5V51gYrqzIJW7VrpyLO_7I6gbc1oFk8C5S62j_hljIHwmA9/exec"; 
+        fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ timestamp: new Date().toLocaleString("th-TH"), name: name, dob: dob, note: note }) }).then(() => alert("☁️ บันทึกประวัติลูกค้าลง Google Sheet เรียบร้อยแล้วครับ!"));
+    }
+</script>
+</body>
+</html>
