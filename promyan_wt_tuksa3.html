@@ -211,14 +211,14 @@
     <div class="input-section">
         <div class="input-grid">
             <div class="input-group">
-                <label>1. วันที่เกิด (1-31)</label>
+                <label>1. วันที่เกิด</label>
                 <select id="sel-date">
                     <option value="" disabled selected>-- เลือกวันที่ --</option>
                     <script>for(let i=1; i<=31; i++) document.write(`<option value="${400+i}">วันที่ ${i}</option>`);</script>
                 </select>
             </div>
             <div class="input-group">
-                <label>2. วันเกิด (อาทิตย์-เสาร์)</label>
+                <label>2. วันเกิด</label>
                 <select id="sel-day">
                     <option value="" disabled selected>-- เลือกวัน --</option>
                     <option value="101">วันอาทิตย์ (1)</option>
@@ -231,87 +231,87 @@
                 </select>
             </div>
             <div class="input-group">
-                <label>3. เดือนเกิด (1-12)</label>
+                <label>3. เดือนเกิด</label>
                 <select id="sel-month">
                     <option value="" disabled selected>-- เลือกเดือน --</option>
-                    <option value="201">เดือน 1 (อ้าย) / ธันวาคม</option>
-                    <option value="202">เดือน 2 (ยี่) / มกราคม</option>
-                    <option value="203">เดือน 3 / กุมภาพันธ์</option>
-                    <option value="204">เดือน 4 / มีนาคม</option>
-                    <option value="205">เดือน 5 / เมษายน</option>
-                    <option value="206">เดือน 6 / พฤษภาคม</option>
-                    <option value="207">เดือน 7 / มิถุนายน</option>
-                    <option value="208">เดือน 8 / กรกฎาคม</option>
-                    <option value="209">เดือน 9 / สิงหาคม</option>
-                    <option value="210">เดือน 10 / กันยายน</option>
-                    <option value="211">เดือน 11 / ตุลาคม</option>
-                    <option value="212">เดือน 12 / พฤศจิกายน</option>
+                    <option value="201">ธันวาคม</option>
+                    <option value="202">มกราคม</option>
+                    <option value="203">กุมภาพันธ์</option>
+                    <option value="204">มีนาคม</option>
+                    <option value="205">เมษายน</option>
+                    <option value="206">พฤษภาคม</option>
+                    <option value="207">มิถุนายน</option>
+                    <option value="208">กรกฎาคม</option>
+                    <option value="209">สิงหาคม</option>
+                    <option value="210">กันยายน</option>
+                    <option value="211">ตุลาคม</option>
+                    <option value="212">พฤศจิกายน</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>4. ปีนักษัตร (1-12)</label>
+                <label>4. ปีนักษัตร</label>
                 <select id="sel-year">
                     <option value="" disabled selected>-- เลือกปีนักษัตร --</option>
-                    <option value="301">ปี 1 / ชวด</option>
-                    <option value="302">ปี 2 / ฉลู</option>
-                    <option value="303">ปี 3 / ขาล</option>
-                    <option value="304">ปี 4 / เถาะ</option>
-                    <option value="305">ปี 5 / มะโรง</option>
-                    <option value="306">ปี 6 / มะเส็ง</option>
-                    <option value="307">ปี 7 / มะเมีย</option>
-                    <option value="308">ปี 8 / มะแม</option>
-                    <option value="309">ปี 9 / วอก</option>
-                    <option value="310">ปี 10 / ระกา</option>
-                    <option value="311">ปี 11 / จอ</option>
-                    <option value="312">ปี 12 / กุน</option>
+                    <option value="301">ปีชวด</option>
+                    <option value="302">ปีฉลู</option>
+                    <option value="303">ปีขาล</option>
+                    <option value="304">ปีเถาะ</option>
+                    <option value="305">ปีมะโรง</option>
+                    <option value="306">ปีมะเส็ง</option>
+                    <option value="307">ปีมะเมีย</option>
+                    <option value="308">ปีมะแม</option>
+                    <option value="309">ปีวอก</option>
+                    <option value="310">ปีระกา</option>
+                    <option value="311">ปีจอ</option>
+                    <option value="312">ปีกุน</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>5. ปี พ.ศ. เกิด (คำนวณอายุ)</label>
+                <label>5. ปีเกิด(พ.ศ.)</label>
                 <input type="number" id="birth-be-year" placeholder="ตัวอย่าง 2533" min="2400" max="2600">
             </div>
             <div class="input-group">
-                <label>6. โหมดแสดงอายุ (แถว 8)</label>
+                <label>6. โหมดแสดงอายุ</label>
                 <select id="sel-age-mode">
-                    <option value="12" selected>แสดงเต็มรอบ (12 ปี)</option>
-                    <option value="1">แสดง 1 ปี (ปัจจุบัน)</option>
-                    <option value="2">แสดง 2 ปี (ปัจจุบัน + 1)</option>
-                    <option value="3">แสดง 3 ปี (ปัจจุบัน + 2)</option>
-                    <option value="0">❌ ปิดการแสดงผล</option>
+                    <option value="12" selected>แสดงอายุ 12 ปี</option>
+                    <option value="1">ปีปัจจุบัน</option>
+                    <option value="2">ปีปัจจุบัน +1</option>
+                    <option value="3">ปีปัจจุบัน +2</option>
+                    <option value="0">❌ปิดการแสดงผล</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>7. แสดงปีนักษัตร (แถว 9)</label>
+                <label>7. แสดงปีนักษัตร</label>
                 <select id="sel-zodiac-row">
                     <option value="12" selected>แสดงเต็มรอบ (12 ปี)</option>
-                    <option value="1">แสดง 1 ปี (ปีถัดไป)</option>
-                    <option value="2">แสดง 2 ปี (ถัดไปอีก 2 ปี)</option>
-                    <option value="3">แสดง 3 ปี (ถัดไปอีก 3 ปี)</option>
-                    <option value="0">❌ ปิดการแสดงผล</option>
+                    <option value="1">ปีถัดไป</option>
+                    <option value="2">ถัดไปอีก 2 ปี</option>
+                    <option value="3">ถัดไปอีก 3 ปี</option>
+                    <option value="0">❌ปิดการแสดงผล</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>8. สัญลักษณ์ทักษาจร</label>
+                <label>8.ทักษาจร</label>
                 <select id="sel-taksa">
-                    <option value="1" selected>✅ เปิดแสดง (ศรี/กาลี)</option>
-                    <option value="0">❌ ปิดการแสดงผล</option>
+                    <option value="1" selected>✅ เปิดทักษา</option>
+                    <option value="0">❌ปิดทักษา</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>9. แสดง Timeline 84 ปี</label>
+                <label>9.Timeline 84 ปี</label>
                 <select id="sel-timeline">
-                    <option value="1">✅ เปิดแสดง</option>
-                    <option value="0" selected>❌ ปิดการแสดงผล</option>
+                    <option value="1">✅ เปิด</option>
+                    <option value="0" selected>❌ ปิด</option>
                 </select>
             </div>
         </div>
-        <button class="btn-calc" onclick="generateAndRender()">✨ ประมวลผลและสร้างกระดาน</button>
+        <button class="btn-calc" onclick="generateAndRender()">✨สร้างผังดวงชะตา</button>
     </div>
 
     <div id="save-area" class="save-controls">
-        <button class="btn-save btn-save-image" onclick="saveAsImage()">💾 SAVE IMAGE</button>
+        <button class="btn-save btn-save-image" onclick="saveAsImage()">💾 บันทึกภาพ</button>
         <button class="btn-save btn-reset-row" onclick="resetSelectedAge()">↩️ กลับสู่อายุปัจจุบัน</button>
-        <button class="btn-save btn-db" onclick="saveToDatabase()">☁️ บันทึกประวัติลง Google Sheet</button>
+        <button class="btn-save btn-db" onclick="saveToDatabase()">☁️ บันทึกประวัติ</button>
     </div>
 
     <div class="board-wrapper" id="main-wrapper">
