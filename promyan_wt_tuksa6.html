@@ -20,9 +20,9 @@
         .sub-title { color: #7f8c8d; margin-bottom: 25px; font-size: 1.2em; }
 
         .input-section { background: #f8f9fa; padding: 16px; border-radius: 15px; border: 2px dashed #bdc3c7; margin-bottom: 18px; }
-        .control-panel { display: grid; grid-template-columns: 1fr; gap: 10px; align-items: stretch; }
-        .control-panel.has-actions { grid-template-columns: minmax(0, 1fr) minmax(190px, 220px); }
-        .input-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px 10px; text-align: left;}
+        .control-panel { display: grid; grid-template-columns: 1fr; gap: 10px; align-items: start; }
+        .control-panel.has-actions { grid-template-columns: minmax(0, 1fr) minmax(320px, 360px); }
+        .input-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px 10px; text-align: left; align-content: start;}
         .input-group { display: flex; flex-direction: column; gap: 4px; min-width: 0;}
         .input-group label { font-family: 'Kanit', sans-serif; font-size: 0.86em; color: #2c3e50; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .input-group select, .input-group input { min-width: 0; padding: 8px; font-size: 0.98em; border-radius: 8px; border: 1px solid #bdc3c7; font-family: 'Sarabun', sans-serif; outline: none; transition: 0.3s;}
@@ -31,8 +31,9 @@
         .input-action-group { justify-content: flex-end; }
         .btn-calc { background: #2980b9; color: white; min-height: 40px; padding: 8px 12px; font-size: 1.03em; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 700; width: 100%; transition: 0.3s; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3);}
         .btn-calc:hover { background: #1f618d; transform: translateY(-2px); }
-        .save-controls { min-width: 0; display: none; grid-template-columns: 1fr; grid-template-rows: repeat(5, minmax(0, 1fr)); gap: 6px;}
-        .btn-save { width: 100%; min-width: 0; padding: 6px 9px; font-size: 0.9em; line-height: 1.15; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; transition: 0.3s; color: white; white-space: nowrap;}
+        .save-controls { min-width: 0; display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, auto); gap: 6px; align-content: start;}
+        .save-controls .layout-scale-control { grid-column: 1 / -1; }
+        .btn-save { width: 100%; min-width: 0; min-height: 34px; padding: 7px 8px; font-size: 0.9em; line-height: 1.15; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; transition: 0.3s; color: white; white-space: nowrap;}
         .btn-save-image { background: #27ae60; } .btn-save-image:hover { background: #2ecc71; transform: translateY(-1px); }
         .btn-reset-row { background: #e74c3c; } .btn-reset-row:hover { background: #c0392b; transform: translateY(-1px); }
         .btn-db { background: #8e44ad; } .btn-db:hover { background: #732d91; transform: translateY(-1px); }
@@ -370,15 +371,18 @@
         }
         @media (max-width: 1100px) {
             .control-panel.has-actions { grid-template-columns: 1fr; }
-            .save-controls { grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: 1fr; }
+            .save-controls { grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: auto; }
+            .save-controls .layout-scale-control { grid-column: auto; }
         }
         @media (max-width: 760px) {
             .input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .save-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, 1fr); }
+            .save-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, auto); }
+            .save-controls .layout-scale-control { grid-column: 1 / -1; }
         }
         @media (max-width: 520px) {
             .input-grid, .save-controls { grid-template-columns: 1fr; }
-            .save-controls { grid-template-rows: repeat(5, 1fr); }
+            .save-controls { grid-template-rows: repeat(5, auto); }
+            .save-controls .layout-scale-control { grid-column: 1; }
             .input-section { padding: 12px; }
         }
     </style>
