@@ -20,6 +20,8 @@
         .sub-title { color: #7f8c8d; margin-bottom: 25px; font-size: 1.2em; }
 
         .input-section { background: #f8f9fa; padding: 16px; border-radius: 15px; border: 2px dashed #bdc3c7; margin-bottom: 18px; }
+        .control-panel { display: grid; grid-template-columns: 1fr; gap: 10px; align-items: stretch; }
+        .control-panel.has-actions { grid-template-columns: minmax(0, 1fr) minmax(190px, 220px); }
         .input-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px 10px; text-align: left;}
         .input-group { display: flex; flex-direction: column; gap: 4px; min-width: 0;}
         .input-group label { font-family: 'Kanit', sans-serif; font-size: 0.86em; color: #2c3e50; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -29,8 +31,8 @@
         .input-action-group { justify-content: flex-end; }
         .btn-calc { background: #2980b9; color: white; min-height: 40px; padding: 8px 12px; font-size: 1.03em; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 700; width: 100%; transition: 0.3s; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3);}
         .btn-calc:hover { background: #1f618d; transform: translateY(-2px); }
-        .save-controls { width: min(720px, 100%); margin: 0 auto 15px; display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px;}
-        .btn-save { width: 100%; min-width: 0; padding: 10px 14px; font-size: 1em; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; transition: 0.3s; color: white;}
+        .save-controls { min-width: 0; display: none; grid-template-columns: 1fr; grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 6px;}
+        .btn-save { width: 100%; min-width: 0; padding: 6px 9px; font-size: 0.9em; line-height: 1.15; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif; font-weight: 600; transition: 0.3s; color: white; white-space: nowrap;}
         .btn-save-image { background: #27ae60; } .btn-save-image:hover { background: #2ecc71; transform: translateY(-1px); }
         .btn-reset-row { background: #e74c3c; } .btn-reset-row:hover { background: #c0392b; transform: translateY(-1px); }
         .btn-db { background: #8e44ad; } .btn-db:hover { background: #732d91; transform: translateY(-1px); }
@@ -228,6 +230,8 @@
         .graph12-action-button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
         .graph12-back-button { background: #566573; }
         .graph12-save-button { background: #27ae60; }
+        .graph12-age-toggle { background: #117864; }
+        .graph12-age-toggle.is-hidden { background: #b71c1c; }
         .graph12-filter-button {
             min-width: 46px; height: 38px; padding: 0 12px; border-radius: 19px;
             border: 2px solid #ffffff; cursor: pointer; font-family: 'Sarabun', sans-serif;
@@ -312,12 +316,13 @@
         .graph12-card.is-linked .graph12-link-badge { display: flex; }
         .graph12-age-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -38%);
-            width: clamp(42px, 5.5vw, 76px); height: clamp(42px, 5.5vw, 76px);
+            width: clamp(46px, 5.8vw, 82px); height: clamp(46px, 5.8vw, 82px);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.92); color: #154360;
-            border: clamp(3px, 0.35vw, 5px) solid #3498db;
-            box-shadow: 0 5px 16px rgba(0,0,0,0.36);
-            font-family: 'Kanit', sans-serif; font-size: clamp(1rem, 1.8vw, 1.7rem); font-weight: 800;
+            background: rgba(255,255,255,0.38); color: #0b3954;
+            border: 2px solid rgba(52,152,219,0.58);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.16);
+            text-shadow: 0 1px 2px rgba(255,255,255,0.98), 0 0 6px rgba(255,255,255,0.95);
+            font-family: 'Kanit', sans-serif; font-size: clamp(1.55rem, 2.7vw, 2.9rem); font-weight: 800;
             line-height: 1; z-index: 18; pointer-events: none;
         }
 
@@ -341,11 +346,17 @@
             .graph12-toolbar { align-items: stretch; }
             .graph12-toolbar-group { width: 100%; }
         }
-        @media (max-width: 900px) {
+        @media (max-width: 1100px) {
+            .control-panel.has-actions { grid-template-columns: 1fr; }
+            .save-controls { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: 1fr; }
+        }
+        @media (max-width: 760px) {
             .input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .save-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, 1fr); }
         }
         @media (max-width: 520px) {
             .input-grid, .save-controls { grid-template-columns: 1fr; }
+            .save-controls { grid-template-rows: repeat(4, 1fr); }
             .input-section { padding: 12px; }
         }
     </style>
@@ -356,7 +367,8 @@
     <h2>🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว</h2>
 
     <div class="input-section">
-        <div class="input-grid">
+        <div class="control-panel">
+            <div class="input-grid">
             <div class="input-group">
                 <label>1. วันที่เกิด</label>
                 <select id="sel-date">
@@ -451,18 +463,19 @@
                     <option value="0" selected>❌ ปิดการแสดงผล</option>
                 </select>
             </div>
-            <div class="input-group input-action-group">
-                <label aria-hidden="true">&nbsp;</label>
-                <button class="btn-calc" onclick="generateAndRender()">ประมวลผล</button>
+                <div class="input-group input-action-group">
+                    <label aria-hidden="true">&nbsp;</label>
+                    <button class="btn-calc" onclick="generateAndRender()">ประมวลผล</button>
+                </div>
+            </div>
+
+            <div id="save-area" class="save-controls">
+                <button class="btn-save btn-save-image" onclick="saveAsImage()">บันทึกภาพ</button>
+                <button class="btn-save btn-reset-row" onclick="resetSelectedAge()">อายุปัจจุบัน</button>
+                <button class="btn-save btn-db" onclick="saveToDatabase()">บันทึก Google Sheet</button>
+                <button class="btn-save btn-graph12" onclick="openGraph12View()">ฐานกราฟ12ใบ</button>
             </div>
         </div>
-    </div>
-
-    <div id="save-area" class="save-controls">
-        <button class="btn-save btn-save-image" onclick="saveAsImage()">💾 SAVE IMAGE</button>
-        <button class="btn-save btn-reset-row" onclick="resetSelectedAge()">↩️ กลับสู่อายุปัจจุบัน</button>
-        <button class="btn-save btn-db" onclick="saveToDatabase()">☁️ บันทึกประวัติลง Google Sheet</button>
-        <button class="btn-save btn-graph12" onclick="openGraph12View()">ฐานกราฟ12ใบ</button>
     </div>
 
     <div class="board-wrapper" id="main-wrapper">
@@ -494,6 +507,7 @@
             <button type="button" class="graph12-day-button" data-graph12-day="Sat" style="background:#8e44ad;" onclick="setGraph12Day('Sat')" aria-label="วันเสาร์" aria-pressed="false">ส</button>
         </div>
 
+        <button type="button" class="graph12-action-button graph12-age-toggle" id="graph12-age-toggle" onclick="toggleGraph12AgeVisibility()" aria-pressed="true" title="ปิดการแสดงอายุบนไพ่">อายุ</button>
         <button type="button" class="graph12-action-button graph12-save-button" id="graph12-save-button" onclick="saveGraph12AsImage()">บันทึกเป็นภาพ</button>
     </div>
 
@@ -616,6 +630,7 @@
     let activeGraph12Day = null;
     let activeGraph12Group = null;
     let activeGraph12Filter = "reset";
+    let graph12AgeVisible = true;
 
     function generateSequence(startId, length, minId, maxId) {
         let seq = []; let curr = startId;
@@ -1068,6 +1083,7 @@
 
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('save-area').style.display = 'grid';
+        document.querySelector('.control-panel')?.classList.add('has-actions');
         if (shouldScroll) document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -1343,6 +1359,8 @@
     function applyGraph12AgeOverlay() {
         document.querySelectorAll('#graph12-card-area .graph12-age-overlay').forEach(overlay => overlay.remove());
         document.querySelectorAll('#graph12-card-area .graph12-card').forEach(card => card.classList.remove('has-age'));
+        updateGraph12AgeToggle();
+        if (!graph12AgeVisible) return;
 
         const { selectedAge } = getGraph12AgeState();
         if (!Number.isInteger(selectedAge) || selectedAge <= 0) return;
@@ -1356,6 +1374,19 @@
         overlay.setAttribute('aria-label', `อายุ ${selectedAge} ปี`);
         targetCard.classList.add('has-age');
         targetCard.appendChild(overlay);
+    }
+
+    function updateGraph12AgeToggle() {
+        const button = document.getElementById('graph12-age-toggle');
+        if (!button) return;
+        button.classList.toggle('is-hidden', !graph12AgeVisible);
+        button.setAttribute('aria-pressed', String(graph12AgeVisible));
+        button.title = graph12AgeVisible ? 'ปิดการแสดงอายุบนไพ่' : 'เปิดการแสดงอายุบนไพ่';
+    }
+
+    function toggleGraph12AgeVisibility() {
+        graph12AgeVisible = !graph12AgeVisible;
+        applyGraph12AgeOverlay();
     }
 
     function selectGraph12Age(age) {
