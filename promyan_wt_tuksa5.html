@@ -47,7 +47,15 @@
             row-gap: 15px;      
             column-gap: 30px;   
             width: 100%;
+            position: relative;
+            isolation: isolate;
         }
+
+        .graph-diagonal-overlay {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            overflow: visible; pointer-events: none; z-index: 30;
+        }
+        .graph-diagonal-overlay * { pointer-events: none; }
 
         .card-item { border-radius: 8px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative;}
         .card-item img { width: 100%; height: auto; border-radius: 5px; display: block; background: #fff;}
@@ -620,6 +628,13 @@
     GRAPH_DIAGONAL_PATHS["12"] = GRAPH_DIAGONAL_PATHS["2"];
     GRAPH_DIAGONAL_PATHS["13"] = GRAPH_DIAGONAL_PATHS["3"];
 
+    const GRAPH_GUIDE_CARD_COLORS = {
+        "card-default":"#f2f4f4", "card-very-good":"#0047ab", "card-good":"#bbdefb",
+        "card-neutral-status":"#ffffff", "card-bad":"#212121", "card-very-bad":"#b71c1c",
+        "card-dark-gray":"#424949", "card-black":"#17202a", "card-red":"#cb4335",
+        "card-gold-zone":"#b38728"
+    };
+
     let activeGraphHighlightCols = []; 
     let activeSevenCols = []; 
     let currentBoardData = null;
@@ -631,6 +646,7 @@
     let activeGraph12Group = null;
     let activeGraph12Filter = "reset";
     let graph12AgeVisible = true;
+    let graphGuideRenderFrame = null;
 
     function generateSequence(startId, length, minId, maxId) {
         let seq = []; let curr = startId;
@@ -1171,6 +1187,7 @@
         activeGraphHighlightCols = [];
         board.classList.remove('has-graph-highlight');
         document.querySelectorAll('.dim-target-graph').forEach(el => el.classList.remove('highlighted'));
+        removeGraphDiagonalGuides();
     }
 
     function applyGraphModeControls() {
@@ -1199,12 +1216,194 @@
         applySevenLabelVisibility();
     }
 
+    function createGraphGuideSvgElement(tagName, attributes = {}) {
+        const element = document.createElementNS('http://www.w3.org/2000/svg', tagName);
+        Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, String(value)));
+        return element;
+    }
+
+    function removeGraphDiagonalGuides() {
+        document.querySelector('#main-board .graph-diagonal-overlay')?.remove();
+    }
+
+    function getGraphGuideBaseColor(col) {
+        const sourceCard = document.querySelector(`#main-board .card-item[data-row="5"][data-col="${col}"]`);
+        if (!sourceCard) return '#3498db';
+        for (const [className, color] of Object.entries(GRAPH_GUIDE_CARD_COLORS)) {
+            if (sourceCard.classList.contains(className)) return color;
+        }
+        return '#3498db';
+    }
+
+    function graphGuideHexToRgb(hex) {
+        const normalized = hex.replace('#', '');
+        return {
+            r: parseInt(normalized.slice(0, 2), 16),
+            g: parseInt(normalized.slice(2, 4), 16),
+            b: parseInt(normalized.slice(4, 6), 16)
+        };
+    }
+
+    function graphGuideRgbToHex({ r, g, b }) {
+        const toHex = value => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0');
+        return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+
+    function adjustGraphGuideColor(hex, amount) {
+        const rgb = graphGuideHexToRgb(hex);
+        const target = amount >= 0 ? 255 : 0;
+        const factor = Math.abs(amount);
+        return graphGuideRgbToHex({
+            r: rgb.r + (target - rgb.r) * factor,
+            g: rgb.g + (target - rgb.g) * factor,
+            b: rgb.b + (target - rgb.b) * factor
+        });
+    }
+
+    function isGraphGuideLightColor(hex) {
+        const { r, g, b } = graphGuideHexToRgb(hex);
+        return ((r * 299 + g * 587 + b * 114) / 255000) > 0.68;
+    }
+
+    function getGraphGuidePoint(boardRect, coordinate) {
+        const [row, col] = coordinate.split(':');
+        const card = document.querySelector(`#main-board .card-item[data-row="${row}"][data-col="${col}"]`);
+        if (!card) return null;
+        const rect = card.getBoundingClientRect();
+        return {
+            x: rect.left - boardRect.left + rect.width / 2,
+            y: rect.top - boardRect.top + rect.height / 2
+        };
+    }
+
+    function offsetGraphGuidePoints(points, offset) {
+        if (!offset) return points.map(point => ({ ...point }));
+        return points.map((point, index) => {
+            const previous = points[Math.max(0, index - 1)];
+            const next = points[Math.min(points.length - 1, index + 1)];
+            const dx = next.x - previous.x;
+            const dy = next.y - previous.y;
+            const length = Math.hypot(dx, dy) || 1;
+            return {
+                x: point.x + (-dy / length) * offset,
+                y: point.y + (dx / length) * offset
+            };
+        });
+    }
+
+    function appendGraphGuidePolyline(svg, points, color) {
+        const pointText = points.map(point => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(' ');
+        const common = {
+            points: pointText, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+            'vector-effect': 'non-scaling-stroke'
+        };
+        svg.appendChild(createGraphGuideSvgElement('polyline', {
+            ...common, stroke: '#ffffff', 'stroke-width': 9, 'stroke-opacity': 0.58
+        }));
+        svg.appendChild(createGraphGuideSvgElement('polyline', {
+            ...common, stroke: isGraphGuideLightColor(color) ? '#2c3e50' : '#ffffff',
+            'stroke-width': 6, 'stroke-opacity': isGraphGuideLightColor(color) ? 0.82 : 0.5
+        }));
+        svg.appendChild(createGraphGuideSvgElement('polyline', {
+            ...common, stroke: color, 'stroke-width': 3.8, 'stroke-opacity': 0.98
+        }));
+    }
+
+    function appendGraphGuideNode(svg, point, colors) {
+        const distinctColors = [...new Set(colors)];
+        const radius = 6;
+        svg.appendChild(createGraphGuideSvgElement('circle', {
+            cx: point.x, cy: point.y, r: 9, fill: '#ffffff', 'fill-opacity': 0.78
+        }));
+
+        if (distinctColors.length === 1) {
+            const color = distinctColors[0];
+            svg.appendChild(createGraphGuideSvgElement('circle', {
+                cx: point.x, cy: point.y, r: radius, fill: color,
+                stroke: isGraphGuideLightColor(color) ? '#2c3e50' : '#ffffff', 'stroke-width': 2,
+                'vector-effect': 'non-scaling-stroke'
+            }));
+            return;
+        }
+
+        const [firstColor, secondColor] = distinctColors;
+        svg.appendChild(createGraphGuideSvgElement('circle', {
+            cx: point.x, cy: point.y, r: radius, fill: firstColor
+        }));
+        const rightHalf = `M ${point.x} ${point.y - radius} A ${radius} ${radius} 0 0 1 ${point.x} ${point.y + radius} L ${point.x} ${point.y} Z`;
+        svg.appendChild(createGraphGuideSvgElement('path', { d: rightHalf, fill: secondColor }));
+        svg.appendChild(createGraphGuideSvgElement('circle', {
+            cx: point.x, cy: point.y, r: radius, fill: 'none', stroke: '#2c3e50',
+            'stroke-width': 1.6, 'vector-effect': 'non-scaling-stroke'
+        }));
+    }
+
+    function renderGraphDiagonalGuides() {
+        graphGuideRenderFrame = null;
+        removeGraphDiagonalGuides();
+        if (graphHighlightMode !== 'diagonal' || activeGraphHighlightCols.length === 0) return;
+
+        const board = document.getElementById('main-board');
+        const boardRect = board.getBoundingClientRect();
+        if (!boardRect.width || !boardRect.height) return;
+
+        const pathData = activeGraphHighlightCols.slice(-2).map(col => {
+            const coordinates = GRAPH_DIAGONAL_PATHS[col] || [];
+            const points = coordinates.map(coordinate => getGraphGuidePoint(boardRect, coordinate));
+            if (points.some(point => !point)) return null;
+            return { col, coordinates, points, color: getGraphGuideBaseColor(col) };
+        }).filter(Boolean);
+        if (pathData.length === 0) return;
+
+        if (pathData.length === 2 && pathData[0].color.toLowerCase() === pathData[1].color.toLowerCase()) {
+            pathData[1].color = adjustGraphGuideColor(
+                pathData[1].color,
+                isGraphGuideLightColor(pathData[1].color) ? -0.28 : 0.28
+            );
+        }
+
+        const svg = createGraphGuideSvgElement('svg', {
+            class: 'graph-diagonal-overlay', viewBox: `0 0 ${boardRect.width} ${boardRect.height}`,
+            width: boardRect.width, height: boardRect.height, 'aria-hidden': 'true', preserveAspectRatio: 'none'
+        });
+
+        pathData.forEach((path, index) => {
+            const offset = pathData.length === 2 ? (index === 0 ? -3.2 : 3.2) : 0;
+            appendGraphGuidePolyline(svg, offsetGraphGuidePoints(path.points, offset), path.color);
+        });
+
+        const nodeMap = new Map();
+        pathData.forEach((path, pathIndex) => {
+            path.coordinates.forEach((coordinate, pointIndex) => {
+                if (!nodeMap.has(coordinate)) {
+                    nodeMap.set(coordinate, { point: path.points[pointIndex], pathIndexes: new Set() });
+                }
+                nodeMap.get(coordinate).pathIndexes.add(pathIndex);
+            });
+        });
+        nodeMap.forEach(node => {
+            const colors = [...node.pathIndexes].map(index => pathData[index].color);
+            appendGraphGuideNode(svg, node.point, colors);
+        });
+
+        board.appendChild(svg);
+    }
+
+    function scheduleGraphDiagonalGuides() {
+        if (graphGuideRenderFrame !== null) cancelAnimationFrame(graphGuideRenderFrame);
+        graphGuideRenderFrame = requestAnimationFrame(renderGraphDiagonalGuides);
+    }
+
+    window.addEventListener('resize', scheduleGraphDiagonalGuides);
+    if (document.fonts?.ready) document.fonts.ready.then(scheduleGraphDiagonalGuides);
+
     function applyGraphHighlights() {
         const board = document.getElementById('main-board');
         const targets = document.querySelectorAll('.dim-target-graph');
         if (activeGraphHighlightCols.length === 0) {
             board.classList.remove('has-graph-highlight');
             targets.forEach(el => el.classList.remove('highlighted'));
+            removeGraphDiagonalGuides();
             return;
         }
 
@@ -1224,6 +1423,7 @@
                 : activeGraphHighlightCols.includes(el.dataset.col) && row !== 7;
             el.classList.toggle('highlighted', isHighlighted);
         });
+        renderGraphDiagonalGuides();
     }
 
     function setGraphHighlightMode(mode) {
@@ -1537,10 +1737,15 @@
             el.style.display = 'none'; el.parentNode.appendChild(span);
         });
 
+        renderGraphDiagonalGuides();
         html2canvas(target, { scale: 2, backgroundColor: "#293A4B", useCORS: true }).then(canvas => {
             let link = document.createElement('a'); link.download = 'กราฟชีวิต-หมอวิทยา.png'; link.href = canvas.toDataURL(); link.click();
+        }).catch(() => {
+            alert('ไม่สามารถบันทึกภาพได้ กรุณาลองใหม่อีกครั้ง');
+        }).finally(() => {
             document.querySelectorAll('.temp-span').forEach(s => s.remove());
             document.querySelectorAll('.number-dropdown, .manual-input, .client-info-box').forEach(el => el.style.display = 'block');
+            scheduleGraphDiagonalGuides();
         });
     }
 
