@@ -187,13 +187,12 @@
         /* ========================================================== */
         .sri-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 40%; aspect-ratio: 1 / 1; background-color: rgba(46, 204, 113, 0.6); z-index: 5; pointer-events: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); }
         
-        .kalee-wrapper { 
-            position: absolute; top: 70%; left: 50%; transform: translate(-50%, -40%); 
-            width: 0; height: 0; 
-            border-left: 1.2vw solid transparent; 
-            border-right: 1.2vw solid transparent; 
-            border-bottom: 2.5vw solid rgba(231, 76, 60, 0.75); 
-            z-index: 5; pointer-events: none; 
+        .kalee-wrapper {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%);
+            width: 40%; height: auto; aspect-ratio: 1 / 1;
+            border: none; background-color: rgba(231, 76, 60, 0.75);
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+            z-index: 5; pointer-events: none;
         }
         .kalee-danger-circle { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); 
@@ -204,11 +203,11 @@
             background-color: rgba(231, 76, 60, 0.15); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); 
         }
         .kalee-danger-circle .kalee-wrapper {
-            position: static; transform: none; 
-            border-left: 1.1vw solid transparent; 
-            border-right: 1.1vw solid transparent; 
-            border-bottom: 2.1vw solid rgba(231, 76, 60, 0.75); 
-            margin-top: 15%; 
+            position: static; transform: none;
+            width: 73%; height: auto; aspect-ratio: 1 / 1;
+            border: none; background-color: rgba(231, 76, 60, 0.75);
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+            margin: 0;
         }
         /* ========================================================== */
 
@@ -255,6 +254,7 @@
         .node-age { position: absolute; top: -45px; font-weight: 800; font-family: 'Sarabun', sans-serif; color: #c0392b; font-size: 1.2vw; text-shadow: 1px 1px 4px white; z-index: 20; }
 
         /* มุมมองเฉพาะระบบเลข 7 ตัว: ซ่อนส่วนกราฟชีวิตและจัดแถวที่เหลือขึ้นมาอุดพื้นที่ */
+        #main-app-view.seven-only-view #age-cycle-setting-group,
         #main-app-view.seven-only-view #timeline-setting-group,
         #main-app-view.seven-only-view .btn-graph12,
         #main-app-view.seven-only-view #main-board .board-mode-controls,
@@ -265,6 +265,8 @@
         #main-app-view.seven-only-view #main-board .card-item[data-row="3"]:not([data-seven-slot]),
         #main-app-view.seven-only-view #main-board .card-item[data-row="4"]:not([data-seven-slot]),
         #main-app-view.seven-only-view #main-board .dropdown-cell[data-row="6"],
+        #main-app-view.seven-only-view #main-board .age-button[data-row="8"],
+        #main-app-view.seven-only-view #main-board .custom-cell[data-row="8"],
         #main-app-view.seven-only-view #main-board .custom-cell[data-row="9"],
         #main-app-view.seven-only-view #main-board .timeline-area-wrapper {
             display: none !important;
@@ -272,27 +274,28 @@
         #main-app-view.seven-only-view .input-action-group { grid-column: 4 / span 2; }
         #main-app-view.seven-only-view .save-controls .btn-db { grid-column: 1 / -1; }
         #main-app-view.seven-only-view #main-wrapper { overflow-x: auto; overflow-y: visible; }
-        #main-app-view.seven-only-view #export-area { min-width: 980px; }
+        #main-app-view.seven-only-view #export-area { min-width: 1280px; }
         #main-app-view.seven-only-view #main-board .card-item[data-seven-slot] .pos-label {
             display: flex; align-items: center; justify-content: center;
             min-height: 1.35em; padding-left: 2px; padding-right: 2px;
-            font-size: clamp(13px, 1.05vw, 18px); line-height: 1.2;
+            font-size: clamp(10px, 0.82vw, 15px); line-height: 1.2;
             white-space: nowrap; overflow: visible; word-break: keep-all;
         }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot] {
+            width: 115%; justify-self: center;
+        }
         #main-app-view.seven-only-view #main-board .teacher-watermark {
-            grid-area: 7 / 1 / span 1 / span 14 !important;
+            grid-area: 6 / 1 / span 1 / span 14 !important;
             text-align: center; margin-top: 0;
         }
-        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="0"] { grid-column: 1 / span 2 !important; }
-        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="1"] { grid-column: 3 / span 2 !important; }
-        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="2"] { grid-column: 5 / span 2 !important; }
-        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="3"] { grid-column: 7 / span 2 !important; }
-        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="4"] { grid-column: 9 / span 2 !important; }
-        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="5"] { grid-column: 11 / span 2 !important; }
-        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="6"] { grid-column: 13 / span 2 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="0"] { grid-column: 3 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="1"] { grid-column: 4 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="2"] { grid-column: 5 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="3"] { grid-column: 6 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="4"] { grid-column: 7 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="5"] { grid-column: 8 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="6"] { grid-column: 9 !important; }
         #main-app-view.seven-only-view #main-board .card-item[data-row="7"] { grid-row: 5 !important; }
-        #main-app-view.seven-only-view #main-board .age-button[data-row="8"],
-        #main-app-view.seven-only-view #main-board .custom-cell[data-row="8"] { grid-row: 6 !important; }
 
         /* ========================================================================== */
         /* ========================== ฐานกราฟชีวิต 12 ใบ =========================== */
@@ -527,7 +530,7 @@
                 <label>5. ปี พ.ศ. เกิด</label>
                 <input type="number" id="birth-be-year" placeholder="ตัวอย่าง 2533" min="2400" max="2600">
             </div>
-            <div class="input-group">
+            <div class="input-group" id="age-cycle-setting-group">
                 <label>6. โหมดแสดงอายุ</label>
                 <select id="sel-age-mode">
                     <option value="12" selected>แสดงเต็มรอบ (12 ปี)</option>
