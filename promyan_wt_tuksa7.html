@@ -95,7 +95,12 @@
         .card-item { border-radius: 8px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); text-align: center; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative;}
         .card-item img { width: 100%; height: auto; border-radius: 5px; display: block; background: #fff;}
         
-        .pos-label { display: block; font-weight: 700; font-size: 1.0vw; margin-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; font-family: 'Sarabun', sans-serif; line-height: 1.2;}
+        .pos-label {
+            display: block; min-height: 1.25em; margin-bottom: 4px; padding: 0 1px 2px;
+            border-bottom: 1px solid rgba(0,0,0,0.1); font-family: 'Sarabun', sans-serif;
+            font-size: clamp(10px, 0.82vw, 16px); font-weight: 700; line-height: 1.2;
+            white-space: nowrap; word-break: keep-all; overflow: visible;
+        }
 
         .card-default .pos-label, .card-good .pos-label, .card-neutral-status .pos-label { color: #2c3e50 !important; border-bottom-color: rgba(0,0,0,0.15) !important; }
         .card-default .pos-label.label-danger, .card-good .pos-label.label-danger, .card-neutral-status .pos-label.label-danger { color: #d32f2f !important; }
@@ -256,6 +261,9 @@
         #main-app-view.seven-only-view #main-board .r5-filter-controls,
         #main-app-view.seven-only-view #main-board .seven-label-controls,
         #main-app-view.seven-only-view #main-board .card-item[data-row="5"],
+        #main-app-view.seven-only-view #main-board .card-item[data-row="2"]:not([data-seven-slot]),
+        #main-app-view.seven-only-view #main-board .card-item[data-row="3"]:not([data-seven-slot]),
+        #main-app-view.seven-only-view #main-board .card-item[data-row="4"]:not([data-seven-slot]),
         #main-app-view.seven-only-view #main-board .dropdown-cell[data-row="6"],
         #main-app-view.seven-only-view #main-board .custom-cell[data-row="9"],
         #main-app-view.seven-only-view #main-board .timeline-area-wrapper {
@@ -263,6 +271,25 @@
         }
         #main-app-view.seven-only-view .input-action-group { grid-column: 4 / span 2; }
         #main-app-view.seven-only-view .save-controls .btn-db { grid-column: 1 / -1; }
+        #main-app-view.seven-only-view #main-wrapper { overflow-x: auto; overflow-y: visible; }
+        #main-app-view.seven-only-view #export-area { min-width: 980px; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot] .pos-label {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 1.35em; padding-left: 2px; padding-right: 2px;
+            font-size: clamp(13px, 1.05vw, 18px); line-height: 1.2;
+            white-space: nowrap; overflow: visible; word-break: keep-all;
+        }
+        #main-app-view.seven-only-view #main-board .teacher-watermark {
+            grid-area: 7 / 1 / span 1 / span 14 !important;
+            text-align: center; margin-top: 0;
+        }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="0"] { grid-column: 1 / span 2 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="1"] { grid-column: 3 / span 2 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="2"] { grid-column: 5 / span 2 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="3"] { grid-column: 7 / span 2 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="4"] { grid-column: 9 / span 2 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="5"] { grid-column: 11 / span 2 !important; }
+        #main-app-view.seven-only-view #main-board .card-item[data-seven-slot="6"] { grid-column: 13 / span 2 !important; }
         #main-app-view.seven-only-view #main-board .card-item[data-row="7"] { grid-row: 5 !important; }
         #main-app-view.seven-only-view #main-board .age-button[data-row="8"],
         #main-app-view.seven-only-view #main-board .custom-cell[data-row="8"] { grid-row: 6 !important; }
@@ -1111,7 +1138,7 @@
             targetBGridCol_Sys2 = posRow10[targetIdx7] + 2; 
         }
 
-        const addCard = (code, gridRow, gridCol, title) => {
+        const addCard = (code, gridRow, gridCol, title, sevenSlot = null) => {
             if (!code) return;
             // V2: ใช้สีสถานะกับไพ่ทุกแถว ไม่จำกัดเฉพาะแถวฐานกราฟชีวิต
             let styleClass = getCardStyleClass(code, title);
@@ -1170,7 +1197,8 @@
                 }
             }
 
-            board.innerHTML += `<div class="card-item ${styleClass} ${dimClasses} ${clickClass}" data-col="${gridCol}" data-row="${gridRow}" data-code="${code}" data-has-title="${title ? 'true' : 'false'}" style="grid-area: ${gridRow} / ${gridCol}; position:relative;" ${extraAttr}>
+            const sevenSlotAttr = Number.isInteger(sevenSlot) ? ` data-seven-slot="${sevenSlot}"` : "";
+            board.innerHTML += `<div class="card-item ${styleClass} ${dimClasses} ${clickClass}" data-col="${gridCol}" data-row="${gridRow}" data-code="${code}" data-has-title="${title ? 'true' : 'false'}"${sevenSlotAttr} style="grid-area: ${gridRow} / ${gridCol}; position:relative;" ${extraAttr}>
                     ${titleHtml}<img src="images/${code}.jpg" onerror="this.src='images/back.jpg';">${overlayHtml}</div>`;
         }
 
@@ -1187,9 +1215,15 @@
         board.innerHTML += tHtml;
         board.innerHTML += `<div class="teacher-watermark" style="grid-area: 2/9/2/15;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</div>`;
 
-        data.DAY.forEach((c, i) => addCard(c, 2, i + 2, ROW_2_TITLES[i]));
-        data.MONTH.forEach((c, i) => { let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i); addCard(c, 3, i + 2, idx!==-1?ROW_4_TITLES[idx]:null); });
-        data.YEAR.forEach((c, i) => { let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i); addCard(c, 4, i + 2, idx!==-1?ROW_6_TITLES[idx]:null); });
+        data.DAY.forEach((c, i) => addCard(c, 2, i + 2, ROW_2_TITLES[i], i));
+        data.MONTH.forEach((c, i) => {
+            let idx = calculateDynamicPositions(data.MONTH, "201").indexOf(i);
+            addCard(c, 3, i + 2, idx !== -1 ? ROW_4_TITLES[idx] : null, idx !== -1 ? idx : null);
+        });
+        data.YEAR.forEach((c, i) => {
+            let idx = calculateDynamicPositions(data.YEAR, "301").indexOf(i);
+            addCard(c, 4, i + 2, idx !== -1 ? ROW_6_TITLES[idx] : null, idx !== -1 ? idx : null);
+        });
         board.innerHTML += `<div class="board-mode-controls" style="grid-area: 4/14;" aria-label="รูปแบบการเน้นไพ่กราฟชีวิต">
             <button type="button" class="board-control-button graph-mode-button vertical" data-graph-mode="vertical" aria-label="แสดงไพ่กราฟชีวิตแบบแนวดิ่ง" aria-pressed="true" title="แนวดิ่ง" onclick="setGraphHighlightMode('vertical')"></button>
             <button type="button" class="board-control-button graph-mode-button diagonal" data-graph-mode="diagonal" aria-label="แสดงไพ่กราฟชีวิตแบบแนวทแยง" aria-pressed="false" title="แนวทแยง" onclick="setGraphHighlightMode('diagonal')"></button>
@@ -1213,7 +1247,7 @@
             board.innerHTML += `<div class="dropdown-cell dim-target-graph dim-target-seven" data-row="6" data-col="${col}" style="grid-area: 6/${col}; background-color:${bg};"><select class="number-dropdown" onchange="updateDropdown(this)" style="color:${color};">${opts}</select></div>`;
         }
 
-        data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null));
+        data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null, i));
 
         let startAgeCol = (baseAge > 0) ? ((baseAge - 1) % 12) : -1;
         for(let col = 2; col <= 13; col++) {
