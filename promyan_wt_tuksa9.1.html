@@ -316,11 +316,14 @@
         #main-app-view.seven-only-view #main-board .card-item[data-row="7"] { grid-row: 5 !important; }
 
         /* ความสัมพันธ์ระหว่างแถวปีนักษัตรกับไพ่ฐานเลข 7 ตัว */
-        .seven-pair-anchor { display: none; }
-        #main-app-view.seven-only-view #main-board .seven-pair-anchor {
-            display: grid; place-items: center; align-self: end; justify-self: center;
-            transform: translateY(calc(50% + 7.5px)); z-index: 29;
-            width: max-content; height: 0; pointer-events: none;
+        .seven-pair-overlay {
+            position: absolute; inset: 0; z-index: 29;
+            overflow: visible; pointer-events: none;
+        }
+        .seven-pair-marker {
+            position: absolute; display: grid; place-items: center;
+            width: max-content; transform: translate(-50%, -50%);
+            pointer-events: none;
         }
         .seven-pair-relationship {
             --pair-color: #3498db; --pair-dark: #156a9a;
@@ -972,6 +975,7 @@
     let activeGraph12Filter = "reset";
     let graph12AgeVisible = true;
     let graphGuideRenderFrame = null;
+    let sevenPairRenderFrame = null;
     let mainBoardScale = 100;
     let graph12LayoutScale = 100;
     let layoutScaleRenderFrame = null;
@@ -1007,6 +1011,7 @@
             applySevenLabelVisibility();
         }
         scheduleLayoutScaleRefresh();
+        scheduleSevenPairRelationships();
     }
 
     function setMainViewMode(mode) {
@@ -1037,6 +1042,7 @@
         if (control) control.value = String(mainBoardScale);
         applyScaledLayout('export-area', 'main-wrapper', mainBoardScale);
         scheduleGraphDiagonalGuides();
+        scheduleSevenPairRelationships();
     }
 
     function setGraph12LayoutScale(value) {
@@ -1051,6 +1057,7 @@
         applyScaledLayout('export-area', 'main-wrapper', mainBoardScale);
         applyScaledLayout('graph12-capture', 'graph12-capture-wrapper', graph12LayoutScale);
         scheduleGraphDiagonalGuides();
+        scheduleSevenPairRelationships();
     }
 
     function scheduleLayoutScaleRefresh() {
@@ -1075,7 +1082,10 @@
 
     window.addEventListener('resize', scheduleLayoutScaleRefresh);
     document.addEventListener('load', event => {
-        if (event.target instanceof HTMLImageElement) scheduleLayoutScaleRefresh();
+        if (event.target instanceof HTMLImageElement) {
+            scheduleLayoutScaleRefresh();
+            scheduleSevenPairRelationships();
+        }
     }, true);
 
     function generateSequence(startId, length, minId, maxId) {
@@ -1374,28 +1384,72 @@
         renderBase(9, BASE_9_HOUSES, nineBases.base9, 7);
     }
 
-    function renderSevenPairRelationships(board, data, yearPositions) {
-        if (!Array.isArray(yearPositions) || !Array.isArray(data.YEAR) || !Array.isArray(data.SEVEN_BASE)) return;
+    function createSevenPairSymbolHtml(relationType) {
+        const relation = SEVEN_PAIR_META[relationType];
+        if (!relation) return '';
+        const symbolHtml = relationType === 'self'
+            ? `<svg class="seven-pair-chevron-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 17 L16 6 L27 17"></path><path d="M5 27 L16 16 L27 27"></path></svg>`
+            : `<span class="seven-pair-icon ${relation.iconClass}"></span>`;
+        return `<span class="seven-pair-symbol">${symbolHtml}</span><span class="seven-pair-name">${relation.name}</span>`;
+    }
 
-        yearPositions.forEach((yearIndex, slotIndex) => {
-            const yearCode = String(data.YEAR[yearIndex] || "");
-            const yearNumber = Number(CARD_GROUPS[yearCode]);
-            const baseCode = String(data.SEVEN_BASE[slotIndex] || "");
-            const baseNumber = Number(baseCode) - 400;
+    function removeSevenPairOverlay() {
+        document.querySelector('#main-board .seven-pair-overlay')?.remove();
+    }
+
+    function renderSevenPairRelationships() {
+        sevenPairRenderFrame = null;
+        const board = document.getElementById('main-board');
+        removeSevenPairOverlay();
+        if (!board || mainViewMode !== 'seven' || !currentBoardData) return;
+
+        const boardRect = board.getBoundingClientRect();
+        const scaleX = board.offsetWidth > 0 ? boardRect.width / board.offsetWidth : 1;
+        const scaleY = board.offsetHeight > 0 ? boardRect.height / board.offsetHeight : scaleX;
+        if (!boardRect.width || !boardRect.height || !scaleX || !scaleY) return;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'seven-pair-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
+
+        for (let slotIndex = 0; slotIndex < 7; slotIndex++) {
+            const yearCard = board.querySelector(`.card-item[data-row="4"][data-seven-slot="${slotIndex}"]`);
+            const baseCard = board.querySelector(`.card-item[data-row="7"][data-seven-slot="${slotIndex}"]`);
+            if (!yearCard || !baseCard) continue;
+
+            const yearNumber = Number(CARD_GROUPS[String(yearCard.dataset.code)]);
+            const baseNumber = Number(baseCard.dataset.code) - 400;
             const relationType = SEVEN_PAIR_RELATIONS[`${yearNumber}-${baseNumber}`];
             const relation = SEVEN_PAIR_META[relationType];
-            if (!relation) return;
+            if (!relation) continue;
 
-            const gridCol = Number(yearIndex) + 2;
+            const yearRect = yearCard.getBoundingClientRect();
+            const baseRect = baseCard.getBoundingClientRect();
+            const centerX = (((yearRect.left + yearRect.right + baseRect.left + baseRect.right) / 4) - boardRect.left) / scaleX;
+            const centerY = (((yearRect.bottom + baseRect.top) / 2) - boardRect.top) / scaleY;
+            const sourceCol = String(yearCard.dataset.col || baseCard.dataset.col || '');
             const description = `เลขปีนักษัตร ${yearNumber} กับเลขไพ่ฐาน ${baseNumber}: ${relation.name} — ${relation.effect}`;
-            board.innerHTML += `<div class="seven-pair-anchor" style="grid-area:4 / ${gridCol};" aria-hidden="true">`;
-            board.innerHTML += `<div class="seven-pair-relationship dim-target-seven ${relation.className}" data-seven-relation="${relationType}" data-row="4" data-col="${gridCol}" title="${description}">`;
-            const symbolHtml = relationType === 'self'
-                ? `<svg class="seven-pair-chevron-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 17 L16 6 L27 17"></path><path d="M5 27 L16 16 L27 27"></path></svg>`
-                : `<span class="seven-pair-icon ${relation.iconClass}"></span>`;
-            board.innerHTML += `<span class="seven-pair-symbol">${symbolHtml}</span>`;
-            board.innerHTML += `<span class="seven-pair-name">${relation.name}</span>`;
-            board.innerHTML += `</div></div>`;
+
+            const marker = document.createElement('div');
+            marker.className = 'seven-pair-marker';
+            marker.style.left = `${centerX}px`;
+            marker.style.top = `${centerY}px`;
+            marker.innerHTML = `<div class="seven-pair-relationship dim-target-seven ${relation.className}" data-seven-relation="${relationType}" data-row="4" data-col="${sourceCol}" title="${description}">${createSevenPairSymbolHtml(relationType)}</div>`;
+            overlay.appendChild(marker);
+        }
+
+        board.appendChild(overlay);
+        if (board.classList.contains('has-seven-highlight')) {
+            overlay.querySelectorAll('.seven-pair-relationship').forEach(marker => {
+                marker.classList.toggle('highlighted', activeSevenCols.includes(String(marker.dataset.col)));
+            });
+        }
+    }
+
+    function scheduleSevenPairRelationships() {
+        if (sevenPairRenderFrame !== null) cancelAnimationFrame(sevenPairRenderFrame);
+        sevenPairRenderFrame = requestAnimationFrame(() => {
+            sevenPairRenderFrame = requestAnimationFrame(renderSevenPairRelationships);
         });
     }
 
@@ -1584,7 +1638,6 @@
         }
 
         data.SEVEN_BASE.forEach((c, i) => addCard(c, 7, posRow10[i] + 2, null, i));
-        renderSevenPairRelationships(board, data, posRow10);
         renderNineBaseRows(board, data);
 
         let startAgeCol = (baseAge > 0) ? ((baseAge - 1) % 12) : -1;
@@ -1998,7 +2051,10 @@
     }
 
     window.addEventListener('resize', scheduleGraphDiagonalGuides);
-    if (document.fonts?.ready) document.fonts.ready.then(scheduleGraphDiagonalGuides);
+    if (document.fonts?.ready) document.fonts.ready.then(() => {
+        scheduleGraphDiagonalGuides();
+        scheduleSevenPairRelationships();
+    });
 
     function applyGraphHighlights() {
         const board = document.getElementById('main-board');
