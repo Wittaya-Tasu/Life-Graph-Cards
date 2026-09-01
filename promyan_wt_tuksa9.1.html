@@ -252,11 +252,11 @@
             border-radius: 50%; pointer-events: none; z-index: 28; box-sizing: border-box;
         }
         #main-app-view.seven-only-view .card-item.seven-source-selected::before {
-            width: 90%; border: 3px solid #f1c40f;
+            width: 45%; border: 3px solid #f1c40f;
             box-shadow: 0 0 0 1px rgba(0,0,0,0.45), 0 0 10px rgba(241,196,15,0.7);
         }
         #main-app-view.seven-only-view .card-item.seven-source-selected::after {
-            width: 70%; border: 2px solid #fff3a3;
+            width: 35%; border: 2px solid #fff3a3;
             box-shadow: 0 0 0 1px rgba(0,0,0,0.38), 0 0 7px rgba(255,255,255,0.65);
         }
 
@@ -327,28 +327,21 @@
         }
         .seven-pair-relationship {
             --pair-color: #3498db; --pair-dark: #156a9a;
-            display: grid; place-items: center; gap: 2px;
+            display: grid; place-items: center;
             transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease;
         }
         .seven-pair-symbol {
             position: relative; display: grid; place-items: center;
-            width: clamp(34px, 3.15vw, 50px); aspect-ratio: 1 / 1;
-            border: clamp(2px, 0.2vw, 3px) solid #ffffff; border-radius: 50%;
+            width: clamp(17px, 1.575vw, 25px); aspect-ratio: 1 / 1;
+            border: clamp(1px, 0.1vw, 1.5px) solid #ffffff; border-radius: 50%;
             color: #ffffff; background: var(--pair-color);
-            box-shadow: 0 0 0 3px var(--pair-dark), 0 4px 11px rgba(0,0,0,0.42);
-        }
-        .seven-pair-name {
-            min-width: clamp(45px, 4.5vw, 67px); padding: 2px 4px 1px;
-            border: 1px solid rgba(255,255,255,0.92); border-radius: 999px;
-            color: #ffffff; background: var(--pair-dark);
-            font-family: 'Sarabun', sans-serif; font-size: clamp(8px, 0.58vw, 10px);
-            font-weight: 900; line-height: 1.05; text-align: center; white-space: nowrap;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.34);
+            box-shadow: 0 0 0 1.5px var(--pair-dark), 0 2px 6px rgba(0,0,0,0.42);
+            opacity: 0.6;
         }
         .seven-pair-icon { position: relative; display: block; width: 64%; height: 64%; }
         .seven-pair-chevron-icon { display: block; width: 68%; height: 68%; overflow: visible; }
         .seven-pair-chevron-icon path {
-            fill: none; stroke: #ffffff; stroke-width: 4.5;
+            fill: none; stroke: #ffffff; stroke-width: 2.25;
             stroke-linecap: round; stroke-linejoin: round;
         }
         .seven-pair-icon.plus::before, .seven-pair-icon.plus::after {
@@ -359,14 +352,14 @@
         .seven-pair-icon.plus::after { width: 22%; height: 95%; }
         .seven-pair-icon.triangle-up::before, .seven-pair-icon.triangle-down::before {
             content: ""; position: absolute; left: 50%; transform: translateX(-50%);
-            border-left: clamp(8px, 0.8vw, 13px) solid transparent;
-            border-right: clamp(8px, 0.8vw, 13px) solid transparent;
+            border-left: clamp(4px, 0.4vw, 6.5px) solid transparent;
+            border-right: clamp(4px, 0.4vw, 6.5px) solid transparent;
         }
         .seven-pair-icon.triangle-up::before {
-            top: 7%; border-bottom: clamp(16px, 1.55vw, 25px) solid #ffffff;
+            top: 7%; border-bottom: clamp(8px, 0.775vw, 12.5px) solid #ffffff;
         }
         .seven-pair-icon.triangle-down::before {
-            bottom: 7%; border-top: clamp(16px, 1.55vw, 25px) solid #ffffff;
+            bottom: 7%; border-top: clamp(8px, 0.775vw, 12.5px) solid #ffffff;
         }
         .seven-pair-relationship.pair-self { --pair-color: #35a9e6; --pair-dark: #0875ad; }
         .seven-pair-relationship.pair-element { --pair-color: #59bce9; --pair-dark: #187da8; }
@@ -374,7 +367,7 @@
         .seven-pair-relationship.pair-power { --pair-color: #168fce; --pair-dark: #075d91; }
         .seven-pair-relationship.pair-enemy { --pair-color: #eb4c4c; --pair-dark: #a51f29; }
         .seven-pair-relationship.pair-power .seven-pair-symbol::after {
-            content: ""; position: absolute; inset: 14%; border: 2px solid rgba(255,255,255,0.92); border-radius: 50%;
+            content: ""; position: absolute; inset: 14%; border: 1px solid rgba(255,255,255,0.92); border-radius: 50%;
         }
         .grid-board.has-seven-highlight .seven-pair-relationship.highlighted {
             box-shadow: none; border-color: transparent !important; transform: scale(1.08); z-index: 31;
@@ -1390,7 +1383,7 @@
         const symbolHtml = relationType === 'self'
             ? `<svg class="seven-pair-chevron-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 17 L16 6 L27 17"></path><path d="M5 27 L16 16 L27 27"></path></svg>`
             : `<span class="seven-pair-icon ${relation.iconClass}"></span>`;
-        return `<span class="seven-pair-symbol">${symbolHtml}</span><span class="seven-pair-name">${relation.name}</span>`;
+        return `<span class="seven-pair-symbol">${symbolHtml}</span>`;
     }
 
     function removeSevenPairOverlay() {
