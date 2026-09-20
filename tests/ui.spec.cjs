@@ -1,3 +1,4 @@
+const {seedSession,routeSession}=require('./auth-fixture.cjs');
 const { test, expect } = require('playwright/test');
 const {routeFonts}=require('./fonts.cjs');
 
@@ -15,7 +16,9 @@ test.beforeEach(async ({ page }) => {
   pageErrors=[]; externalWrites=[];
   page.on('pageerror', error => pageErrors.push(error.message));
   page.on('dialog', dialog => dialog.dismiss());
+  await seedSession(page);
   await page.route('**/*', async route => {
+    if(await routeSession(route))return;
     if(await routeFonts(route)) return;
     const req=route.request(), url=new URL(req.url());
     if (/script\.google\.com/.test(url.hostname)) {
@@ -182,9 +185,10 @@ test('no visible level badges overlay cards; accessible descriptions remain', as
 });
 
 const databaseProtocol='promyan-save-v1';
-async function databaseMock(page, handler, health={protocol:databaseProtocol,ok:true,ready:true}) {
+async function databaseMock(page, handler, health={protocol:databaseProtocol,ok:true,ready:true,authRequired:true}) {
   const requests=[];
   await page.route('https://script.google.com/**', async route => {
+    if(await routeSession(route))return;
     const reply = body => route.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify(body)});
     if(route.request().method()==='GET') return reply(health);
     const body=route.request().postDataJSON();requests.push(body);

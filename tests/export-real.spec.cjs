@@ -1,10 +1,13 @@
+const {seedSession,routeSession}=require('./auth-fixture.cjs');
 const {test,expect}=require('playwright/test');
 const fs=require('node:fs');
 const {routeFonts}=require('./fonts.cjs');
 const renderer=fs.readFileSync(require.resolve('html2canvas/dist/html2canvas.min.js'),'utf8');
 const image='<svg xmlns="http://www.w3.org/2000/svg" width="180" height="300"><rect width="180" height="300" fill="#dde7ef"/><path d="M20 20H160V280H20Z" fill="none" stroke="#203a57" stroke-width="5"/><text x="35" y="150" font-size="20">TEST CARD</text></svg>';
 test.beforeEach(async({page})=>{
+  await seedSession(page);
   await page.route('**/*',async route=>{
+    if(await routeSession(route))return;
     if(await routeFonts(route))return;
     const url=new URL(route.request().url());
     if(url.pathname.includes('html2canvas'))return route.fulfill({contentType:'application/javascript',body:renderer});

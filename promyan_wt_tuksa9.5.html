@@ -729,9 +729,61 @@
             .card-item[aria-pressed="true"] { outline:4px double Highlight !important; }
         }
     </style>
+<style>
+/* Login styles are scoped; existing chart styles remain unchanged. */
+#owner-app[hidden], #owner-login[hidden], #owner-session-bar[hidden] { display:none !important; }
+body.owner-locked { padding:0; overflow:hidden; }
+#owner-login { position:fixed; inset:0; z-index:10000; min-height:100%; overflow:auto; background:#b7bdc1; text-align:left; }
+#owner-login .owner-photo { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; object-position:left center; }
+#owner-login .owner-login-layout { position:relative; min-height:100vh; box-sizing:border-box; display:flex; align-items:center; justify-content:flex-end; padding:40px 7vw; }
+#owner-login .owner-login-card { width:390px; max-width:100%; box-sizing:border-box; padding:38px; border-radius:22px; background:rgba(255,255,255,.95); border:1px solid rgba(255,255,255,.75); box-shadow:0 24px 70px rgba(23,47,39,.18); }
+#owner-login .owner-eyebrow { color:#42624f; font-size:13px; letter-spacing:2px; margin:0 0 12px; font-weight:700; }
+#owner-login h1 { font-family:'Kanit',sans-serif; font-size:30px; line-height:1.4; color:#183f30; margin:0 0 6px; }
+#owner-login .owner-description { color:#536259; font-size:15px; line-height:1.7; margin:0 0 25px; }
+#owner-login .owner-field { margin:0 0 18px; }
+#owner-login label { display:block; font-size:15px; font-weight:600; color:#294d3c; margin:0 0 8px; }
+#owner-login input { box-sizing:border-box; width:100%; font:inherit; font-size:16px; border:1px solid #b5c6bd; border-radius:9px; padding:12px 13px; background:#fff; color:#193528; }
+#owner-login input:focus { outline:3px solid #aac6b5; outline-offset:2px; border-color:#325f46; }
+#owner-login .owner-password-wrap { position:relative; }
+#owner-login #owner-password { padding-right:65px; }
+#owner-login #owner-show-password { position:absolute; right:7px; top:6px; bottom:6px; border:0; background:transparent; color:#31573f; cursor:pointer; font:inherit; font-size:13px; padding:0 8px; }
+#owner-login #owner-submit { width:100%; padding:13px; border:0; border-radius:9px; background:#214f3b; color:white; font:600 17px 'Sarabun',sans-serif; cursor:pointer; }
+#owner-login #owner-submit:hover { background:#173e2c; }
+#owner-login button:disabled { opacity:.65; cursor:wait; }
+#owner-login #owner-login-message { min-height:24px; color:#58685e; font-size:14px; line-height:1.6; margin:16px 0 0; }
+#owner-login #owner-login-message.owner-error { color:#a62424; }
+#owner-login .owner-signature { padding-top:21px; margin:22px 0 0; border-top:1px solid #dde4de; color:#66766c; font-size:13px; line-height:1.6; }
+#owner-session-bar { width:98%; margin:0 auto 7px; display:flex; justify-content:flex-end; align-items:center; gap:10px; color:#526457; font-size:12px; }
+#owner-session-bar button { font:inherit; padding:5px 12px; border:1px solid #bccbc1; border-radius:7px; background:#fff; color:#31573f; cursor:pointer; }
+@media (max-width:1000px) { #owner-login .owner-login-layout { padding-right:4vw; } #owner-login .owner-login-card { width:340px; padding:28px; } }
+@media (max-width:640px) { #owner-login .owner-login-layout { justify-content:center; padding:24px 16px; background:rgba(232,236,234,.55); } }
+@media print { #owner-session-bar { display:none !important; } }
+
+</style>
 </head>
-<body>
+<body class="owner-locked">
+<section id="owner-login" aria-labelledby="owner-login-title">
+  <img class="owner-photo" src="assets/login-teacher.jpg" alt="เศียรครูพรหมญาณ" fetchpriority="high">
+  <div class="owner-login-layout">
+    <div class="owner-login-card">
+      <p class="owner-eyebrow">พรหมญาณพยากรณ์</p>
+      <h1 id="owner-login-title">ยินดีต้อนรับ</h1>
+      <p class="owner-description">กราฟชีวิต & เลขเจ็ดตัว 9 ฐาน<br>เข้าสู่ระบบเพื่อใช้งานกระดานพยากรณ์</p>
+      <form id="owner-login-form">
+        <div class="owner-field"><label for="owner-username">ชื่อผู้ใช้</label><input id="owner-username" name="username" autocomplete="username" required maxlength="64" spellcheck="false" autocapitalize="none"></div>
+        <div class="owner-field"><label for="owner-password">รหัสผ่าน</label><div class="owner-password-wrap"><input id="owner-password" name="password" type="password" autocomplete="current-password" required maxlength="128"><button type="button" id="owner-show-password" aria-label="แสดงรหัสผ่าน" aria-pressed="false">แสดง</button></div></div>
+        <button type="submit" id="owner-submit">เข้าสู่ระบบ</button>
+      </form>
+      <p id="owner-login-message" aria-live="polite" aria-atomic="true"></p>
+      <p class="owner-signature">โดย หมอวิทยา ธรรมนาย</p>
+      <noscript>กรุณาเปิด JavaScript เพื่อเข้าสู่ระบบ</noscript>
+    </div>
+  </div>
+</section>
+<div id="owner-app" hidden inert>
+
 <a class="skip-link" href="#main-view-title" id="skip-to-content">ข้ามไปเนื้อหาหลัก</a>
+<div id="owner-session-bar" hidden><span>เข้าใช้งานแล้ว</span><button type="button" id="owner-logout">ออกจากระบบ</button></div>
 <p id="app-status" role="status" aria-live="polite" aria-atomic="true"></p>
 <p id="app-error" role="alert" aria-atomic="true" hidden></p>
 
@@ -917,6 +969,116 @@
     </div>
 </section>
 
+</div><!-- owner-app -->
+<script>
+// Owner login: a visual gate for public chart code, server-enforced authorization for saves.
+window.PromyanOwner = (() => {
+  const PROTOCOL = 'promyan-auth-v1';
+  const KEY = 'promyan-v95-owner-session';
+  let session = null, expiryTimer = null, busy = false, generation = 0;
+  const el = id => document.getElementById(id);
+  function message(text, error=false) {
+    el('owner-login-message').textContent = text;
+    el('owner-login-message').classList.toggle('owner-error',error);
+  }
+  function valid(s) {
+    return s && typeof s.token === 'string' && /^[a-f0-9]{64}$/.test(s.token)
+      && Number.isFinite(s.expiresAt) && s.expiresAt > Date.now();
+  }
+  function lock(text='', error=false) {
+    generation++; clearTimeout(expiryTimer); session = null;
+    try { sessionStorage.removeItem(KEY); } catch {}
+    el('owner-app').hidden = true; el('owner-app').inert = true;
+    el('owner-session-bar').hidden = true; el('owner-login').hidden = false;
+    document.body.classList.add('owner-locked');
+    el('owner-password').value=''; message(text,error);
+    el('owner-username').focus();
+  }
+  function open(s, focus=false) {
+    if (!valid(s)) return lock('หมดเวลาใช้งาน กรุณาเข้าสู่ระบบอีกครั้ง');
+    // Persist before exposing the UI; unavailable storage fails closed.
+    sessionStorage.setItem(KEY,JSON.stringify(s)); session=s;
+    el('owner-login').hidden=true; el('owner-app').hidden=false; el('owner-app').inert=false;
+    el('owner-session-bar').hidden=false; document.body.classList.remove('owner-locked');
+    el('owner-password').value=''; message(''); clearTimeout(expiryTimer);
+    expiryTimer=setTimeout(()=>lock('หมดเวลาใช้งาน กรุณาเข้าสู่ระบบอีกครั้ง'),s.expiresAt-Date.now());
+    if (focus) el('main-view-title').focus();
+  }
+  async function request(action, fields={}) {
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),90000);
+    try {
+      const response=await fetch(DATABASE_URL,{method:'POST',mode:'cors',credentials:'omit',redirect:'follow',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({protocol:PROTOCOL,action,...fields}),signal:controller.signal});
+      if(!response.ok) throw Error('network');
+      const r=await response.json();
+      if(!r || r.protocol!==PROTOCOL || typeof r.ok!=='boolean') throw Error('protocol');
+      return r;
+    } finally { clearTimeout(timer); }
+  }
+  function errorText(r) {
+    if(r.code==='AUTH_NOT_CONFIGURED')return 'ยังไม่ได้ตั้งค่าบัญชีใน GAS กรุณารัน setupOwnerAccount ก่อน';
+    if(r.code==='RATE_LIMITED')return 'ลองเข้าสู่ระบบหลายครั้งเกินไป กรุณารอประมาณ '+Math.max(1,Math.ceil((r.retryAfterSeconds||900)/60))+' นาที';
+    if(r.code==='INVALID_CREDENTIALS')return 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+    if(r.code==='BUSY')return 'ระบบกำลังทำงาน กรุณาลองใหม่สักครู่';
+    return 'ยังเข้าสู่ระบบไม่ได้ กรุณาตรวจสอบการตั้งค่า GAS แล้วลองใหม่';
+  }
+  async function login(event) {
+    event.preventDefault(); if(busy)return; busy=true;
+    const op=++generation, button=el('owner-submit'); button.disabled=true; button.setAttribute('aria-busy','true');
+    message('กำลังตรวจสอบ…');
+    try {
+      const bytes=new Uint8Array(32); crypto.getRandomValues(bytes);
+      const sessionCandidate=Array.from(bytes,n=>n.toString(16).padStart(2,'0')).join('');
+      const r=await request('login',{username:el('owner-username').value.trim(),password:el('owner-password').value,sessionCandidate});
+      if(op!==generation)return;
+      if(!r.ok)return message(errorText(r),true);
+      if(r.status!=='authenticated' || r.token!==sessionCandidate || !valid(r))throw Error('receipt');
+      open({token:r.token,expiresAt:r.expiresAt},true);
+    } catch { if(op===generation)message('ยังเข้าสู่ระบบไม่ได้ ตรวจสอบอินเทอร์เน็ต URL และการ Deploy GAS แล้วลองใหม่',true); }
+    finally { el('owner-password').value=''; button.disabled=false; button.removeAttribute('aria-busy'); busy=false; }
+  }
+  async function logout() {
+    if(busy || databaseSaving)return;
+    const token=session && session.token; if(!token)return lock();
+    const button=el('owner-logout'); button.disabled=true;
+    try {
+      const r=await request('logout',{token});
+      if(!r.ok && r.code!=='UNAUTHORIZED')throw Error('revoke');
+      lock('ออกจากระบบแล้ว');
+      // A deliberate logout clears client/chart data and pending save IDs from this tab.
+      sessionStorage.removeItem(DATABASE_SESSION_KEY);
+      location.reload();
+    } catch { lock('ปิดหน้าการใช้งานแล้ว แต่ยังยืนยันการยกเลิกสิทธิ์บนเซิร์ฟเวอร์ไม่ได้ สิทธิ์เดิมจะหมดอายุภายใน 8 ชั่วโมง',true); }
+    finally { button.disabled=false; }
+  }
+  async function init() {
+    el('owner-login-form').addEventListener('submit',login);
+    el('owner-logout').addEventListener('click',logout);
+    el('owner-show-password').addEventListener('click',()=>{
+      const show=el('owner-password').type==='password'; el('owner-password').type=show?'text':'password';
+      el('owner-show-password').textContent=show?'ซ่อน':'แสดง';
+      el('owner-show-password').setAttribute('aria-label',show?'ซ่อนรหัสผ่าน':'แสดงรหัสผ่าน');
+      el('owner-show-password').setAttribute('aria-pressed',String(show));
+    });
+    const op=++generation;
+    try {
+      const stored=JSON.parse(sessionStorage.getItem(KEY)||'null');
+      if(!valid(stored))return lock();
+      busy=true; el('owner-submit').disabled=true; message('กำลังตรวจสอบสิทธิ์…');
+      const r=await request('session',{token:stored.token});
+      if(op!==generation)return;
+      if(r.ok && r.status==='authenticated' && Number.isFinite(r.expiresAt))open({token:stored.token,expiresAt:r.expiresAt});
+      else lock('กรุณาเข้าสู่ระบบอีกครั้ง');
+    } catch { lock('ตรวจสอบสิทธิ์ไม่ได้ กรุณาเข้าสู่ระบบอีกครั้ง',true); }
+    finally { busy=false; el('owner-submit').disabled=false; }
+  }
+  document.addEventListener('DOMContentLoaded',init);
+  return {token(){if(!valid(session)){lock('กรุณาเข้าสู่ระบบก่อนบันทึก');return null;}return session.token;},lock};
+})();
+
+</script>
 <script>
     const GRAPH_GROUPS = {};
     for (let i = 1; i <= 12; i++) { GRAPH_GROUPS[i] = [400 + i, 400 + i + 12, 400 + i + 24]; }
@@ -2987,6 +3149,8 @@
 
     async function saveToDatabase() {
         if (databaseSaving) return;
+        const ownerToken = window.PromyanOwner.token();
+        if (!ownerToken) return;
         const fields = ['db-name','db-dob','db-note'].map(id => document.getElementById(id));
         if (fields.some(field => !field)) {
             showAppMessage('กรุณาประมวลผลแผนผังก่อนบันทึก', true); return;
@@ -3021,7 +3185,7 @@
             const healthResponse = await fetch(healthUrl.href, {mode:'cors', credentials:'omit', cache:'no-store', signal:controller.signal});
             if (!healthResponse.ok) throw new Error('health-http');
             const health = await healthResponse.json();
-            if (health.protocol !== DATABASE_PROTOCOL || health.ok !== true || health.ready !== true) {
+            if (health.protocol !== DATABASE_PROTOCOL || health.ok !== true || health.ready !== true || health.authRequired !== true) {
                 showAppMessage('ยังไม่ได้ส่งข้อมูล: ต้องติดตั้งและ Deploy โค้ดยืนยันการบันทึกฝั่ง Google Sheet ก่อน', true);
                 return;
             }
@@ -3031,10 +3195,14 @@
             const response = await fetch(DATABASE_URL, {
                 method:'POST', mode:'cors', credentials:'omit', redirect:'follow',
                 headers:{'Content-Type':'text/plain;charset=utf-8'},
-                body:JSON.stringify(payload), signal:controller.signal
+                body:JSON.stringify({...payload, token:ownerToken}), signal:controller.signal
             });
             if (!response.ok) throw new Error('save-http');
             const receipt = await response.json();
+            if (receipt && receipt.protocol === DATABASE_PROTOCOL && receipt.ok === false && receipt.code === 'UNAUTHORIZED') {
+                window.PromyanOwner.lock('สิทธิ์หมดอายุ กรุณาเข้าสู่ระบบแล้วบันทึกอีกครั้ง ข้อมูลเดิมยังอยู่');
+                return;
+            }
             if (!isDatabaseReceipt(receipt, payload.requestId)) throw new Error('unverified-receipt');
             const prefix = receipt.status === 'duplicate' ? 'ยืนยันว่ารายการนี้บันทึกไว้แล้ว' : 'Google Sheet ยืนยันการบันทึกแล้ว';
             showAppMessage(prefix + ' · แถว ' + receipt.row + ' · รหัส ' + receipt.requestId);

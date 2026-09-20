@@ -1,33 +1,12 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const vm=require('node:vm');
-const path=require('node:path');
-const source=fs.readFileSync(path.join(__dirname,'../google-apps-script/Code.gs'),'utf8');
-const html=fs.readFileSync(path.join(__dirname,'../promyan_wt_tuksa9.5.html'),'utf8');
+const fs=require('fs'),path=require('path'),vm=require('vm');
+const {fixture,payload}=require('./fixture.cjs');
 const protocol='promyan-save-v1';
-const payload=()=>({protocol,action:'save',requestId:'11111111-1111-4111-8111-111111111111',timestamp:'2026-09-20T12:00:00.000Z',name:'ผู้ทดสอบจำลอง',dob:'22/4/2527',note:'ทดสอบ'});
-function fixture(options={}) {
-  const rows=options.empty?[]:[['เวลา','ชื่อ','วันเกิด','หมายเหตุ','request_id','saved_at']];
-  let flushed=0, released=0;
-  const sheet={getLastRow:()=>rows.length,getRange(r,c,h,w){return {
-    setNumberFormat(){return this;},
-    setValues(values){values.forEach((row,i)=>{rows[r-1+i]??=[]; row.forEach((value,j)=>{rows[r-1+i][c-1+j]=String(value).replace(/^'/,'');});});return this;},
-    getDisplayValues(){return Array.from({length:h},(_,i)=>Array.from({length:w},(_,j)=>options.corrupt&&r>1&&j===3?'corrupted':rows[r-1+i]?.[c-1+j]||''));},
-    createTextFinder(needle){return {matchEntireCell(){return this;},findNext(){const i=rows.findIndex((row,index)=>index>=r-1 && row[c-1]===needle);return i<0?null:{getRow:()=>i+1};}};}
-  };}};
-  const ctx=vm.createContext({
-    ContentService:{MimeType:{JSON:'json'},createTextOutput(text){return {setMimeType(){return JSON.parse(text);}};}},
-    PropertiesService:{getScriptProperties:()=>({getProperty:key=>options.unconfigured?null:(key==='SPREADSHEET_ID'?'test-sheet':(key==='SHEET_NAME'?'ข้อมูลเดิม':null))})},
-    LockService:{getScriptLock:()=>({tryLock:()=>!options.busy,releaseLock(){released++;}})},
-    SpreadsheetApp:{openById(){if(options.failOpen)throw Error('private sheet ID');return {getSheetByName:()=>options.missingSheet?null:sheet};},flush(){flushed++;}}
-  });
-  vm.runInContext(source,ctx);
-  return {ctx,rows,get flushed(){return flushed;},get released(){return released;},post:p=>ctx.doPost({postData:{contents:JSON.stringify(p)}})};
-}
+const html=fs.readFileSync(path.join(__dirname,'../promyan_wt_tuksa9.5.html'),'utf8');
 test('health exposes no stored client data',()=>{
   const f=fixture();f.post(payload());
-  assert.deepEqual(f.ctx.doGet({parameter:{action:'health'}}),{protocol,ok:true,ready:true});
+  assert.deepEqual(f.ctx.doGet({parameter:{action:'health'}}),{protocol,ok:true,ready:true,authRequired:true});
 });
 test('success requires append, flush and exact readback',()=>{
   const f=fixture(),p=payload(),r=f.post(p);
@@ -97,3 +76,5 @@ test('health checks real target schema without mutating the sheet',()=>{
 test('missing named sheet cannot silently create a different tab',()=>{
   const f=fixture({missingSheet:true});assert.equal(f.post(payload()).code,'SHEET_NOT_FOUND');assert.equal(f.rows.length,1);
 });
+
+

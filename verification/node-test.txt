@@ -1,0 +1,43 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> promyan-desktop-v9-5@9.5.0 test
+> node --test tests/core.test.cjs tests/database.test.cjs tests/auth.test.cjs
+
+ตั้งบัญชีสำเร็จแล้ว กรุณาลบ Username/Password ในโค้ดกลับเป็นช่องว่าง แล้ว Save ก่อน Deploy
+✔ blank setup and unconfigured server fail closed, without altering the Sheet (3.376912ms)
+✔ direct unauthenticated and forged-token saves never write or disclose receipt (1.432636ms)
+✔ production PBKDF2 matches independent Node crypto for Thai and long Unicode passwords (5865.557064ms)
+✔ correct credentials issue a session; previous session is revoked; raw token/password never stored (2864.097891ms)
+✔ wrong user or password never grants a session and returns the same error (5906.100487ms)
+✔ attempt limit is persistent, global across usernames, and expires after its window (2914.893363ms)
+✔ session expiration, logout, and manual revocation reject later saves (3.169479ms)
+✔ anonymous logout cannot revoke owner session; malformed input cannot mutate data (0.908748ms)
+✔ resetting credentials preserves spreadsheet configuration and revokes all sessions (2974.762571ms)
+✔ all inline scripts parse (1.287918ms)
+✔ V9.5 removes the topic UI, state and API entirely (0.516227ms)
+✔ nine-base golden case 7-5-1 (0.201573ms)
+✔ all 1,008 day/month/zodiac inputs preserve numeric invariants (31.743588ms)
+✔ invalid seeds rejected (0.595707ms)
+✔ form associations and keyboard support exist (0.77721ms)
+✔ health exposes no stored client data (5.108468ms)
+✔ success requires append, flush and exact readback (1.100887ms)
+✔ retry uses the same row with a duplicate receipt (1.108498ms)
+✔ same request ID with different content is rejected (1.065794ms)
+✔ readback mismatch never returns a successful receipt (0.901627ms)
+✔ script lock contention does not write (1.753668ms)
+✔ missing configuration and exceptions fail closed without leaking details (2.450768ms)
+✔ formula-like input is encoded as literal text (1.351564ms)
+✔ invalid request cannot mutate a sheet (1.479076ms)
+✔ existing incompatible columns are not overwritten (4.676848ms)
+✔ frontend accepts only a matching verified receipt (3.678656ms)
+✔ historical A:D values and headers survive a new save unchanged (1.446547ms)
+✔ health checks real target schema without mutating the sheet (4.184417ms)
+✔ missing named sheet cannot silently create a different tab (1.190382ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20704.526164
