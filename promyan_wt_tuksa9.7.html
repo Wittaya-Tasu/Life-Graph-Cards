@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว 9 ฐาน V9.7 (หมอวิทยา ธรรมนาย)</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <link rel="stylesheet" href="promyan-v9.7/css/app.css?v=9.7-graph12-fit-1">
+<link rel="stylesheet" href="promyan-v9.7/css/login.css?v=9.7-graph12-fit-1">
+</head>
+<body class="owner-locked">
+<section id="owner-login" aria-labelledby="owner-login-title">
+  <img class="owner-photo" src="promyan-v9.7/assets/login-teacher.jpg" alt="เศียรครูพรหมญาณ" fetchpriority="high">
+  <div class="owner-login-layout">
+    <div class="owner-login-card">
+      <p class="owner-eyebrow">พรหมญาณพยากรณ์</p>
+      <h1 id="owner-login-title">ยินดีต้อนรับ</h1>
+      <p class="owner-description">กราฟชีวิต & เลขเจ็ดตัว 9 ฐาน<br>เข้าสู่ระบบเพื่อใช้งานกระดานพยากรณ์</p>
+      <form id="owner-login-form">
+        <div class="owner-field"><label for="owner-username">ชื่อผู้ใช้</label><input id="owner-username" name="username" autocomplete="username" required maxlength="64" spellcheck="false" autocapitalize="none"></div>
+        <div class="owner-field"><label for="owner-password">รหัสผ่าน</label><div class="owner-password-wrap"><input id="owner-password" name="password" type="password" autocomplete="current-password" required maxlength="128"><button type="button" id="owner-show-password" aria-label="แสดงรหัสผ่าน" aria-pressed="false">แสดง</button></div></div>
+        <button type="submit" id="owner-submit">เข้าสู่ระบบ</button>
+      </form>
+      <p id="owner-login-message" aria-live="polite" aria-atomic="true"></p>
+      <p class="owner-signature">โดย หมอวิทยา ธรรมนาย</p>
+      <noscript>กรุณาเปิด JavaScript เพื่อเข้าสู่ระบบ</noscript>
+    </div>
+  </div>
+</section>
+<div id="owner-app" hidden inert>
+
+<a class="skip-link" href="#main-view-title" id="skip-to-content">ข้ามไปเนื้อหาหลัก</a>
+<div id="owner-session-bar" hidden><span>เข้าใช้งานแล้ว</span><button type="button" id="owner-logout">ออกจากระบบ</button></div>
+<p id="app-status" role="status" aria-live="polite" aria-atomic="true"></p>
+<p id="app-error" role="alert" aria-atomic="true" hidden></p>
+
+<main class="container" id="main-app-view" aria-labelledby="main-view-title">
+    <h1 id="main-view-title" tabindex="-1">🔮 กระดานพยากรณ์ กราฟชีวิต & เลขเจ็ดตัว 9 ฐาน</h1>
+    <p class="release-label">V9.7 · ปรับมุมมองฐานกราฟ 12 ใบ</p>
+
+    <div class="input-section" role="region" aria-label="ข้อมูลและการตั้งค่าแผนผัง">
+        <div class="control-panel">
+            <div class="input-grid">
+            <div class="input-group">
+                <label for="sel-date">1. วันที่เกิด</label>
+                <select id="sel-date" required aria-describedby="app-error">
+                    <option value="" disabled selected>-- เลือกวันที่ --</option>
+                    <option value="401">วันที่ 1</option><option value="402">วันที่ 2</option><option value="403">วันที่ 3</option><option value="404">วันที่ 4</option><option value="405">วันที่ 5</option><option value="406">วันที่ 6</option><option value="407">วันที่ 7</option><option value="408">วันที่ 8</option><option value="409">วันที่ 9</option><option value="410">วันที่ 10</option><option value="411">วันที่ 11</option><option value="412">วันที่ 12</option><option value="413">วันที่ 13</option><option value="414">วันที่ 14</option><option value="415">วันที่ 15</option><option value="416">วันที่ 16</option><option value="417">วันที่ 17</option><option value="418">วันที่ 18</option><option value="419">วันที่ 19</option><option value="420">วันที่ 20</option><option value="421">วันที่ 21</option><option value="422">วันที่ 22</option><option value="423">วันที่ 23</option><option value="424">วันที่ 24</option><option value="425">วันที่ 25</option><option value="426">วันที่ 26</option><option value="427">วันที่ 27</option><option value="428">วันที่ 28</option><option value="429">วันที่ 29</option><option value="430">วันที่ 30</option><option value="431">วันที่ 31</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="sel-day">2. วันเกิด</label>
+                <select id="sel-day" required aria-describedby="app-error">
+                    <option value="" disabled selected>-- เลือกวัน --</option>
+                    <option value="101">วันอาทิตย์ (1)</option>
+                    <option value="102">วันจันทร์ (2)</option>
+                    <option value="103">วันอังคาร (3)</option>
+                    <option value="104">วันพุธ (4)</option>
+                    <option value="105">วันพฤหัสบดี (5)</option>
+                    <option value="106">วันศุกร์ (6)</option>
+                    <option value="107">วันเสาร์ (7)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="sel-month">3. เดือนเกิด</label>
+                <select id="sel-month" required aria-describedby="app-error">
+                    <option value="" disabled selected>-- เลือกเดือน --</option>
+                    <option value="201">เดือน 1 (อ้าย) / ธันวาคม</option>
+                    <option value="202">เดือน 2 (ยี่) / มกราคม</option>
+                    <option value="203">เดือน 3 / กุมภาพันธ์</option>
+                    <option value="204">เดือน 4 / มีนาคม</option>
+                    <option value="205">เดือน 5 / เมษายน</option>
+                    <option value="206">เดือน 6 / พฤษภาคม</option>
+                    <option value="207">เดือน 7 / มิถุนายน</option>
+                    <option value="208">เดือน 8 / กรกฎาคม</option>
+                    <option value="209">เดือน 9 / สิงหาคม</option>
+                    <option value="210">เดือน 10 / กันยายน</option>
+                    <option value="211">เดือน 11 / ตุลาคม</option>
+                    <option value="212">เดือน 12 / พฤศจิกายน</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="sel-year">4. ปีนักษัตร</label>
+                <select id="sel-year" required aria-describedby="app-error">
+                    <option value="" disabled selected>-- เลือกปีนักษัตร --</option>
+                    <option value="301">ปี 1 / ชวด</option>
+                    <option value="302">ปี 2 / ฉลู</option>
+                    <option value="303">ปี 3 / ขาล</option>
+                    <option value="304">ปี 4 / เถาะ</option>
+                    <option value="305">ปี 5 / มะโรง</option>
+                    <option value="306">ปี 6 / มะเส็ง</option>
+                    <option value="307">ปี 7 / มะเมีย</option>
+                    <option value="308">ปี 8 / มะแม</option>
+                    <option value="309">ปี 9 / วอก</option>
+                    <option value="310">ปี 10 / ระกา</option>
+                    <option value="311">ปี 11 / จอ</option>
+                    <option value="312">ปี 12 / กุน</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="birth-be-year">5. ปี พ.ศ. เกิด</label>
+                <input type="number" id="birth-be-year" aria-describedby="app-error" placeholder="ตัวอย่าง 2533" min="2400" max="2600">
+            </div>
+            <div class="input-group" id="age-cycle-setting-group">
+                <label for="sel-age-mode">6. โหมดแสดงอายุ</label>
+                <select id="sel-age-mode">
+                    <option value="12" selected>แสดงเต็มรอบ (12 ปี)</option>
+                    <option value="1">แสดง 1 ปี (ปัจจุบัน)</option>
+                    <option value="2">แสดง 2 ปี (ปัจจุบัน + 1)</option>
+                    <option value="3">แสดง 3 ปี (ปัจจุบัน + 2)</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="sel-zodiac-row">7. แสดงปีนักษัตร</label>
+                <select id="sel-zodiac-row">
+                    <option value="12" selected>แสดงเต็มรอบ (12 ปี)</option>
+                    <option value="1">แสดง 1 ปี (ปีถัดไป)</option>
+                    <option value="2">แสดง 2 ปี (ถัดไปอีก 2 ปี)</option>
+                    <option value="3">แสดง 3 ปี (ถัดไปอีก 3 ปี)</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="sel-taksa">8. สัญลักษณ์ทักษาจร</label>
+                <select id="sel-taksa">
+                    <option value="1" selected>✅ เปิดแสดง (ศรี/กาลี)</option>
+                    <option value="0">❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+            <div class="input-group" id="timeline-setting-group">
+                <label for="sel-timeline">9. แสดง Timeline 84 ปี</label>
+                <select id="sel-timeline">
+                    <option value="1">✅ เปิดแสดง</option>
+                    <option value="0" selected>❌ ปิดการแสดงผล</option>
+                </select>
+            </div>
+                <div class="input-group input-action-group">
+                    <label aria-hidden="true">&nbsp;</label>
+                    <button class="btn-calc" onclick="generateAndRender()">ประมวลผล</button>
+                </div>
+            </div>
+
+            <div id="save-area" class="save-controls">
+                <div class="main-view-mode-switch" role="group" aria-label="เลือกรูปแบบแผนผัง">
+                    <button type="button" class="main-view-mode-button is-active" data-main-view-mode="combined" aria-pressed="true" onclick="setMainViewMode('combined')">รวมระบบ</button>
+                    <button type="button" class="main-view-mode-button" data-main-view-mode="seven" aria-pressed="false" onclick="setMainViewMode('seven')">เลข 7 ตัว</button>
+                </div>
+                <div class="layout-scale-control">
+                    <label class="layout-scale-label" for="main-layout-scale">ขนาดแผนผัง</label>
+                    <select id="main-layout-scale" class="layout-scale-select" onchange="setMainBoardScale(this.value)" aria-label="ขนาดกระดานหลัก">
+                        <option value="70">70%</option>
+                        <option value="80">80%</option>
+                        <option value="90">90%</option>
+                        <option value="100" selected>100%</option>
+                    </select>
+                </div>
+                <button class="btn-save btn-save-image" onclick="saveAsImage()">บันทึกภาพ</button>
+                <button class="btn-save btn-reset-row" onclick="resetSelectedAge()">อายุปัจจุบัน</button>
+                <button class="btn-save btn-db" onclick="saveToDatabase()">บันทึก Google Sheet</button>
+                <button class="btn-save btn-graph12" onclick="openGraph12View()">ฐานกราฟ12ใบ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="board-wrapper" id="main-wrapper" role="region" aria-label="แผนผัง เลื่อนแนวนอนเพื่อดูครบทุกตำแหน่ง" tabindex="0">
+        <div id="export-area" class="export-container scaled-layout-target">
+            <div class="grid-board" id="main-board"></div>
+        </div>
+    </div>
+</main>
+
+<section id="graph12-view" class="graph12-view" hidden aria-labelledby="graph12-title">
+    <div class="graph12-toolbar" data-html2canvas-ignore="true">
+        <button type="button" class="graph12-action-button graph12-back-button" onclick="closeGraph12View()">กลับกระดานหลัก</button>
+
+        <div class="graph12-toolbar-group" aria-label="ตัวกรองสถานะไพ่">
+            <span class="graph12-toolbar-label">กรองไพ่</span>
+            <button type="button" class="graph12-filter-button good" data-graph12-filter="good" onclick="filterGraph12Cards('good')" aria-pressed="false">ดี</button>
+            <button type="button" class="graph12-filter-button bad" data-graph12-filter="bad" onclick="filterGraph12Cards('bad')" aria-pressed="false">ร้าย</button>
+            <button type="button" class="graph12-filter-button reset is-active" data-graph12-filter="reset" onclick="filterGraph12Cards('reset')" aria-pressed="true">ทั้งหมด</button>
+        </div>
+
+        <div class="graph12-toolbar-group" id="graph12-day-controls" aria-label="เลือกวันสำหรับดูความสัมพันธ์">
+            <span class="graph12-toolbar-label">ความสัมพันธ์ตามวัน</span>
+            <button type="button" class="graph12-day-button" data-graph12-day="Sun" style="background:#c00000;" onclick="setGraph12Day('Sun')" aria-label="วันอาทิตย์" aria-pressed="false">อา</button>
+            <button type="button" class="graph12-day-button" data-graph12-day="Mon" style="background:#d4ac0d; color:#17202a;" onclick="setGraph12Day('Mon')" aria-label="วันจันทร์" aria-pressed="false">จ</button>
+            <button type="button" class="graph12-day-button" data-graph12-day="Tue" style="background:#e67e22;" onclick="setGraph12Day('Tue')" aria-label="วันอังคาร" aria-pressed="false">อ</button>
+            <button type="button" class="graph12-day-button" data-graph12-day="Wed" style="background:#229954;" onclick="setGraph12Day('Wed')" aria-label="วันพุธ" aria-pressed="false">พ</button>
+            <button type="button" class="graph12-day-button" data-graph12-day="Thu" style="background:#7d6608;" onclick="setGraph12Day('Thu')" aria-label="วันพฤหัสบดี" aria-pressed="false">พฤ</button>
+            <button type="button" class="graph12-day-button" data-graph12-day="Fri" style="background:#2471a3;" onclick="setGraph12Day('Fri')" aria-label="วันศุกร์" aria-pressed="false">ศ</button>
+            <button type="button" class="graph12-day-button" data-graph12-day="Sat" style="background:#8e44ad;" onclick="setGraph12Day('Sat')" aria-label="วันเสาร์" aria-pressed="false">ส</button>
+        </div>
+
+        <button type="button" class="graph12-action-button graph12-age-toggle" id="graph12-age-toggle" onclick="toggleGraph12AgeVisibility()" aria-pressed="true" title="ปิดการแสดงอายุบนไพ่">อายุ</button>
+        <div class="layout-scale-control">
+            <label class="layout-scale-label" for="graph12-layout-scale">ขนาดแผนผัง</label>
+            <select id="graph12-layout-scale" class="layout-scale-select" onchange="setGraph12LayoutScale(this.value)" aria-label="ขนาดฐานกราฟ12ใบ">
+                <option value="fit" selected>พอดีหน้าจอ</option>
+                <option value="70">70%</option>
+                <option value="80">80%</option>
+                <option value="90">90%</option>
+                <option value="100">100%</option>
+            </select>
+        </div>
+        <button type="button" class="graph12-action-button graph12-save-button" id="graph12-save-button" onclick="saveGraph12AsImage()">บันทึกเป็นภาพ</button>
+    </div>
+
+    <div id="graph12-capture-wrapper" class="graph12-capture-wrapper" role="region" aria-label="แผนผังฐานกราฟ 12 ใบ" tabindex="0">
+        <div id="graph12-capture" class="graph12-capture scaled-layout-target">
+            <h2 id="graph12-title" class="graph12-title" tabindex="-1">ฐานกราฟ12ใบ</h2>
+            <p id="graph12-caption" class="graph12-caption"></p>
+            <div id="graph12-age-controls" class="graph12-age-controls" aria-label="เลือกอายุสำหรับฐานกราฟ12ใบ"></div>
+            <div id="graph12-card-viewport"><div id="graph12-card-area" class="graph12-layout" aria-live="polite"></div></div>
+            <p style="font-size:12px; color:#a6acaf; margin:28px 0 0; font-weight:700;">พรหมญาณพยากรณ์ โดย หมอวิทยา ธรรมนาย</p>
+        </div>
+    </div>
+</section>
+
+</div><!-- owner-app -->
+<script defer src="promyan-v9.7/js/config.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/data.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/state.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/core.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/layout.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/board.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/scores.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/highlights.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/graph12.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/export.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/accessibility.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/save.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/auth.js?v=9.7-graph12-fit-1"></script>
+<script defer src="promyan-v9.7/js/bootstrap.js?v=9.7-graph12-fit-1"></script>
+</body>
+</html>

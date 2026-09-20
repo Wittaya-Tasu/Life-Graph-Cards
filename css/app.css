@@ -720,3 +720,19 @@
             .card-item[aria-pressed="true"] { outline:4px double Highlight !important; }
         }
     
+/* V9.7: fit the four card rows to the desktop viewport without shrinking ages. */
+#graph12-card-area { transform-origin: top center; }
+.graph12-capture.is-fit-screen { padding: 10px 18px; }
+.graph12-capture.is-fit-screen .graph12-title { font-size: 1.6rem; }
+.graph12-capture.is-fit-screen .graph12-caption { font-size: 1rem; margin: 2px 0 8px; }
+.graph12-capture.is-fit-screen .graph12-age-controls { margin-bottom: 6px; }
+.graph12-capture.is-fit-screen #graph12-card-viewport { overflow: clip; padding-top: 12px; box-sizing: border-box; }
+.graph12-capture.is-fit-screen > p:last-child { margin-top: 6px !important; }
+
+.graph12-view .graph12-toolbar { gap: 8px; padding: 10px; margin-bottom: 10px; }
+.graph12-view .graph12-toolbar-group { gap: 6px; }
+.graph12-view .graph12-action-button { padding: 9px 12px; font-size: 0.9rem; }
+.graph12-view .graph12-toolbar-label { font-size: 0.85rem; }
+.graph12-capture.is-fit-screen .graph12-card .pos-label {
+    font-size: calc(10px / var(--graph12-fit-scale, 1)); line-height: 1.2;
+}

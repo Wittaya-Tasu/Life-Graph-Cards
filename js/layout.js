@@ -63,16 +63,54 @@
     }
 
     function setGraph12LayoutScale(value) {
-        graph12LayoutScale = normalizeLayoutScale(value);
+        graph12LayoutScale = value === 'fit' ? 'fit' : normalizeLayoutScale(value);
         const control = document.getElementById('graph12-layout-scale');
         if (control) control.value = String(graph12LayoutScale);
-        applyScaledLayout('graph12-capture', 'graph12-capture-wrapper', graph12LayoutScale);
+        applyGraph12LayoutScale();
+    }
+
+    // Fit only the four card rows; title and age controls retain readable sizes.
+    function applyGraph12LayoutScale() {
+        const view = document.getElementById('graph12-view');
+        const capture = document.getElementById('graph12-capture');
+        if (!view || view.hidden || capture.hasAttribute('aria-busy')) return;
+        const area = document.getElementById('graph12-card-area');
+        const viewport = document.getElementById('graph12-card-viewport');
+        const fit = graph12LayoutScale === 'fit';
+        capture.classList.toggle('is-fit-screen', fit);
+        area.style.transform = 'none';
+        area.style.setProperty('--graph12-fit-scale', '1');
+        viewport.style.height = '';
+        applyScaledLayout('graph12-capture', 'graph12-capture-wrapper', fit ? 100 : graph12LayoutScale);
+        if (!fit || !area.offsetHeight) return;
+
+        // Document coordinates avoid changing the scale when the user scrolls.
+        const top = viewport.getBoundingClientRect().top + window.scrollY;
+        const footer = capture.lastElementChild;
+        const footerStyle = getComputedStyle(footer);
+        const bottomSpace = footer.offsetHeight + parseFloat(footerStyle.marginTop)
+            + parseFloat(getComputedStyle(capture).paddingBottom)
+            + parseFloat(getComputedStyle(view).paddingBottom) + 14;
+        const available = Math.max(80, window.innerHeight - top - bottomSpace);
+        // Leave room for focus outlines, link badges and highlighted card growth.
+        // Labels stay at a readable screen size. Solve the scale including their height.
+        let low = 0.01, high = 1;
+        for (let step = 0; step < 12; step++) {
+            const candidate = (low + high) / 2;
+            area.style.setProperty('--graph12-fit-scale', String(candidate));
+            if (area.offsetHeight * candidate <= available - 24) low = candidate;
+            else high = candidate;
+        }
+        const scale = low;
+        area.style.setProperty('--graph12-fit-scale', String(scale));
+        area.style.transform = `scale(${scale})`;
+        viewport.style.height = `${Math.ceil(area.offsetHeight * scale) + 24}px`;
     }
 
     function refreshLayoutScales() {
         layoutScaleRenderFrame = null;
         applyScaledLayout('export-area', 'main-wrapper', mainBoardScale);
-        applyScaledLayout('graph12-capture', 'graph12-capture-wrapper', graph12LayoutScale);
+        applyGraph12LayoutScale();
         scheduleGraphDiagonalGuides();
         scheduleSevenPairRelationships();
     }
@@ -85,12 +123,19 @@
     function prepareFullScaleCapture(targetId, wrapperId, displayScale) {
         const target = document.getElementById(targetId);
         if (!target) return () => {};
+        const graphCapture = targetId === 'graph12-capture';
+        if (graphCapture) {
+            target.classList.remove('is-fit-screen');
+            document.getElementById('graph12-card-area').style.transform = 'none';
+            document.getElementById('graph12-card-viewport').style.height = '';
+        }
         const previousInlineTransition = target.style.transition;
         target.style.transition = 'none';
         applyScaledLayout(targetId, wrapperId, 100);
         void target.offsetHeight;
         return () => {
-            applyScaledLayout(targetId, wrapperId, displayScale);
+            if (graphCapture) applyGraph12LayoutScale();
+            else applyScaledLayout(targetId, wrapperId, displayScale);
             void target.offsetHeight;
             target.style.transition = previousInlineTransition;
             scheduleLayoutScaleRefresh();

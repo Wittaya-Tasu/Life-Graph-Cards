@@ -15,7 +15,7 @@
     let activeSevenStrengthResults = new Map();
     let allSevenStrengthResults = new Map();
     let mainBoardScale = 100;
-    let graph12LayoutScale = 100;
+    let graph12LayoutScale = 'fit';
     let layoutScaleRenderFrame = null;
     let mainViewMode = "combined";
 

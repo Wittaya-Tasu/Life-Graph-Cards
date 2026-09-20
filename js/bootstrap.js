@@ -30,6 +30,7 @@
 
     window.addEventListener('resize', scheduleGraphDiagonalGuides);
     if (document.fonts?.ready) document.fonts.ready.then(() => {
+        scheduleLayoutScaleRefresh();
         scheduleGraphDiagonalGuides();
         scheduleSevenPairRelationships();
     });
